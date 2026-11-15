@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { SCREENS, SCREEN_BY_ID, type ScreenId } from '@/features/app-screens'
+import { FloatingBack, SCREENS, SCREEN_BY_ID, type ScreenId } from '@/features/app-screens'
 import { cn } from '@/lib/cn'
 import PhoneFrame from './PhoneFrame'
 import styles from './DemoPlayer.module.css'
@@ -19,7 +19,7 @@ const START: ScreenId = 'splash'
 /**
  * 시연 플레이어: 폰 안에서 직접 눌러 흐름대로 이동하거나,
  * 오른쪽 목록에서 원하는 화면으로 바로 점프.
- * 폰 위 플로팅 바: 뒤로 / 처음부터.
+ * 자체 뒤로 버튼이 없는 화면에는 앱 화면 안에 플로팅 뒤로가기를 띄운다.
  */
 export default function DemoPlayer() {
   const [nav, setNav] = useState<Nav>({ current: START, history: [], nonce: 0 })
@@ -48,25 +48,15 @@ export default function DemoPlayer() {
   const meta = SCREEN_BY_ID[nav.current]
   const { Component } = meta
   const index = SCREENS.findIndex((s) => s.id === nav.current)
-  const canBack = nav.history.length > 0
 
   return (
     <div className={styles.root}>
-      <div className={styles.stage}>
-        {/* 플로팅 바: 폰 화면 디자인을 가리지 않도록 폰 바깥 위에 */}
-        <div className={styles.toolbar}>
-          <button type="button" className={styles.tool} onClick={back} disabled={!canBack}>
-            <span aria-hidden>←</span> 뒤로
-          </button>
-          <span className={styles.where}>{meta.title}</span>
-          <button type="button" className={styles.tool} onClick={restart}>
-            <span aria-hidden>↻</span> 처음부터
-          </button>
-        </div>
-        <PhoneFrame>
+      <PhoneFrame>
+        <div className={styles.screen}>
           <Component key={nav.nonce} go={go} back={back} toast={nav.toast} />
-        </PhoneFrame>
-      </div>
+          {meta.floatingBack && <FloatingBack key={`b-${nav.nonce}`} onClick={back} {...meta.floatingBack} />}
+        </div>
+      </PhoneFrame>
 
       <div className={styles.side}>
         <p className={styles.step}>
@@ -107,6 +97,9 @@ export default function DemoPlayer() {
             다음 화면
           </button>
         </div>
+        <button type="button" className={styles.restart} onClick={restart}>
+          ↻ 처음부터 다시
+        </button>
         <p className={styles.hint}>폰 화면 안의 버튼·카드·탭도 모두 눌러 보세요.</p>
       </div>
     </div>
