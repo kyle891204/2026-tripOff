@@ -69,3 +69,7 @@
 .light .icons img {
   filter: brightness(0) invert(1);
 }
+
+@media (max-width: 767px) {
+  .bar { display: none; }
+}
