@@ -6,8 +6,8 @@ import Screen from '../parts/Screen'
 import { IconWallet } from '../parts/icons'
 import shared from '../parts/shared.module.css'
 import { useToast } from '../parts/useToast'
-import { ME, isVisible, type Plan, type PlanIcon as Kind, type Trip } from '../mock'
-import { allTrips, setDemoState, useDemoState } from '../store'
+import { ME, type Plan, type PlanIcon as Kind, type Trip } from '../mock'
+import { allTrips, setDemoState, tripPlans, useDemoState } from '../store'
 import type { ScreenProps } from '../types'
 import styles from './HomeScreen.module.css'
 
@@ -31,7 +31,6 @@ const UPCOMING: Array<{ icon: Kind; title: string; when: string; kind: string }>
  */
 export default function HomeScreen({ go }: ScreenProps) {
   const demo = useDemoState()
-  const { saved } = demo
   const trips = allTrips(demo)
   const [toast, showToast] = useToast()
   const [slide, setSlide] = useState(0)
@@ -63,7 +62,7 @@ export default function HomeScreen({ go }: ScreenProps) {
           <TripCard
             key={trip.id}
             trip={trip}
-            plans={trip.plans.filter((p) => isVisible(p, !!saved[trip.id]))}
+            plans={tripPlans(trip, demo)}
             onOpen={(day) => openTrip(trip, day)}
             onMembers={() => {
               setDemoState({ tripId: trip.id })
@@ -89,7 +88,7 @@ export default function HomeScreen({ go }: ScreenProps) {
             type="button"
             role="tab"
             aria-selected={i === slide}
-            aria-label={`${t.city} 여행`}
+            aria-label={t.name}
             className={cn(styles.dot, i === slide && styles.dotOn)}
             onClick={() => goSlide(i)}
           />
@@ -154,7 +153,7 @@ function TripCard({ trip, plans, onOpen, onMembers }: CardProps) {
             type="button"
             className={cn(styles.card, shared.tappable)}
             onClick={() => onOpen(plans[index]?.day ?? 0)}
-            aria-label={`${trip.city} 여행 일정 보기`}
+            aria-label={`${trip.name} 일정 보기`}
           >
             <span className={styles.cardCircle} aria-hidden />
 
@@ -175,7 +174,7 @@ function TripCard({ trip, plans, onOpen, onMembers }: CardProps) {
               <IconWallet />
             </span>
             <span className={styles.dday}>{trip.dday}</span>
-            <span className={styles.city}>{trip.city}</span>
+            <span className={cn(styles.city, trip.name.length > 5 && styles.cityLong, trip.name.length > 9 && styles.cityXLong)}>{trip.name}</span>
             <span className={styles.period}>{trip.period}</span>
             {!empty && (
               <span className={styles.count}>
@@ -190,7 +189,7 @@ function TripCard({ trip, plans, onOpen, onMembers }: CardProps) {
       </div>
 
       {/* 카드 버튼 안에 버튼을 중첩할 수 없어서 형제로 겹쳐 둠 */}
-      <button type="button" className={cn(styles.members, shared.tappable)} aria-label={`${trip.city} 여행 함께 가는 사람`} onClick={onMembers}>
+      <button type="button" className={cn(styles.members, shared.tappable)} aria-label={`${trip.name} 함께 가는 사람`} onClick={onMembers}>
         {trip.members.map((m) => (
           <Avatar
             key={m.name}

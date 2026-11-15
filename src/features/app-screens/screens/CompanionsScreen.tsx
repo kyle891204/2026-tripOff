@@ -4,7 +4,7 @@ import Screen from '../parts/Screen'
 import { IconBack } from '../parts/icons'
 import shared from '../parts/shared.module.css'
 import { useToast } from '../parts/useToast'
-import { useCurrentTrip } from '../store'
+import { getDemoState, setDemoState, useCurrentTrip, useDemoState } from '../store'
 import type { ScreenProps } from '../types'
 import styles from './CompanionsScreen.module.css'
 
@@ -34,6 +34,12 @@ const BY_TRIP: Record<string, { perPerson: string; link: string; costs: Array<{ 
 export default function CompanionsScreen({ back }: ScreenProps) {
   const [toast, showToast] = useToast()
   const trip = useCurrentTrip()
+  const share = !!useDemoState().shareTickets[trip.id]
+  const toggleShare = () => {
+    const next = !share
+    setDemoState({ shareTickets: { ...getDemoState().shareTickets, [trip.id]: next } })
+    showToast(next ? '이 여행에서는 동행끼리 티켓을 함께 볼 수 있어요' : '이제 각자 자기 티켓만 보여요')
+  }
   // 새로 만든 여행: 아직 정산할 비용 없음
   const { perPerson, link, costs } = BY_TRIP[trip.id] ?? { perPerson: '₩0', link: `tripoff.app/j/${trip.id.slice(-4).toUpperCase()}`, costs: [] }
   
@@ -53,7 +59,7 @@ export default function CompanionsScreen({ back }: ScreenProps) {
       </button>
 
       <p className={styles.trip}>
-        {trip.city} 여행 · {trip.period}
+        {trip.name} · {trip.period}
       </p>
       <h1 className={styles.title}>함께 가는 사람</h1>
 
@@ -64,7 +70,7 @@ export default function CompanionsScreen({ back }: ScreenProps) {
               type="button"
               className={cn(styles.personBtn, shared.tappable)}
               onClick={() =>
-                showToast(m.pending ? `${m.name}님에게 초대 알림을 다시 보냈어요` : m.me ? '내 티켓은 나만 볼 수 있어요' : `${m.name}님 티켓은 ${m.name}님 앱에서만 보여요`)
+                showToast(m.pending ? `${m.name}님에게 초대 알림을 다시 보냈어요` : share ? `${m.name}님 티켓을 함께 보고 있어요` : m.me ? '내 티켓은 나만 볼 수 있어요' : `${m.name}님 티켓은 ${m.name}님 앱에서만 보여요`)
               }
             >
             <Avatar
@@ -110,10 +116,25 @@ export default function CompanionsScreen({ back }: ScreenProps) {
 
       <button
         type="button"
-        className={cn(shared.cta, shared.ctaInk, shared.tappable)}
-        onClick={() => showToast(`${trip.city} 여행 초대 링크를 카카오톡으로 보냈어요`)}
+        role="switch"
+        aria-checked={share}
+        className={cn(styles.share, shared.tappable)}
+        onClick={toggleShare}
+        disabled={trip.members.length < 2}
       >
-        {trip.city} 여행에 초대하기
+        <span className={styles.shareText}>
+          <strong>동행 티켓 함께 보기</strong>
+          <span>{trip.members.length < 2 ? '동행을 초대하면 켤 수 있어요' : '켜면 이 여행에서는 서로의 티켓을 볼 수 있어요'}</span>
+        </span>
+        <span className={cn(styles.switch, share && styles.switchOn)} aria-hidden />
+      </button>
+
+      <button
+        type="button"
+        className={cn(shared.cta, shared.ctaInk, shared.tappable)}
+        onClick={() => showToast(`「${trip.name}」 초대 링크를 카카오톡으로 보냈어요`)}
+      >
+        이 여행에 초대하기
       </button>
 
       {toast}

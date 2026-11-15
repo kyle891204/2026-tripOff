@@ -51,6 +51,14 @@ export interface Plan {
   to?: ScreenId
   /** 「바우처 추가」 시연 샘플로 저장되는 일정. 오사카는 원래 보임(Figma), 제주는 저장해야 나타남 */
   sample?: 'always' | 'after-save'
+  /**
+   * 바우처 상태. 기본은 첨부됨.
+   * 'missing' = 여행사가 일정만 보내고 바우처는 안 보냄 → 사용자가 직접 등록
+   */
+  voucher?: 'missing'
+  /** 사용자가 고친 바우처 값 (없으면 자동 생성) */
+  code?: string
+  people?: string
 }
 
 export interface TripDay {
@@ -73,7 +81,11 @@ export interface SampleVoucher {
 
 export interface Trip {
   id: string
-  city: string
+  /** 여행 이름 (사용자가 정함. 예: 오사카, 도쿄 먹방 여행) */
+  name: string
+  /** 여행 기간 (YYYY-MM-DD) */
+  startIso: string
+  endIso: string
   period: string
   /** 카드 상단 월 표기 (예: 6.12 금) */
   month: number
@@ -90,7 +102,9 @@ export interface Trip {
 export const TRIPS: Trip[] = [
   {
     id: 'osaka',
-    city: '오사카',
+    name: '오사카',
+    startIso: '2026-06-12',
+    endIso: '2026-06-15',
     period: '6.12 금 ~ 6.15 월',
     month: 6,
     dday: 'D-5',
@@ -130,7 +144,9 @@ export const TRIPS: Trip[] = [
   },
   {
     id: 'jeju',
-    city: '제주',
+    name: '제주',
+    startIso: '2026-06-26',
+    endIso: '2026-06-28',
     period: '6.26 금 ~ 6.28 일',
     month: 6,
     dday: 'D-19',
@@ -153,6 +169,10 @@ export const TRIPS: Trip[] = [
         source: { kind: 'agency', name: PARTNER_COMPANY_NAME }, note: '성산항 2번 창구', to: 'ticket',
       },
       { id: 'j5', day: 1, time: '15:00', title: '카멜리아힐', icon: 'ticket', source: { kind: 'self', via: 'Klook' }, note: '내 QR', sample: 'after-save' },
+      {
+        id: 'j7', day: 2, time: '03:30', title: '한라산 일출 가이드', icon: 'ticket',
+        source: { kind: 'agency', name: PARTNER_COMPANY_NAME }, note: '성판악 탐방안내소', voucher: 'missing',
+      },
       { id: 'j6', day: 2, time: '17:40', title: '제주 → 김포', icon: 'plane', source: { kind: 'self', via: '항공사 직접 예약' } },
     ],
     sample: {
@@ -186,11 +206,11 @@ function parseDate(iso: string) {
 const fmt = (d: Date) => `${d.getMonth() + 1}.${d.getDate()} ${DOW[d.getDay()]}`
 
 /** 새 여행에 붙는 「바우처 추가」 시연 샘플 */
-function genericSample(city: string, first: Date): SampleVoucher {
+function genericSample(first: Date): SampleVoucher {
   return {
     provider: 'Klook',
-    title: `${city} 시티 투어`,
-    file: `${city}_시티투어.pdf`,
+    title: '시티 워킹 투어',
+    file: '시티워킹투어_바우처.pdf',
     date: fmt(first),
     wrongTime: '02:00',
     time: '10:00',
@@ -200,8 +220,8 @@ function genericSample(city: string, first: Date): SampleVoucher {
   }
 }
 
-/** 입력한 도시·날짜로 빈 여행 만들기 (일정은 바우처를 추가하며 채움) */
-export function makeTrip(city: string, startIso: string, endIso: string, order: number): Trip {
+/** 입력한 여행 이름·날짜로 빈 여행 만들기 (일정은 바우처를 추가하며 채움) */
+export function makeTrip(name: string, startIso: string, endIso: string, order: number): Trip {
   const start = parseDate(startIso)
   const end = parseDate(endIso < startIso ? startIso : endIso)
   const count = Math.min(14, Math.round((end.getTime() - start.getTime()) / DAY_MS) + 1)
@@ -210,10 +230,12 @@ export function makeTrip(city: string, startIso: string, endIso: string, order: 
     return { dow: DOW[d.getDay()], date: d.getDate() }
   })
   const dday = Math.round((start.getTime() - parseDate(DEMO_TODAY).getTime()) / DAY_MS)
-  const sample = genericSample(city, start)
+  const sample = genericSample(start)
   return {
     id: `trip-${start.getTime()}-${order}`,
-    city,
+    name,
+    startIso,
+    endIso: endIso < startIso ? startIso : endIso,
     period: `${fmt(start)} ~ ${fmt(end)}`,
     month: start.getMonth() + 1,
     dday: dday > 0 ? `D-${dday}` : dday === 0 ? 'D-DAY' : '여행 중',
@@ -246,4 +268,40 @@ export function sourceLine(p: Plan) {
 /** 일정이 지금 보여야 하는지 (제주 샘플은 저장 후에만) */
 export function isVisible(p: Plan, saved: boolean) {
   return p.sample !== 'after-save' || saved
+}
+
+/* ------------------------------ 바우처 ------------------------------ */
+
+/** 일정에 붙은 바우처 내용 (상세·수정 화면에서 표시) */
+export interface VoucherInfo {
+  provider: string
+  title: string
+  file: string
+  date: string
+  time: string
+  code: string
+  people: string
+  qrValue: string
+}
+
+/** 일정 → 바우처 내용 (시연용으로 일정 정보에서 만들어 냄) */
+export function voucherOf(plan: Plan, trip: Trip): VoucherInfo {
+  const day = trip.days[plan.day]
+  const provider = plan.source.kind === 'agency' ? plan.source.name : plan.source.via
+  const short = plan.id.toUpperCase().replace(/[^A-Z0-9]/g, '')
+  return {
+    provider,
+    title: plan.title,
+    file: `${plan.title.replace(/\s+/g, '_')}_바우처.pdf`,
+    date: `${trip.month}.${day.date} ${day.dow}`,
+    time: plan.time,
+    code: plan.code ?? `DEMO-${short}-${trip.month}${String(day.date).padStart(2, '0')}`,
+    people: plan.people ?? '성인 1매',
+    qrValue: `TRIPOFF-DEMO-${trip.id}-${plan.id}`,
+  }
+}
+
+/** 출처 사람이 읽는 표현: 「제주로드트립에서 보낸 일정」 / 「Klook 예약 · 내가 추가」 */
+export function sourceLabel(plan: Plan) {
+  return plan.source.kind === 'agency' ? `${plan.source.name}에서 보낸 일정` : `${plan.source.via} · 내가 추가`
 }

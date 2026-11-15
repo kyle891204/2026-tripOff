@@ -172,3 +172,40 @@
   font-size: 13px;
   color: var(--ink-muted);
 }
+
+/* 텍스트처럼 보이다가 누르면 고칠 수 있는 칸 */
+.inline {
+  width: 190px;
+  margin: 0;
+  padding: 2px 4px;
+  border: 0;
+  border-bottom: 1.5px dashed transparent;
+  border-radius: 0;
+  background: none;
+  font: inherit;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+  text-align: right;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.inline:hover {
+  border-bottom-color: var(--line);
+}
+
+.inline:focus {
+  border-bottom-color: var(--teal);
+}
+
+/* 제목 칸은 h1 크기·왼쪽 정렬 그대로 */
+.title.inline {
+  display: block;
+  width: 353px;
+  margin-top: 7px;
+  padding: 0;
+  font-size: 28px;
+  line-height: 34px;
+  text-align: left;
+}

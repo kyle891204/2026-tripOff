@@ -3,6 +3,7 @@ export type ScreenId =
   | 'home'
   | 'add-trip'
   | 'timeline'
+  | 'plan'
   | 'add-voucher'
   | 'review'
   | 'trip-home'

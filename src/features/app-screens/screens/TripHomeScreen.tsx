@@ -5,6 +5,7 @@ import { IconAirplaneSmall, IconBus, IconShip } from '../parts/icons'
 import shared from '../parts/shared.module.css'
 import { useToast } from '../parts/useToast'
 import { ME, NEXT_ENTRY } from '../mock'
+import { setDemoState } from '../store'
 import type { ScreenProps } from '../types'
 import styles from './TripHomeScreen.module.css'
 
@@ -31,7 +32,10 @@ export default function TripHomeScreen({ go }: ScreenProps) {
       <p className={styles.eta}>30분 후</p>
       <h1 className={styles.title}>{NEXT_ENTRY.title}</h1>
 
-      <button type="button" className={cn(styles.qrCard, shared.tappable)} onClick={() => go('ticket')} aria-label="티켓 크게 보기">
+      <button type="button" className={cn(styles.qrCard, shared.tappable)} onClick={() => {
+          setDemoState({ planId: undefined })
+          go('ticket')
+        }} aria-label="티켓 크게 보기">
         <span className={styles.qrBox}>
           <QrCode value={NEXT_ENTRY.qrValue} size={257} />
         </span>

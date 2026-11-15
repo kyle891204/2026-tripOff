@@ -145,3 +145,28 @@
   color: var(--teal);
   cursor: pointer;
 }
+
+/* 동행 티켓 함께 보기 켠 여행: 사람별 점 */
+.dots {
+  position: absolute;
+  top: 566px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line);
+  cursor: pointer;
+}
+
+.dotOn {
+  width: 22px;
+  border-radius: 4px;
+  background: var(--ink);
+}

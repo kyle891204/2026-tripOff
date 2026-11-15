@@ -5,8 +5,8 @@ import PlanIcon from '../parts/PlanIcon'
 import Screen from '../parts/Screen'
 import shared from '../parts/shared.module.css'
 import { useToast } from '../parts/useToast'
-import { isVisible, sourceLine, type Plan } from '../mock'
-import { setDemoState, useCurrentTrip, useDemoState } from '../store'
+import { sourceLine, type Plan } from '../mock'
+import { hasVoucher, setDemoState, tripPlans, useCurrentTrip, useDemoState } from '../store'
 import type { ScreenProps } from '../types'
 import styles from './TimelineScreen.module.css'
 
@@ -39,20 +39,25 @@ function layout(plans: Plan[]) {
 
 /** Figma 18:232 「타임라인」 — 선택한 여행의 일정. 여행사 일정은 배지로 구분 */
 export default function TimelineScreen({ go, toast: initialToast, overlay }: Props) {
-  const { dayIndex, saved } = useDemoState()
+  const demo = useDemoState()
+  const { dayIndex, saved } = demo
   const trip = useCurrentTrip()
   const [toast, showToast] = useToast(initialToast)
   const dayIdx = Math.min(dayIndex, trip.days.length - 1)
 
-  const plans = trip.plans.filter((p) => p.day === dayIdx && isVisible(p, !!saved[trip.id]))
+  const plans = tripPlans(trip, demo).filter((p) => p.day === dayIdx)
   const { cards, addTop } = layout(plans)
 
-  const open = (p: Plan) => (p.to ? go(p.to) : showToast(`${p.title} 원본 바우처 화면은 디자인 준비 중이에요`))
+  /** 모든 일정 → 일정 상세 (바우처 보기·수정·등록) */
+  const open = (p: Plan) => {
+    setDemoState({ planId: p.id })
+    go('plan')
+  }
 
   return (
     <Screen bg="var(--mist)" label="타임라인">
       <header className={styles.header}>
-        <h1 className={styles.title}>{trip.city}</h1>
+        <h1 className={styles.title} title={trip.name}>{trip.name}</h1>
         <div className={styles.headerActions}>
           <button type="button" className={cn(styles.members, shared.tappable)} aria-label="함께 가는 사람" onClick={() => go('companions')}>
             {trip.members.map((m) => (
@@ -104,6 +109,7 @@ export default function TimelineScreen({ go, toast: initialToast, overlay }: Pro
                       <strong>{plan.title}</strong>
                       <span className={styles.sub}>
                         {justAdded && <em className={styles.justAdded}>방금 추가</em>}
+                        {!hasVoucher(plan, demo) && <em className={styles.noVoucher}>바우처 없음</em>}
                         <span className={styles.subText}>{sourceLine(plan)}</span>
                       </span>
                     </span>

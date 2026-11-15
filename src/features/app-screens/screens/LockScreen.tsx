@@ -6,6 +6,7 @@ import { IconAppLogo, IconCamera, IconFlash } from '../parts/icons'
 import shared from '../parts/shared.module.css'
 import { useToast } from '../parts/useToast'
 import { NEXT_ENTRY } from '../mock'
+import { setDemoState } from '../store'
 import type { ScreenProps } from '../types'
 import styles from './LockScreen.module.css'
 
@@ -22,7 +23,10 @@ export default function LockScreen({ go }: ScreenProps) {
       <p className={styles.date}>6월 12일 금요일</p>
       <p className={styles.clock}>13:30</p>
 
-      <button type="button" className={cn(styles.widget, shared.tappable)} onClick={() => go('ticket')}>
+      <button type="button" className={cn(styles.widget, shared.tappable)} onClick={() => {
+          setDemoState({ planId: undefined })
+          go('ticket')
+        }}>
         <span className={styles.logo}>
           <IconAppLogo />
         </span>

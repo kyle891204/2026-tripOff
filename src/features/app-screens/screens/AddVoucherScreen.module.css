@@ -78,11 +78,39 @@
   color: var(--ink-sub);
 }
 
-.note {
-  margin-top: 12px;
+.helpLink {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
   font-size: 13px;
-  color: var(--ink-muted);
+  color: var(--ink-sub);
   text-align: center;
+  cursor: pointer;
+}
+
+.helpLink strong {
+  color: var(--teal);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.subHead {
+  display: flex;
+  align-items: center;
+}
+
+.subBack {
+  margin: 20px 0 0 8px;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.subHead .title {
+  margin-left: 6px;
+}
+
+.helpBody {
+  margin: 14px 12px 0;
 }
 
 @keyframes up {

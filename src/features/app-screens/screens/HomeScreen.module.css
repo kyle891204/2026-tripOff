@@ -128,6 +128,23 @@
   font-weight: 700;
 }
 
+.cityLong {
+  top: 82px;
+  font-size: 30px;
+}
+
+/* 긴 이름은 두 줄까지 */
+.cityXLong {
+  top: 70px;
+  max-width: 190px;
+  font-size: 24px;
+  line-height: 30px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .period {
   position: absolute;
   left: 24px;
@@ -142,8 +159,9 @@
   display: flex;
 }
 
+/* 인원: 아바타를 겹쳐 쌓기 */
 .members > * + * {
-  margin-left: -2px;
+  margin-left: -9px;
 }
 
 .count {

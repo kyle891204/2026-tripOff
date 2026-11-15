@@ -1,0 +1,306 @@
+.head {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  top: 116px;
+}
+
+.source {
+  margin-top: 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--teal);
+}
+
+.title {
+  margin-top: 4px;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 32px;
+}
+
+.when {
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--ink-sub);
+}
+
+/* ---------- 바우처 카드 ---------- */
+.card {
+  position: absolute;
+  left: 20px;
+  top: 300px;
+  width: 353px;
+  padding: 20px;
+  border-radius: 24px;
+  background: #fff;
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cardHead h2 {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.tag {
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: var(--teal-soft);
+  color: var(--teal);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.voucher {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.qr {
+  flex: none;
+  padding: 8px;
+  border: 1.5px solid var(--line);
+  border-radius: 16px;
+}
+
+.qr svg {
+  display: block;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.fields div {
+  display: flex;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.fields dt {
+  width: 48px;
+  color: var(--ink-muted);
+}
+
+.fields dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+.missing {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 16px;
+  padding: 18px 16px;
+  border: 1.5px dashed var(--ink-muted);
+  border-radius: 16px;
+  background: var(--mist);
+}
+
+.missing strong {
+  font-size: 15px;
+}
+
+.missing span {
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--ink-sub);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.primary,
+.secondary {
+  flex: 1;
+  height: 48px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.primary {
+  background: var(--ink);
+  color: #fff;
+}
+
+.secondary {
+  background: var(--mist);
+  color: var(--ink);
+}
+
+/* ---------- 문의 ---------- */
+.help {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 60px;
+  font-size: 13px;
+  color: var(--ink-sub);
+  text-align: center;
+}
+
+.help strong {
+  color: var(--teal);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.dim {
+  position: absolute;
+  inset: 0;
+  background: var(--dim);
+  z-index: 3;
+  animation: fade 0.2s ease;
+}
+
+.sheet {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  padding: 0 20px 28px;
+  border-radius: 36px;
+  background: #fff;
+  z-index: 4;
+  animation: up 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.handle {
+  display: block;
+  width: 41px;
+  height: 5px;
+  margin: 12px auto 0;
+  border-radius: 999px;
+  background: var(--line);
+}
+
+.sheetTitle {
+  margin: 20px 0 6px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+@keyframes up {
+  from { transform: translateY(100%); }
+}
+
+@keyframes fade {
+  from { opacity: 0; }
+}
+
+/* ---------- 일정 수정 ---------- */
+.editBtn {
+  position: absolute;
+  right: 20px;
+  top: 70px;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 16px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.editBar {
+  position: absolute;
+  right: 20px;
+  top: 70px;
+  display: flex;
+  gap: 6px;
+}
+
+.editCancel,
+.editSave {
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.editCancel {
+  background: #fff;
+  color: var(--ink-sub);
+}
+
+.editSave {
+  background: var(--ink);
+  color: #fff;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.titleInput,
+.formRow input {
+  width: 100%;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  font: inherit;
+  color: var(--ink);
+  outline: none;
+}
+
+.titleInput {
+  height: 44px;
+  padding: 0 12px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.titleInput:focus,
+.formRow input:focus {
+  border-color: var(--teal);
+}
+
+.formRow {
+  display: flex;
+  gap: 8px;
+}
+
+.formRow label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--ink-muted);
+}
+
+.formRow input {
+  height: 40px;
+  padding: 0 10px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.grow {
+  flex: 1;
+}
+
+/* 수정 중엔 입력칸 높이만큼 아래로 */
+.cardLow {
+  top: 330px;
+}
