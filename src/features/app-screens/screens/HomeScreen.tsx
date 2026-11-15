@@ -6,7 +6,7 @@ import PlanIcon from '../parts/PlanIcon'
 import Screen from '../parts/Screen'
 import homeLogo from '@/assets/icons/ic-home-logo.svg'
 import shared from '../parts/shared.module.css'
-import { ME, type Plan, type PlanIcon as Kind, type Trip } from '../mock'
+import { ME, dateAt, type Plan, type PlanIcon as Kind, type Trip } from '../mock'
 import { allTrips, setDemoState, tripPlans, useDemoState } from '../store'
 import type { ScreenProps } from '../types'
 import styles from './HomeScreen.module.css'
@@ -16,12 +16,7 @@ const STEP = 64
 /** 여행 카드 가로 간격 (카드 353 + 간격 12) */
 const SLIDE = 365
 
-/** 다가오는 일정: Figma 그대로, 스크롤과 무관하게 고정 */
-const UPCOMING: Array<{ icon: Kind; title: string; when: string; kind: string }> = [
-  { icon: 'plane', title: '인천 → 간사이', when: '6.12 09:10', kind: '항공사' },
-  { icon: 'bus', title: '난바행 셔틀', when: '6.12 14:20', kind: '교통' },
-  { icon: 'bed', title: '호텔 한큐 리스파이어', when: '6.12 17:00', kind: '체크인' },
-]
+const KIND_LABEL: Record<Kind, string> = { plane: '항공', bus: '교통', bed: '숙소', ship: '크루즈', ticket: '입장권' }
 
 /**
  * Figma 17:75 「홈」
@@ -35,6 +30,12 @@ export default function HomeScreen({ go }: ScreenProps) {
   const trips = allTrips(demo)
   const [slide, setSlide] = useState(0)
   const trackRef = useRef<HTMLDivElement>(null)
+  const upcomingTrip = trips[slide]
+  const upcoming = upcomingTrip ? tripPlans(upcomingTrip, demo).slice(0, 3) : []
+  const openPlan = (trip: Trip, plan: Plan) => {
+    setDemoState({ tripId: trip.id, dayIndex: plan.day, planId: plan.id, voucherTarget: undefined, draft: undefined })
+    go('plan')
+  }
 
   const openTrip = (trip: Trip, day = 0) => {
     setDemoState({ tripId: trip.id, dayIndex: day })
@@ -72,6 +73,7 @@ export default function HomeScreen({ go }: ScreenProps) {
             trip={trip}
             plans={tripPlans(trip, demo)}
             onOpen={(day) => openTrip(trip, day)}
+            onPlan={(plan) => openPlan(trip, plan)}
             onMembers={() => {
               setDemoState({ tripId: trip.id })
               go('companions')
@@ -113,18 +115,19 @@ export default function HomeScreen({ go }: ScreenProps) {
 
       <h2 className={styles.section}>다가오는 일정</h2>
       <ul className={styles.list}>
-        {UPCOMING.map((item) => (
-          <li key={item.title}>
-            <button type="button" className={cn(styles.row, shared.tappable)} onClick={() => openTrip(trips[0])}>
-              <PlanIcon kind={item.icon} />
+        {upcoming.map((item) => (
+          <li key={item.id}>
+            <button type="button" className={cn(styles.row, shared.tappable)} onClick={() => openPlan(upcomingTrip, item)}>
+              <PlanIcon kind={item.icon} agency={item.source.kind === 'agency' ? item.source.name : undefined} />
               <span className={styles.rowText}>
                 <strong>{item.title}</strong>
-                <span>{item.when}</span>
+                <span>{dateAt(upcomingTrip, item.day).slice(5).replace('-', '.')} {item.time}</span>
               </span>
-              <span className={styles.kind}>{item.kind}</span>
+              <span className={styles.kind}>{KIND_LABEL[item.icon]}</span>
             </button>
           </li>
         ))}
+        {upcoming.length === 0 && <li className={styles.emptyUpcoming}>등록된 일정이 없어요. 여행에 바우처를 추가해 보세요.</li>}
       </ul>
 
     </Screen>
@@ -137,11 +140,12 @@ interface CardProps {
   trip: Trip
   plans: Plan[]
   onOpen: (day: number) => void
+  onPlan: (plan: Plan) => void
   onMembers: () => void
 }
 
 /** 여행 카드. 카드 자체가 세로 스크롤 영역이고, 스크롤 양만큼 티켓이 넘어간다 */
-function TripCard({ trip, plans, onOpen, onMembers }: CardProps) {
+function TripCard({ trip, plans, onOpen, onPlan, onMembers }: CardProps) {
   const [scrollTop, setScrollTop] = useState(0)
   const empty = plans.length === 0
   const progress = empty ? 0 : Math.min(plans.length - 1, Math.max(0, scrollTop / STEP))
@@ -159,8 +163,8 @@ function TripCard({ trip, plans, onOpen, onMembers }: CardProps) {
           <button
             type="button"
             className={cn(styles.card, shared.tappable)}
-            onClick={() => onOpen(plans[index]?.day ?? 0)}
-            aria-label={`${trip.name} 일정 보기`}
+            onClick={(event) => { if (!empty && !(event.target as HTMLElement).closest('[data-trip-info]')) onPlan(plans[index]); else onOpen(plans[index]?.day ?? 0) }}
+            aria-label={empty ? `${trip.name} 일정 보기` : `${plans[index].title} 일정 상세 보기`}
           >
             <span className={styles.cardCircle} aria-hidden />
 
@@ -177,8 +181,8 @@ function TripCard({ trip, plans, onOpen, onMembers }: CardProps) {
               )}
             </span>
             <span className={styles.dday}>{trip.dday}</span>
-            <span className={cn(styles.city, trip.name.length > 5 && styles.cityLong, trip.name.length > 9 && styles.cityXLong)}>{trip.name}</span>
-            <span className={styles.period}>{trip.period}</span>
+            <span data-trip-info className={cn(styles.city, trip.name.length > 5 && styles.cityLong, trip.name.length > 9 && styles.cityXLong)}>{trip.name}</span>
+            <span data-trip-info className={styles.period}>{trip.period}</span>
             {!empty && (
               <span className={styles.count}>
                 <span className={styles.scrollCue} aria-hidden>
@@ -243,6 +247,8 @@ function TicketCard({ plan, trip, offset, index }: { plan: Plan; trip: Trip; off
         {trip.month}.{day.date} {plan.time}
       </span>
       <span className={styles.tTitle}>{plan.title}</span>
+      <span className={styles.ticketIcon} data-kind={plan.icon}><PlanIcon kind={plan.icon} /></span>
     </span>
   )
 }
+

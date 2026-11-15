@@ -108,7 +108,7 @@
 
 .dday {
   position: absolute;
-  right: 24px;
+  left: 24px;
   top: 24px;
   font-size: 22px;
   font-weight: 700;
@@ -395,3 +395,7 @@
   font-size: 14px;
   color: var(--ink-muted);
 }
+.ticketIcon { position:absolute; top:28px; right:17px; width:22px; height:22px; }
+.ticketIcon > span { transform:scale(.5); transform-origin:top left; background:transparent; border-radius:0; }
+.emptyUpcoming { padding:20px; border-radius:20px; background:white; color:var(--ink-sub); font-size:14px; line-height:1.6; }
+
