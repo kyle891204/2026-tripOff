@@ -21,7 +21,7 @@
 .screen {
   position: relative;
   width: 393px;
-  height: 852px;
+  height: var(--app-screen-height, 852px);
 }
 
 .notification { position: absolute; z-index: 30; top: 63px; left: 12px; right: 12px; display: flex; align-items: start; border: 1px solid var(--line); border-radius: 19px; background: #fff; color: var(--ink); box-shadow: 0 8px 28px rgb(19 40 44 / 22%); }

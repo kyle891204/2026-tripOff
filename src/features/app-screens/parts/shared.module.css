@@ -30,7 +30,7 @@
 .cta {
   position: absolute;
   left: 20px;
-  top: 764px;
+  top: calc(var(--app-screen-height, 852px) - 88px);
   width: 353px;
   height: 56px;
   border-radius: 18px;

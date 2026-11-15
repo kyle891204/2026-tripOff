@@ -81,7 +81,7 @@ export default function DemoPlayer() {
 
   return (
     <div className={styles.root}>
-      <PhoneFrame>
+      <PhoneFrame immersive screenKey={nav.nonce} showBottom={nav.current === 'add-voucher'}>
         <div className={styles.screen}>
           <Component key={nav.nonce} go={go} back={back} toast={nav.toast} />
           {meta.floatingBack && <FloatingBack key={`b-${nav.nonce}`} onClick={back} {...meta.floatingBack} />}

@@ -1,7 +1,7 @@
 .screen {
   position: relative;
   width: 393px;
-  height: 852px;
+  height: var(--app-screen-height, 852px);
   overflow: hidden;
   color: var(--ink);
   font-family: var(--font-sans);

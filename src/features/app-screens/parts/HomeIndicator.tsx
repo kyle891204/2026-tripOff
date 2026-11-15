@@ -6,7 +6,7 @@ export default function HomeIndicator({ light }: { light?: boolean }) {
       style={{
         position: 'absolute',
         left: 130,
-        top: 838,
+        bottom: 9,
         width: 133,
         height: 5,
         borderRadius: 999,
