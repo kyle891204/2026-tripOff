@@ -1,3 +1,4 @@
+import { SHOP_COUNTRIES } from '@/data/shopCountries'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import {
@@ -61,6 +62,7 @@ export default function ProductRegisterPage() {
   // 1. 기본 정보
   const [name, setName] = useState('')
   const [category, setCategory] = useState('투어·가이드')
+  const [country, setCountry] = useState('대한민국')
   const [region, setRegion] = useState('')
   const [duration, setDuration] = useState('')
   const [intro, setIntro] = useState('')
@@ -193,6 +195,7 @@ export default function ProductRegisterPage() {
     const created = addProduct({
       name: name.trim(),
       category,
+      country,
       region: region.trim() || '지역 미정',
       duration: duration.trim(),
       options: options
@@ -239,6 +242,11 @@ export default function ProductRegisterPage() {
                   {['투어·가이드', '액티비티', '입장권', '교통', '숙박'].map((c) => (
                     <option key={c}>{c}</option>
                   ))}
+                </select>
+              </Field>
+              <Field label="판매 국가" htmlFor="p-country">
+                <select id="p-country" className={p.input} value={country} onChange={e => setCountry(e.target.value)}>
+                  {SHOP_COUNTRIES.map(item => <option key={item.name}>{item.name}</option>)}
                 </select>
               </Field>
               <Field label="지역 *" htmlFor="p-region">

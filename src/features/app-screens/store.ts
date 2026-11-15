@@ -19,6 +19,7 @@ export interface ShopBooking {
   title: string
 }
 export interface DemoState {
+  shopCountry?: string
   shopDestination?: string
   shopProductId?: string
   shopBooking?: ShopBooking

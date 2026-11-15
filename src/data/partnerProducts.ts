@@ -14,6 +14,10 @@ export interface PartnerProduct {
   id: string
   name: string
   category: string
+  country?: string
+  destination?: string
+  seller?: string
+  image?: string
   region: string
   duration: string
   options: ProductOption[]

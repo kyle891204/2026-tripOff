@@ -1,8 +1,9 @@
+import { SHOP_COUNTRIES, countryOf, countryImage } from '@/data/shopCountries'
 import { useEffect, useState, type ReactNode } from 'react'
 import { won } from '@/features/partner/calc'
 import type { PartnerProduct } from '@/data/partnerProducts'
 import Screen from '../parts/Screen'
-import { destinationOf, loadShopProducts, SHOP_IMAGES } from '../shopCatalog'
+import { destinationOf, loadShopProducts, useShopProducts } from '../shopCatalog'
 import { IconBack } from '../parts/icons'
 import { dateAt, type Plan } from '../mock'
 import { allTrips, getDemoState, setDemoState, useCurrentTrip, useDemoState } from '../store'
@@ -27,11 +28,12 @@ function remaining(product: PartnerProduct, optionIndex: number, date: string) {
   return Math.max(0, Number(product.options[optionIndex]?.stock ?? 0) - used)
 }
 
-const PROMOS = [
-  { destination: '오사카', image: SHOP_IMAGES.osaka, label: '도심 속, 느긋한 한 걸음', title: '오사카성 산책 투어', price: '19,000원부터' },
-  { destination: '제주', image: SHOP_IMAGES.coast, label: '이번 여행은 바다 가까이', title: '제주 투어 · 액티비티', price: '28,000원부터' },
-  { destination: '오사카', image: SHOP_IMAGES.canal, label: '해가 지면 시작되는 여행', title: '도톤보리 야경 투어', price: '25,000원부터' },
-]
+const PROMOS = SHOP_COUNTRIES.map(country => ({
+  destination: country.cities[0], image: countryImage(country.name),
+  label: country.name + '에서 만나는 새로운 하루',
+  title: country.cities[0] + ' 투어 · 액티비티',
+}))
+
 
 function ShopPhoto({ src, alt, className }: { src: string; alt: string; className: string }) {
   const [failed, setFailed] = useState(false)
@@ -41,32 +43,45 @@ function ShopPhoto({ src, alt, className }: { src: string; alt: string; classNam
 
 export function ShopScreen({ go, back }: ScreenProps) {
   const state = useDemoState()
-  const [products] = useState(loadShopProducts)
+  const products = useShopProducts()
   const [query, setQuery] = useState('')
   const [slide, setSlide] = useState(0)
   const [paused, setPaused] = useState(false)
+  const country = state.shopCountry
   const destination = state.shopDestination
   useEffect(() => {
-    if (destination || paused || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (country || paused || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const timer = window.setInterval(() => setSlide(index => (index + 1) % PROMOS.length), 4000)
     return () => window.clearInterval(timer)
-  }, [destination, paused])
-  const cities = [...new Set(products.map(product => product.destination))].filter(Boolean)
+  }, [country, paused])
+  const cities = [...new Set(products.filter(product => product.country === country).map(product => product.destination))].filter(Boolean)
   const normalized = query.trim().toLocaleLowerCase()
-  const destinations = cities.filter(city => city.toLocaleLowerCase().includes(normalized))
-  const visible = products.filter(product => product.destination === destination &&
+  const countries = [...new Set(products.map(product => product.country))]
+  const visibleCountries = countries.filter(name => {
+    const aliases = SHOP_COUNTRIES.find(country => country.name === name)?.aliases ?? []
+    const regions = products.filter(product => product.country === name).map(product => product.destination)
+    return [name, ...aliases, ...regions].some(value => value.toLocaleLowerCase().includes(normalized))
+  })
+  const visible = products.filter(product => product.country === country && (!destination || product.destination === destination) &&
     (product.name + product.region + product.category + product.seller).toLocaleLowerCase().includes(normalized))
   const select = (city: string) => {
     setQuery('')
-    setDemoState({ shopDestination: city })
+    setDemoState({ shopCountry: country ?? countryOf(city), shopDestination: city })
   }
-  const promo = PROMOS[slide]
-  return <Page title={destination ? destination + ' 상품' : '여행 상점'} back={destination ? () => {
+  const selectCountry = (name: string) => {
     setQuery('')
-    setDemoState({ shopDestination: undefined })
+    setDemoState({ shopCountry: name, shopDestination: undefined })
+  }
+  const banner = PROMOS[slide]
+  const bannerPrices = products.filter(product => product.destination === banner.destination)
+    .flatMap(product => product.options.filter(bookable).map(option => Number(option.adult)))
+  const promo = { ...banner, price: bannerPrices.length ? won(Math.min(...bannerPrices)) + '부터' : '상품 둘러보기' }
+  return <Page title={country ? (destination ?? country) + ' 상품' : '여행 상점'} back={country ? () => {
+    setQuery('')
+    setDemoState({ shopCountry: undefined, shopDestination: undefined })
   } : back}>
-    {!destination ? <>
-      <label className={s.search}>어디로 여행 가세요?<input value={query} onChange={e => setQuery(e.target.value)} placeholder="여행지 검색 · 오사카, 제주" /></label>
+    {!country ? <>
+      <label className={s.search}>어디로 여행 가세요?<input value={query} onChange={e => setQuery(e.target.value)} placeholder="국가·도시 검색 · 일본, 파리, 다낭" /></label>
       <section className={s.promotion} aria-label="여행 특가" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocusCapture={() => setPaused(true)}>
         <button className={s.banner} onClick={() => select(promo.destination)} aria-label={promo.title + ' ' + promo.price + ' 상품 보기'}>
           <ShopPhoto key={promo.image} src={promo.image} alt="" className={s.bannerPhoto} />
@@ -80,19 +95,23 @@ export function ShopScreen({ go, back }: ScreenProps) {
           <button aria-label={paused ? '특가 자동 넘김 재생' : '특가 자동 넘김 일시정지'} onClick={() => setPaused(!paused)}>{paused ? '▶' : 'Ⅱ'}</button>
         </div>
       </section>
-      <div className={s.section}><h2>{normalized ? '여행지 검색 결과' : '여행지 선택'}</h2></div>
-      <div className={s.destinations}>{destinations.map(city => {
-        const product = products.find(product => product.destination === city)!
-        return <button key={city} onClick={() => select(city)}>
-          <ShopPhoto src={product.image} alt={city} className={s.destinationPhoto} />
-          <strong>{city}</strong><span>{products.filter(product => product.destination === city).length}개 상품</span>
+      <div className={s.section}><h2>{normalized ? '검색 결과' : '어느 나라로 떠나세요?'}</h2></div>
+      <div className={s.destinations}>{visibleCountries.map(name => {
+        const items = products.filter(product => product.country === name)
+        return <button key={name} onClick={() => selectCountry(name)}>
+          <ShopPhoto src={items[0].image} alt={name} className={s.destinationPhoto} />
+          <strong>{name}</strong><span>{items.length}개 상품 · {new Set(items.map(item => item.destination)).size}개 여행지</span>
         </button>
       })}</div>
-      {!destinations.length && <p className={s.notice}>아직 상품이 등록되지 않은 여행지예요. 다른 여행지를 검색해 주세요.</p>}
+      {!visibleCountries.length && <p className={s.notice}>검색한 국가나 도시의 상품이 아직 없어요.</p>}
     </> : <>
-      <button className={s.changeDestination} onClick={() => { setDemoState({ shopDestination: undefined }); setQuery('') }}>여행지 변경 · {destination} ⌄</button>
-      <label className={s.search}>상품 검색<input value={query} onChange={e => setQuery(e.target.value)} placeholder={destination + ' 상품명 또는 업체명'} /></label>
-      <div className={s.section}><h2>{destination} 추천 상품</h2><span>{visible.length}개</span></div>
+      <button className={s.changeDestination} onClick={() => { setDemoState({ shopCountry: undefined, shopDestination: undefined }); setQuery('') }}>국가 변경 · {country} ⌄</button>
+      <label className={s.search}>상품 검색<input value={query} onChange={e => setQuery(e.target.value)} placeholder={(destination ?? country) + ' 상품명·도시·업체명'} /></label>
+      <div className={s.cityFilters} aria-label="도시 선택">
+        <button aria-pressed={!destination} onClick={() => {setQuery(''); setDemoState({shopDestination: undefined})}}>전체</button>
+        {cities.map(city => <button key={city} aria-pressed={destination === city} onClick={() => select(city)}>{city}</button>)}
+      </div>
+      <div className={s.section}><h2>{destination ?? country} 추천 상품</h2><span>{visible.length}개</span></div>
       {visible.map(product => {
         const options = product.options.filter(bookable)
         return <button className={s.product} key={product.id} disabled={!options.length} onClick={() => {
@@ -112,7 +131,7 @@ export function ShopScreen({ go, back }: ScreenProps) {
 export function ShopProductScreen({ go, back }: ScreenProps) {
   const currentTrip = useCurrentTrip()
   const state = useDemoState()
-  const [products] = useState(loadShopProducts)
+  const products = useShopProducts()
   const product = products.find(p => p.id === state.shopProductId)
   const matchingTrips = allTrips(state).filter(trip => product && destinationOf(trip.name) === product.destination)
   const initialTrip = matchingTrips.find(trip => trip.id === currentTrip.id) ?? matchingTrips[0] ?? currentTrip

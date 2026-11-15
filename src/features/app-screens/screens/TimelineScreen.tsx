@@ -144,7 +144,7 @@ export default function TimelineScreen({ go, toast: initialToast, overlay }: Pro
         </div>
       </div>
 
-      {!overlay && <button type="button" className={styles.shopFloat} onClick={() => { setDemoState({ shopDestination: undefined }); go('shop') }}>
+      {!overlay && <button type="button" className={styles.shopFloat} onClick={() => { setDemoState({ shopCountry: undefined, shopDestination: undefined }); go('shop') }}>
         추천 특가 둘러보기 <span aria-hidden>↗</span>
       </button>}
       {toast}
