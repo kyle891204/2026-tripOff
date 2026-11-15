@@ -15,6 +15,9 @@ export type ScreenId =
   | 'profile'
   | 'invite'
   | 'notifications'
+  | 'shop'
+  | 'shop-product'
+  | 'shop-checkout'
 
 export interface GoOptions {
   /** 도착한 화면에 띄울 짧은 안내 (예: 저장 완료) */

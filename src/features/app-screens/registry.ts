@@ -1,3 +1,4 @@
+import { ShopScreen, ShopProductScreen, ShopCheckoutScreen } from './screens/ShopScreens'
 import type { ComponentType } from 'react'
 import { InviteScreen, ProfileScreen, VoucherImportScreen, VoucherOriginalScreen } from './screens/ExtraDemoScreens'
 import AddTripScreen from './screens/AddTripScreen'
@@ -46,6 +47,9 @@ export const SCREENS: ScreenMeta[] = [
   { id: 'voucher-original', title: '원본 바우처', caption: '첨부한 파일이나 시연용 원본을 확인해요', source: 'temp', Component: VoucherOriginalScreen },
   { id: 'profile', title: '내 프로필', caption: '시연 계정을 확인해요', source: 'temp', Component: ProfileScreen },
   { id: 'invite', title: '동행 초대', caption: '같은 브라우저에서 열 수 있는 초대 링크', source: 'temp', Component: InviteScreen },
+  { id: 'shop', title: '여행 상점', caption: '여행사가 등록한 상품을 둘러봐요', source: 'temp', Component: ShopScreen },
+  { id: 'shop-product', title: '상품 상세', caption: '이용일과 옵션을 선택해요', source: 'temp', Component: ShopProductScreen },
+  { id: 'shop-checkout', title: '상품 결제', caption: '시연 결제 후 바우처가 여행 일정에 저장돼요', source: 'temp', Component: ShopCheckoutScreen },
   { id: 'notifications', title: '알림함', caption: '바우처 변경 알림과 입장 알림을 열어 일정을 확인해요', source: 'temp', Component: NotificationsScreen },
   { id: 'lock', title: '잠금 화면 위젯', caption: '폰을 열지 않아도 입장 QR 을 꺼내요 (프리미엄)', source: 'hifi', figmaNode: '18:458', floatingBack: { left: 325, top: 532 }, Component: LockScreen },
 ]

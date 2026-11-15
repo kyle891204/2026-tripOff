@@ -11,7 +11,7 @@ interface CompanyStore {
 
 export const CompanyStoreContext = createContext<CompanyStore | null>(null)
 
-function load(): CompanyProfile {
+export function loadPartnerCompany(): CompanyProfile {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY)
     if (raw) return { ...PARTNER_COMPANY_INITIAL, ...(JSON.parse(raw) as Partial<CompanyProfile>) }
@@ -22,7 +22,7 @@ function load(): CompanyProfile {
 }
 
 export function useCompanyStoreValue(): CompanyStore {
-  const [company, setCompany] = useState<CompanyProfile>(load)
+  const [company, setCompany] = useState<CompanyProfile>(loadPartnerCompany)
   useEffect(() => {
     try {
       sessionStorage.setItem(STORAGE_KEY, JSON.stringify(company))

@@ -285,3 +285,23 @@
   font-style: normal;
   font-weight: 700;
 }
+
+.shopFloat {
+  position: absolute;
+  bottom: 46px;
+  left: 20px;
+  right: 84px;
+  z-index: 5;
+  min-height: 52px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 26px;
+  background: var(--deep) !important;
+  color: white !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 8px 24px #122d3226;
+}
+.shopFloat:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }

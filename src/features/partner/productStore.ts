@@ -12,7 +12,7 @@ interface ProductStore {
 
 export const ProductStoreContext = createContext<ProductStore | null>(null)
 
-function load(): PartnerProduct[] {
+export function loadPartnerProducts(): PartnerProduct[] {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY)
     if (raw) return JSON.parse(raw) as PartnerProduct[]
@@ -30,7 +30,7 @@ function today() {
 
 /** PartnerLayout에서 한 번만 호출해 Provider 값으로 내려준다. */
 export function useProductStoreValue(): ProductStore {
-  const [products, setProducts] = useState<PartnerProduct[]>(load)
+  const [products, setProducts] = useState<PartnerProduct[]>(loadPartnerProducts)
 
   useEffect(() => {
     try {

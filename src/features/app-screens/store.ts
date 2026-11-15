@@ -6,7 +6,23 @@ import { agencyTripFor, getDemoDeliveries, subscribeDemoDeliveries } from '@/dat
  * 화면 사이에 이어지는 시연 상태 (아주 작은 전역 스토어).
  * 어떤 여행·날짜를 보고 있는지, 바우처를 저장했는지.
  */
+export interface ShopBooking {
+  id: string
+  productId: string
+  optionIndex: number
+  tripId: string
+  date: string
+  time: string
+  count: number
+  price: number
+  seller: string
+  title: string
+}
 export interface DemoState {
+  shopProductId?: string
+  shopBooking?: ShopBooking
+  shopOrders?: ShopBooking[]
+
   tripId: string
   dayIndex: number
   /** 여행별 「바우처 추가」 샘플 저장 여부 */
