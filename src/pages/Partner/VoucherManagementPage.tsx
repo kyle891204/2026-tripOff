@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Badge, Field, HistoryDot, PartnerButton as Button, partnerStyles as p, useToast } from '@/features/partner'
+import { useLocation } from 'react-router'
+import { Badge, Field, HistoryDot, PartnerButton as Button, historyStamp, partnerStyles as p, useToast, useVoucherStore } from '@/features/partner'
 import {
   PARTNER_DEMO_TODAY as DEMO_TODAY,
-  PARTNER_SAMPLE_VOUCHERS as SAMPLE_VOUCHERS,
   STATUS_LABEL,
   type HistoryKey,
   type Voucher,
@@ -32,21 +32,19 @@ function shortDate(iso: string) {
   return `${d.getMonth() + 1}.${d.getDate()} (${WEEKDAY[d.getDay()]})`
 }
 
-function stamp() {
-  const d = new Date()
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getMonth() + 1}.${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`
-}
+const stamp = historyStamp
 
 export default function VoucherManagementPage() {
   const toast = useToast()
-  const [vouchers, setVouchers] = useState<Voucher[]>(SAMPLE_VOUCHERS)
+  const { vouchers, setVouchers } = useVoucherStore()
+  const location = useLocation()
+  const routeState = location.state as { selectId?: string; openScan?: boolean } | null
   const [tab, setTab] = useState<'all' | VoucherStatus>('all')
   const [query, setQuery] = useState('')
   const [date, setDate] = useState('')
   const [product, setProduct] = useState('')
-  const [selectedId, setSelectedId] = useState<string>(SAMPLE_VOUCHERS[0].id)
-  const [scanOpen, setScanOpen] = useState(false)
+  const [selectedId, setSelectedId] = useState<string>(routeState?.selectId ?? vouchers[0]?.id ?? '')
+  const [scanOpen, setScanOpen] = useState(Boolean(routeState?.openScan))
 
   const counts = useMemo(() => {
     const c: Record<'all' | VoucherStatus, number> = { all: vouchers.length, pending: 0, sent: 0, used: 0, cancelled: 0 }

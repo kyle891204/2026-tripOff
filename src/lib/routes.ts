@@ -6,6 +6,7 @@ export const ROUTES = {
   screen: '/screens/:id',
   /** 파트너센터 (여행사 관리자) */
   partner: '/partners',
+  partnerDashboard: '/partners/dashboard',
   partnerProducts: '/partners/products',
   partnerProductNew: '/partners/products/new',
   partnerVouchers: '/partners/vouchers',

@@ -5,6 +5,7 @@ import DemoPage from '@/pages/Demo/DemoPage'
 import NotFoundPage from '@/pages/NotFound/NotFoundPage'
 import ScreenOnlyPage from '@/pages/ScreenOnly/ScreenOnlyPage'
 import { PartnerLayout } from '@/features/partner'
+import DashboardPage from '@/pages/Partner/DashboardPage'
 import ProductListPage from '@/pages/Partner/ProductListPage'
 import ProductRegisterPage from '@/pages/Partner/ProductRegisterPage'
 import VoucherManagementPage from '@/pages/Partner/VoucherManagementPage'
@@ -15,12 +16,13 @@ export const router = createBrowserRouter([
     // 파트너센터: 사이트 Header/Footer 없이 전용 사이드바 레이아웃
     element: <PartnerLayout />,
     children: [
+      { path: ROUTES.partnerDashboard, element: <DashboardPage /> },
       { path: ROUTES.partnerProducts, element: <ProductListPage /> },
       { path: ROUTES.partnerProductNew, element: <ProductRegisterPage /> },
       { path: ROUTES.partnerVouchers, element: <VoucherManagementPage /> },
     ],
   },
-  { path: ROUTES.partner, element: <Navigate to={ROUTES.partnerProducts} replace /> },
+  { path: ROUTES.partner, element: <Navigate to={ROUTES.partnerDashboard} replace /> },
   {
     element: <Layout />,
     children: [
