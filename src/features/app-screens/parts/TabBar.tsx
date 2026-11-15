@@ -7,7 +7,7 @@ export type TabId = 'home' | 'shop' | 'vouchers' | 'profile'
 
 const TABS: { id: TabId; label: string; icon: string }[] = [
   { id: 'home', label: '홈', icon: 'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z' },
-  { id: 'shop', label: '상점', icon: 'M4 8h16l-1.2 11.1a2 2 0 0 1-2 1.9H7.2a2 2 0 0 1-2-1.9zM8.5 8V6.5a3.5 3.5 0 0 1 7 0V8' },
+  { id: 'shop', label: '여행 발견', icon: 'M4 8h16l-1.2 11.1a2 2 0 0 1-2 1.9H7.2a2 2 0 0 1-2-1.9zM8.5 8V6.5a3.5 3.5 0 0 1 7 0V8' },
   { id: 'vouchers', label: '일정', icon: 'M5 5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zM3 10h18M8 3v4M16 3v4' },
   { id: 'profile', label: '마이페이지', icon: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8m-7.5 9a7.5 7.5 0 0 1 15 0' },
 ]
