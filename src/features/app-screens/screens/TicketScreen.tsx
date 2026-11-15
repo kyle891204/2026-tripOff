@@ -4,7 +4,6 @@ import QrCode from '../parts/QrCode'
 import Screen from '../parts/Screen'
 import { IconClose, IconSun } from '../parts/icons'
 import shared from '../parts/shared.module.css'
-import { useToast } from '../parts/useToast'
 import { ME, NEXT_ENTRY, voucherOf } from '../mock'
 import { useCurrentPlan, useCurrentTrip, useDemoState } from '../store'
 import type { ScreenProps } from '../types'
@@ -15,17 +14,17 @@ import styles from './TicketScreen.module.css'
  * Figma 18:367 「티켓 (오프라인)」 — 현장에서 보여줄 QR 전체화면.
  * 내 티켓 1매만 보인다 (동행 티켓은 각자 앱에). Figma 의 페이지 점(3장)은 이 원칙에 맞춰 안내 문구로 바꿈.
  */
-export default function TicketScreen({ back }: ScreenProps) {
+export default function TicketScreen({ go, back }: ScreenProps) {
   const trip = useCurrentTrip()
   const plan = useCurrentPlan()
   const v = plan ? voucherOf(plan, trip) : undefined
   const entry = v
-    ? { title: v.title, time: v.time, code: v.code, gate: plan?.note ?? '현장', qrValue: v.qrValue }
+    ? { title: v.title, time: v.time, code: v.code, gate: plan?.location, qrValue: v.qrValue }
     : NEXT_ENTRY
   const INFO = [
     { label: '입장', value: entry.time },
     { label: '예약번호', value: entry.code },
-    { label: v ? '장소' : '게이트', value: entry.gate },
+    ...(entry.gate ? [{ label: v ? '장소' : '게이트', value: entry.gate }] : []),
   ]
   // 이 여행이 「동행 티켓 함께 보기」면 수락한 동행 티켓까지 넘겨 볼 수 있음
   const shareOn = !!useDemoState().shareTickets[trip.id]
@@ -33,7 +32,6 @@ export default function TicketScreen({ back }: ScreenProps) {
   const [page, setPage] = useState(0)
   const holder = holders[Math.min(page, holders.length - 1)] ?? { name: ME.name }
   const [bright, setBright] = useState(false)
-  const [toast, showToast] = useToast()
 
   return (
     <Screen bg="#fff" offline label="티켓">
@@ -50,7 +48,7 @@ export default function TicketScreen({ back }: ScreenProps) {
       </p>
 
       <div className={styles.qrBox}>
-        <QrCode key={page} value={`${entry.qrValue}-${page}`} size={261} />
+        <QrCode key={page} value={page ? `${entry.qrValue}-DEMO-${page}` : entry.qrValue} size={261} />
       </div>
 
       {holders.length > 1 ? (
@@ -94,13 +92,12 @@ export default function TicketScreen({ back }: ScreenProps) {
         <button
           type="button"
           className={styles.origin}
-          onClick={() => showToast('원본 바우처(PDF) 화면은 디자인 준비 중이에요')}
+          onClick={() => go('voucher-original')}
         >
           원본 보기
         </button>
       </div>
 
-      {toast}
     </Screen>
   )
 }

@@ -12,12 +12,26 @@
   }
 }
 
+@media (max-width: 767px) {
+  .root { display: block; }
+  .root .side { display: none; }
+}
+
 /* 앱 화면 + 플로팅 뒤로가기를 같은 393×852 좌표계에 */
 .screen {
   position: relative;
   width: 393px;
   height: 852px;
 }
+
+.notification { position: absolute; z-index: 30; top: 63px; left: 12px; right: 12px; display: flex; align-items: start; border: 1px solid var(--line); border-radius: 19px; background: #fff; color: var(--ink); box-shadow: 0 8px 28px rgb(19 40 44 / 22%); }
+.notification button { border: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.notification .notificationOpen { display: grid; min-width: 0; flex: 1; gap: 5px; padding: 12px 3px 13px 15px; text-align: left; }
+.notificationOpen small { color: var(--ink-sub); font-size: 12px; }
+.notificationOpen strong { font-size: 16px; }
+.notificationOpen span { color: var(--ink-sub); font-size: 14px; overflow-wrap: anywhere; }
+.notification .notificationClose { width: 44px; height: 44px; font-size: 23px; }
+.srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 .side {
   display: flex;

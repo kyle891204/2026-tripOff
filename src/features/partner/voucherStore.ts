@@ -14,7 +14,13 @@ export const VoucherStoreContext = createContext<VoucherStore | null>(null)
 function load(): Voucher[] {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY)
-    if (raw) return JSON.parse(raw) as Voucher[]
+    if (raw) {
+      const current: unknown = JSON.parse(raw)
+      if (Array.isArray(current)) {
+        const demo = PARTNER_SAMPLE_VOUCHERS[0]
+        return current.some(v => v?.id === demo.id) ? current : [demo, ...current]
+      }
+    }
   } catch {
     // 저장소를 못 쓰는 환경이면 예시 데이터로 시작
   }

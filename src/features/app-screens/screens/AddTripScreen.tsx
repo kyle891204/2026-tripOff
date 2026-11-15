@@ -3,7 +3,6 @@ import { cn } from '@/lib/cn'
 import Screen from '../parts/Screen'
 import { IconBack, IconChevronRight } from '../parts/icons'
 import shared from '../parts/shared.module.css'
-import { useToast } from '../parts/useToast'
 import { makeTrip } from '../mock'
 import { getDemoState, setDemoState } from '../store'
 import type { ScreenProps } from '../types'
@@ -20,10 +19,9 @@ export default function AddTripScreen({ go, back }: ScreenProps) {
   const [city, setCity] = useState('')
   const [start, setStart] = useState('2026-07-17')
   const [end, setEnd] = useState('2026-07-20')
-  const [toast, showToast] = useToast()
 
   const name = city.trim()
-  const valid = name.length > 0 && end >= start
+  const valid = name.length > 0 && !!start && !!end && end >= start
 
   const create = () => {
     if (!valid) return
@@ -87,7 +85,7 @@ export default function AddTripScreen({ go, back }: ScreenProps) {
       <button
         type="button"
         className={cn(styles.agency, shared.tappable)}
-        onClick={() => showToast('여행사가 보낸 초대 링크를 열면 일정까지 담긴 여행이 자동으로 추가돼요')}
+        onClick={() => go('agency-join')}
       >
         <span>
           <strong>여행사 패키지로 가시나요?</strong>
@@ -105,7 +103,6 @@ export default function AddTripScreen({ go, back }: ScreenProps) {
         여행 만들기
       </button>
 
-      {toast}
     </Screen>
   )
 }

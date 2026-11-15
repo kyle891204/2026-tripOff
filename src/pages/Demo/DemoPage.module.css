@@ -3,3 +3,7 @@
   justify-content: center;
   margin-bottom: var(--space-5);
 }
+
+@media (max-width: 767px) {
+  .switch { display: none; }
+}

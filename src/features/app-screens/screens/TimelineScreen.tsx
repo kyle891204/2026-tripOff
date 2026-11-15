@@ -45,6 +45,7 @@ export default function TimelineScreen({ go, toast: initialToast, overlay }: Pro
   const [toast, showToast] = useToast(initialToast)
   const dayIdx = Math.min(dayIndex, trip.days.length - 1)
 
+  const add = () => { setDemoState({ voucherTarget: undefined, draft: undefined }); go('add-voucher') }
   const plans = tripPlans(trip, demo).filter((p) => p.day === dayIdx)
   const { cards, addTop } = layout(plans)
 
@@ -64,7 +65,7 @@ export default function TimelineScreen({ go, toast: initialToast, overlay }: Pro
               <Avatar key={m.name} label={m.label} name={m.name} tone={m.pending ? 'off' : m.tone} size={26} fontSize={12} ring={{ width: 2, color: 'var(--mist)' }} />
             ))}
           </button>
-          <button type="button" className={cn(styles.addBtn, shared.tappable)} onClick={() => go('add-voucher')}>
+          <button type="button" className={cn(styles.addBtn, shared.tappable)} onClick={add}>
             + 바우처
           </button>
         </div>
@@ -73,7 +74,7 @@ export default function TimelineScreen({ go, toast: initialToast, overlay }: Pro
       <div className={styles.days} role="tablist" aria-label="날짜">
         {trip.days.map((d, i) => (
           <button
-            key={d.date}
+            key={`${trip.id}-${i}`}
             type="button"
             role="tab"
             aria-selected={i === dayIdx}
@@ -135,7 +136,7 @@ export default function TimelineScreen({ go, toast: initialToast, overlay }: Pro
           <div className={styles.item} style={{ top: addTop }}>
             <span className={cn(styles.time, styles.timeMuted)}>21:00</span>
             <span className={styles.dotGray} aria-hidden />
-            <button type="button" className={cn(styles.add, shared.tappable)} onClick={() => go('add-voucher')}>
+            <button type="button" className={cn(styles.add, shared.tappable)} onClick={add}>
               일정 추가
             </button>
           </div>

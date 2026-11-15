@@ -7,8 +7,8 @@ import Screen from '../parts/Screen'
 import { IconBack } from '../parts/icons'
 import shared from '../parts/shared.module.css'
 import { useToast } from '../parts/useToast'
-import { sourceLabel, voucherOf } from '../mock'
-import { editPlan, hasVoucher, setDemoState, useCurrentPlan, useCurrentTrip, useDemoState } from '../store'
+import { dateAt, sourceLabel, voucherOf } from '../mock'
+import { editPlan, hasVoucher, setDemoState, tripPlans, useCurrentPlan, useCurrentTrip, useDemoState } from '../store'
 import type { ScreenProps } from '../types'
 import styles from './PlanDetailScreen.module.css'
 
@@ -19,20 +19,21 @@ import styles from './PlanDetailScreen.module.css'
  */
 export default function PlanDetailScreen({ go, back, toast: initialToast }: ScreenProps) {
   const trip = useCurrentTrip()
-  const plan = useCurrentPlan() ?? trip.plans[0]
+  const activePlan = useCurrentPlan()
+  const plan = activePlan ?? tripPlans(trip)[0] ?? trip.plans[0]
   const demo = useDemoState()
   const [toast, showToast] = useToast(initialToast)
   const [help, setHelp] = useState(false)
   // 일정 수정 (제목·시간·장소)
   const [editing, setEditing] = useState(false)
-  const [draft, setDraft] = useState({ title: '', time: '', note: '' })
+  const [draft, setDraft] = useState({ title: '', time: '', location: '' })
 
   const startEdit = () => {
-    setDraft({ title: plan.title, time: plan.time, note: plan.note ?? '' })
+    setDraft({ title: plan.title, time: plan.time, location: plan.location ?? '' })
     setEditing(true)
   }
   const saveEdit = () => {
-    editPlan(plan.id, { title: draft.title.trim() || plan.title, time: draft.time, note: draft.note.trim() || undefined })
+    editPlan(plan.id, { title: draft.title.trim() || plan.title, time: draft.time, location: draft.location.trim() || undefined })
     setEditing(false)
     showToast('일정을 수정했어요')
   }
@@ -41,10 +42,9 @@ export default function PlanDetailScreen({ go, back, toast: initialToast }: Scre
   const provider = plan.source.kind === 'self' ? plan.source.via : undefined
   const voucher = voucherOf(plan, trip)
   const has = hasVoucher(plan, demo)
-  const day = trip.days[plan.day]
 
   const startVoucher = (mode: 'register' | 'edit') => {
-    setDemoState({ voucherTarget: { planId: plan.id, mode } })
+    setDemoState({ planId: plan.id, draft: undefined, voucherTarget: { planId: plan.id, mode } })
     go(mode === 'register' ? 'add-voucher' : 'review')
   }
 
@@ -84,13 +84,13 @@ export default function PlanDetailScreen({ go, back, toast: initialToast }: Scre
             <div className={styles.formRow}>
               <label>
                 <span>
-                  {trip.month}.{day.date} {day.dow}
+                  {dateAt(trip, plan.day)}
                 </span>
                 <input type="time" value={draft.time} onChange={(e) => setDraft({ ...draft, time: e.target.value })} aria-label="시간" />
               </label>
               <label className={styles.grow}>
-                <span>장소·메모</span>
-                <input value={draft.note} onChange={(e) => setDraft({ ...draft, note: e.target.value })} placeholder="집결지·주소·메모" aria-label="장소" />
+                <span>장소</span>
+                <input value={draft.location} onChange={(e) => setDraft({ ...draft, location: e.target.value })} placeholder="집결지·주소" aria-label="장소" />
               </label>
             </div>
           </div>
@@ -98,8 +98,8 @@ export default function PlanDetailScreen({ go, back, toast: initialToast }: Scre
           <>
             <h1 className={styles.title}>{plan.title}</h1>
             <p className={styles.when}>
-              {trip.month}.{day.date} {day.dow} · {plan.time}
-              {plan.note && ` · ${plan.note}`}
+              {voucher.date} · {plan.time}
+              {plan.location && ` · ${plan.location}`}
             </p>
           </>
         )}
@@ -116,7 +116,7 @@ export default function PlanDetailScreen({ go, back, toast: initialToast }: Scre
           <>
             <div className={styles.voucher}>
               <span className={styles.qr}>
-                <QrCode value={voucher.qrValue} size={84} />
+                {voucher.qrValue ? <QrCode value={voucher.qrValue} size={84} /> : <span>QR 없음</span>}
               </span>
               <dl className={styles.fields}>
                 <div>
@@ -136,8 +136,8 @@ export default function PlanDetailScreen({ go, back, toast: initialToast }: Scre
               </dl>
             </div>
             <div className={styles.actions}>
-              <button type="button" className={cn(styles.primary, shared.tappable)} onClick={() => go('ticket')}>
-                QR 크게 보기
+              <button type="button" className={cn(styles.primary, shared.tappable)} onClick={() => { setDemoState({ planId: plan.id }); go(voucher.qrValue ? 'ticket' : 'voucher-original') }}>
+                {voucher.qrValue ? 'QR 크게 보기' : '원본 보기'}
               </button>
               <button type="button" className={cn(styles.secondary, shared.tappable)} onClick={() => startVoucher('edit')}>
                 바우처 수정

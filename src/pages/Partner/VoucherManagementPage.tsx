@@ -9,6 +9,8 @@ import {
   type VoucherStatus,
 } from '@/data/partnerVouchers'
 import { cn } from '@/lib/cn'
+import { DEMO_AGENCY_TRIP_ID, DEMO_DELIVERY_ID, syncDemoDelivery } from '@/data/demoDelivery'
+import { pushDemoNotification } from '@/data/demoNotifications'
 import s from './VoucherManagementPage.module.css'
 const WEEKDAY = ['일', '월', '화', '수', '목', '금', '토']
 
@@ -22,7 +24,7 @@ const TABS: Array<{ key: 'all' | VoucherStatus; label: string }> = [
 
 const HISTORY_STEPS: Array<{ key: HistoryKey; label: string }> = [
   { key: 'issued', label: '바우처 발급' },
-  { key: 'sent', label: '고객에게 발송 (앱 · 알림톡)' },
+  { key: 'sent', label: '고객 지갑에 반영 (시연)' },
   { key: 'viewed', label: '고객 열람' },
   { key: 'used', label: '현장 사용' },
 ]
@@ -70,16 +72,30 @@ export default function VoucherManagementPage() {
 
   const markSent = (v: Voucher): Voucher => ({ ...v, status: 'sent', history: { ...v.history, sent: v.history.sent ?? stamp() } })
 
+  const deliver = (v: Voucher, meeting = v.meeting) => {
+    if (v.id !== DEMO_DELIVERY_ID) return true
+    try {
+      syncDemoDelivery({ id: v.id, title: v.product, date: v.date, time: v.option.match(/\d{2}:\d{2}/)?.[0] ?? '09:00', location: meeting, people: v.party })
+      pushDemoNotification({
+        title: v.status === 'pending' ? '여행 바우처가 도착했어요' : '여행 일정이 변경됐어요',
+        body: `${v.product} · ${meeting}`,
+        tripId: DEMO_AGENCY_TRIP_ID,
+        planId: v.id,
+      })
+      return true
+    } catch { toast.show('저장소에 접근할 수 없어 고객 지갑에 반영하지 못했어요.'); return false }
+  }
   const bulkSend = () => {
-    const n = counts.pending
-    if (!n) return
+    const pending = vouchers.filter(v => v.status === 'pending')
+    if (!pending.length || !pending.every(v => deliver(v))) return
     setVouchers((prev) => prev.map((v) => (v.status === 'pending' ? markSent(v) : v)))
-    toast.show(`발송 대기 ${n}건을 고객에게 보냈어요.`)
+    toast.show(`시연 바우처 ${pending.length}건의 상태를 갱신했어요.`)
   }
 
   const checkIn = (id: string) => {
     const v = vouchers.find((x) => x.id === id)
     if (!v) return false
+    if (v.status === 'pending') { toast.show('먼저 고객에게 발송해 주세요.'); return false }
     if (v.status === 'used') {
       toast.show(`${id}는 이미 사용 처리된 바우처예요.`)
       return false
@@ -194,7 +210,7 @@ export default function VoucherManagementPage() {
               )}
             </tbody>
           </table>
-          <p className={s.foot}>예시 데이터입니다. 실제 화면에서는 예약 데이터와 연동됩니다.</p>
+          <p className={s.foot}>예시 데이터입니다. 김용태 바우처만 같은 브라우저의 시연용 여행 지갑에 반영되며, 실제 알림은 전송되지 않습니다.</p>
         </section>
 
         {selected && (
@@ -203,10 +219,14 @@ export default function VoucherManagementPage() {
             voucher={selected}
             onCheckIn={() => checkIn(selected.id)}
             onResend={(meeting) => {
+              if (!deliver(selected, meeting)) return
               patch(selected.id, (v) => ({ ...markSent({ ...v, meeting }), history: { ...v.history, sent: stamp(), viewed: undefined } }))
-              toast.show('수정 내용을 다시 보냈어요. 고객 일정도 함께 바뀌었어요.')
+              toast.show(selected.id === DEMO_DELIVERY_ID ? '시연 고객의 여행 지갑에 반영했어요.' : '시연용 발송 상태를 갱신했어요.')
             }}
             onCancel={() => {
+              if (selected.id === DEMO_DELIVERY_ID) {
+                try { syncDemoDelivery(null) } catch { toast.show('고객 지갑에서 취소 내용을 반영하지 못했어요.'); return }
+              }
               patch(selected.id, (v) => ({ ...v, status: 'cancelled' }))
               toast.show(`${selected.id} 예약을 취소했어요.`)
             }}
@@ -277,7 +297,7 @@ function VoucherDetail({ voucher: v, onCheckIn, onResend, onCancel }: DetailProp
       <Field label="집결 장소·시간" htmlFor="d-meet">
         <input id="d-meet" className={p.input} value={meeting} disabled={closed} onChange={(e) => setMeeting(e.target.value)} />
       </Field>
-      <p className={p.hint}>바꾸고 ‘수정 후 재발송’을 누르면 고객 일정과 알림이 함께 갱신됩니다.</p>
+      <p className={p.hint}>김용태 시연 바우처는 수정 후 재발송하면 고객 여행 지갑에도 반영됩니다.</p>
 
       <div className={s.history}>
         <p className={p.label}>처리 이력</p>

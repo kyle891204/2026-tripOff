@@ -1,4 +1,7 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router'
+import { openDemoNotification, useDemoNotifications } from '@/data/demoNotifications'
+import { allTrips, getDemoState, setDemoState } from '@/features/app-screens/store'
 import { FloatingBack, SCREENS, SCREEN_BY_ID, resetDemoState, type GoOptions, type ScreenId } from '@/features/app-screens'
 import { cn } from '@/lib/cn'
 import PhoneFrame from './PhoneFrame'
@@ -34,7 +37,21 @@ function nextHistory(n: Nav, id: ScreenId, options?: GoOptions): ScreenId[] {
  * 자체 뒤로 버튼이 없는 화면에는 앱 화면 안에 플로팅 뒤로가기를 띄운다.
  */
 export default function DemoPlayer() {
-  const [nav, setNav] = useState<Nav>({ current: START, history: [], nonce: 0 })
+  const [query] = useSearchParams()
+  const inviteTrip = query.get('trip')
+  const [nav, setNav] = useState<Nav>(() => ({ current: inviteTrip && allTrips().some(t => t.id === inviteTrip) ? 'timeline' : START, history: [], nonce: 0 }))
+  const newest = useDemoNotifications()[0]
+  const [dismissed, setDismissed] = useState<string>()
+  const banner = newest && !newest.read && newest.id !== dismissed ? newest : undefined
+  const bannerId = banner?.id
+  useEffect(() => {
+    if (!bannerId || nav.current === START) return
+    const timer = window.setTimeout(() => setDismissed(bannerId), 10000)
+    return () => window.clearTimeout(timer)
+  }, [bannerId, nav.current])
+  useEffect(() => {
+    if (inviteTrip && getDemoState().tripId !== inviteTrip && allTrips().some(t => t.id === inviteTrip)) setDemoState({ tripId: inviteTrip, dayIndex: 0, planId: undefined })
+  }, [inviteTrip])
 
   const go = useCallback((id: ScreenId, options?: GoOptions) => {
     setNav((n) => ({
@@ -68,6 +85,13 @@ export default function DemoPlayer() {
         <div className={styles.screen}>
           <Component key={nav.nonce} go={go} back={back} toast={nav.toast} />
           {meta.floatingBack && <FloatingBack key={`b-${nav.nonce}`} onClick={back} {...meta.floatingBack} />}
+          {banner && nav.current !== START && <div className={styles.notification}>
+            <span className={styles.srOnly} role="status">{banner.title} {banner.body}</span>
+            <button type="button" className={styles.notificationOpen} onClick={() => { setDismissed(banner.id); openDemoNotification(banner, go) }}>
+              <small>TripOff · 방금</small><strong>{banner.title}</strong><span>{banner.body}</span>
+            </button>
+            <button type="button" className={styles.notificationClose} aria-label="알림 배너 닫기" onClick={() => setDismissed(banner.id)}>×</button>
+          </div>}
         </div>
       </PhoneFrame>
 

@@ -1,11 +1,11 @@
 import { useRef, useState, type CSSProperties } from 'react'
 import { cn } from '@/lib/cn'
+import { useDemoNotifications } from '@/data/demoNotifications'
 import Avatar from '../parts/Avatar'
 import PlanIcon from '../parts/PlanIcon'
 import Screen from '../parts/Screen'
 import { IconWallet } from '../parts/icons'
 import shared from '../parts/shared.module.css'
-import { useToast } from '../parts/useToast'
 import { ME, type Plan, type PlanIcon as Kind, type Trip } from '../mock'
 import { allTrips, setDemoState, tripPlans, useDemoState } from '../store'
 import type { ScreenProps } from '../types'
@@ -31,8 +31,8 @@ const UPCOMING: Array<{ icon: Kind; title: string; when: string; kind: string }>
  */
 export default function HomeScreen({ go }: ScreenProps) {
   const demo = useDemoState()
+  const unread = useDemoNotifications().some(row => !row.read)
   const trips = allTrips(demo)
-  const [toast, showToast] = useToast()
   const [slide, setSlide] = useState(0)
   const trackRef = useRef<HTMLDivElement>(null)
 
@@ -47,9 +47,17 @@ export default function HomeScreen({ go }: ScreenProps) {
     <Screen bg="var(--mist)" label="홈">
       <header className={styles.header}>
         <h1 className={styles.title}>내 여행</h1>
-        <button type="button" className={shared.tappable} aria-label="내 프로필" onClick={() => showToast('내 프로필 화면은 준비 중이에요')}>
-          <Avatar label={ME.label} name={ME.name} tone="coral" size={36} fontSize={17.1} ring={{ width: 2.5, color: '#fff' }} />
-        </button>
+        <div className={styles.headerActions}>
+          <button type="button" className={cn(styles.bell, shared.tappable)} aria-label={unread ? '알림함, 새 알림 있음' : '알림함'} onClick={() => go('notifications')}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-8 12a2 2 0 0 0 4 0" />
+            </svg>
+            {unread && <span className={styles.notificationDot} aria-hidden />}
+          </button>
+          <button type="button" className={shared.tappable} aria-label="내 프로필" onClick={() => go('profile')}>
+            <Avatar label={ME.label} name={ME.name} tone="coral" size={36} fontSize={17.1} ring={{ width: 2.5, color: '#fff' }} />
+          </button>
+        </div>
       </header>
 
       <div
@@ -119,7 +127,6 @@ export default function HomeScreen({ go }: ScreenProps) {
         ))}
       </ul>
 
-      {toast}
     </Screen>
   )
 }

@@ -4,7 +4,7 @@ import InquiryPanel from '../parts/InquiryPanel'
 import { IconBack, IconChevronRight, IconFile, IconImage, IconKeyboard } from '../parts/icons'
 import shared from '../parts/shared.module.css'
 import { useToast } from '../parts/useToast'
-import { useCurrentPlan, useCurrentTrip, useDemoState } from '../store'
+import { setDemoState, useCurrentPlan, useCurrentTrip, useDemoState } from '../store'
 import type { ScreenProps } from '../types'
 import TimelineScreen from './TimelineScreen'
 import styles from './AddVoucherScreen.module.css'
@@ -51,7 +51,12 @@ export default function AddVoucherScreen({ go, back }: ScreenProps) {
             <ul className={styles.list}>
               {OPTIONS.map((o) => (
                 <li key={o.title}>
-                  <button type="button" className={cn(styles.row, shared.tappable)} onClick={() => go('review')}>
+                  <button type="button" className={cn(styles.row, shared.tappable)} onClick={() => {
+                    if (o.title === '직접 입력') {
+                      setDemoState({ draft: { kind: 'manual' } })
+                      go('review')
+                    } else go('voucher-import')
+                  }}>
                     <span className={cn(shared.iconBox, shared.iconBoxWhite)}>{o.icon}</span>
                     <span className={styles.text}>
                       <strong>{o.title}</strong>

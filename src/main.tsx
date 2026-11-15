@@ -9,3 +9,9 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>,
 )
+
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  void navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(error => {
+    console.warn('트립오프 오프라인 준비에 실패했습니다.', error)
+  })
+}

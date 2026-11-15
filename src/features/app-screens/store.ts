@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import { TRIPS, isVisible, type Plan, type Trip } from './mock'
+import { agencyTripFor, getDemoDeliveries, subscribeDemoDeliveries } from '@/data/demoDelivery'
 
 /**
  * 화면 사이에 이어지는 시연 상태 (아주 작은 전역 스토어).
@@ -24,12 +25,18 @@ export interface DemoState {
   planEdits: Record<string, PlanEdit>
   /** 여행별 「동행 티켓 함께 보기」 */
   shareTickets: Record<string, boolean>
+  addedPlans: Record<string, Plan[]>
+  draft?: { kind: 'sample' | 'manual' | 'file'; original?: Plan['original']; qrValue?: string }
 }
 
 export interface PlanEdit {
   title?: string
   time?: string
   note?: string
+  location?: string
+  day?: number
+  original?: Plan['original']
+  qrValue?: string
   code?: string
   people?: string
 }
@@ -43,9 +50,21 @@ const INITIAL: DemoState = {
   edited: {},
   planEdits: {},
   shareTickets: {},
+  addedPlans: {},
 }
 
-let state: DemoState = INITIAL
+const STORAGE_KEY = 'tripoff.traveler.v1'
+function loadState(): DemoState {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? { ...INITIAL, ...JSON.parse(raw), planId: undefined, voucherTarget: undefined, draft: undefined } : INITIAL
+  } catch { return INITIAL }
+}
+let state: DemoState = loadState()
+function persist() {
+  const { draft: _draft, voucherTarget: _target, planId: _plan, ...data } = state
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)) } catch { /* 읽기 전용 환경에서는 메모리만 사용 */ }
+}
 const listeners = new Set<() => void>()
 
 function emit() {
@@ -54,11 +73,13 @@ function emit() {
 
 export function setDemoState(patch: Partial<DemoState>) {
   state = { ...state, ...patch }
+  persist()
   emit()
 }
 
 export function resetDemoState() {
   state = INITIAL
+  persist()
   emit()
 }
 
@@ -66,19 +87,19 @@ export function getDemoState() {
   return state
 }
 
+function subscribe(l: () => void) {
+  listeners.add(l)
+  return () => listeners.delete(l)
+}
+subscribeDemoDeliveries(() => { state = { ...state }; emit() })
 export function useDemoState() {
-  return useSyncExternalStore(
-    (l) => {
-      listeners.add(l)
-      return () => listeners.delete(l)
-    },
-    () => state,
-  )
+  return useSyncExternalStore(subscribe, getDemoState)
 }
 
 /** 기본 여행 + 새로 만든 여행 */
 export function allTrips(s: DemoState = state): Trip[] {
-  return [...TRIPS, ...s.customTrips]
+  const agency = agencyTripFor(getDemoDeliveries())
+  return [...TRIPS, ...(agency ? [agency] : []), ...s.customTrips]
 }
 
 /** 지금 선택된 여행 (없으면 첫 여행) */
@@ -89,13 +110,33 @@ export function useCurrentTrip(): Trip {
 
 /** 여행의 전체 일정 (보이는 것만), 날짜·시간순 */
 export function tripPlans(trip: Trip, s: DemoState = state): Plan[] {
-  return trip.plans
+  const plans = [...trip.plans, ...(s.addedPlans[trip.id] ?? [])]
     .filter((p) => isVisible(p, !!s.saved[trip.id]))
     .map((p) => withEdits(p, s))
-    .sort((a, b) => a.day - b.day || a.time.localeCompare(b.time))
+    .sort((a, b) => a.day - b.day || minutes(a.time) - minutes(b.time))
+  return plans.map((plan, i) => {
+    const start = minutes(plan.time)
+    const duration = plan.durationMinutes ?? 0
+    const next = plans.slice(i+1).find(p => p.day === plan.day && minutes(p.time) < start + duration)
+    const previous = plans.slice(0,i).some(p => p.day === plan.day && minutes(p.time) + (p.durationMinutes ?? 0) > start)
+    return { ...plan, conflict: !!next || previous, warnAfter: next ? { text: next.icon === 'bus' ? '관람 중 셔틀 출발' : '일정 시간 겹침', detail: `${plan.title} 이용 중 ${next.title} 일정이 ${next.time}에 시작해요.` } : undefined }
+  })
 }
 
 /** 이 일정에 바우처가 있는지 (여행사가 안 보낸 경우 사용자가 등록하면 생김) */
+function minutes(time: string) {
+  const [h, m] = time.split(':').map(Number)
+  return h * 60 + m
+}
+
+export function addPlan(tripId: string, plan: Plan) {
+  setDemoState({ addedPlans: { ...state.addedPlans, [tripId]: [...(state.addedPlans[tripId] ?? []), plan] } })
+}
+
+export function nextStoredTicket(trip: Trip, s: DemoState = state) {
+  return tripPlans(trip, s).find(p => p.day >= s.dayIndex && (p.icon === 'ticket' || p.icon === 'ship') && hasVoucher(p, s) && p.qrValue !== '')
+}
+
 export function hasVoucher(plan: Plan, s: DemoState = state) {
   return plan.voucher !== 'missing' || !!s.registered[plan.id]
 }
@@ -104,7 +145,7 @@ export function hasVoucher(plan: Plan, s: DemoState = state) {
 export function useCurrentPlan(): Plan | undefined {
   const s = useDemoState()
   const trip = allTrips(s).find((t) => t.id === s.tripId) ?? TRIPS[0]
-  const plan = trip.plans.find((p) => p.id === s.planId)
+  const plan = [...trip.plans, ...(s.addedPlans[trip.id] ?? [])].find((p) => p.id === s.planId)
   return plan && withEdits(plan, s)
 }
 

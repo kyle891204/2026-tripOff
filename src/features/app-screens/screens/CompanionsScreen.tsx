@@ -31,7 +31,7 @@ const BY_TRIP: Record<string, { perPerson: string; link: string; costs: Array<{ 
 }
 
 /** Figma 18:410 「동행 · 정산」 — 여행 단위. 초대 링크도 이 여행으로 초대 */
-export default function CompanionsScreen({ back }: ScreenProps) {
+export default function CompanionsScreen({ go, back }: ScreenProps) {
   const [toast, showToast] = useToast()
   const trip = useCurrentTrip()
   const share = !!useDemoState().shareTickets[trip.id]
@@ -41,15 +41,16 @@ export default function CompanionsScreen({ back }: ScreenProps) {
     showToast(next ? '이 여행에서는 동행끼리 티켓을 함께 볼 수 있어요' : '이제 각자 자기 티켓만 보여요')
   }
   // 새로 만든 여행: 아직 정산할 비용 없음
-  const { perPerson, link, costs } = BY_TRIP[trip.id] ?? { perPerson: '₩0', link: `tripoff.app/j/${trip.id.slice(-4).toUpperCase()}`, costs: [] }
+  const { perPerson, costs } = BY_TRIP[trip.id] ?? { perPerson: '₩0', link: `tripoff.app/j/${trip.id.slice(-4).toUpperCase()}`, costs: [] }
   
+  const link = new URL(`/j/${encodeURIComponent(trip.id)}`, window.location.origin).href
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText(`https://${link}`)
+      await navigator.clipboard.writeText(link)
+      showToast('초대 링크를 복사했어요')
     } catch {
-      // 권한 없는 환경(미리보기 등)에서도 시연은 계속
+      showToast('복사가 차단됐어요. 초대 화면에서 링크를 확인해 주세요.')
     }
-    showToast('초대 링크를 복사했어요')
   }
 
   return (
@@ -132,7 +133,7 @@ export default function CompanionsScreen({ back }: ScreenProps) {
       <button
         type="button"
         className={cn(shared.cta, shared.ctaInk, shared.tappable)}
-        onClick={() => showToast(`「${trip.name}」 초대 링크를 카카오톡으로 보냈어요`)}
+        onClick={() => go('invite')}
       >
         이 여행에 초대하기
       </button>

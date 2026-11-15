@@ -16,3 +16,9 @@
   margin-top: var(--space-2);
   color: var(--color-text-muted);
 }
+
+@media (max-width: 767px) {
+  .mobileBare { padding: 0; }
+  .mobileBare .content { padding: 0; }
+  .mobileBare .head { display: none; }
+}

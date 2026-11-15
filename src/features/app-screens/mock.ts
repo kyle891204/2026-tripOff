@@ -45,12 +45,16 @@ export interface Plan {
   note?: string
   /** 일정 겹침 (타임라인 coral 강조) */
   conflict?: boolean
+  durationMinutes?: number
+  location?: string
+  original?: { id: string; name: string }
+  qrValue?: string
   /** 바로 아래에 겹침 경고 표시 */
   warnAfter?: { text: string; detail: string }
   /** 이 일정을 누르면 갈 화면 (없으면 안내 토스트) */
   to?: ScreenId
   /** 「바우처 추가」 시연 샘플로 저장되는 일정. 오사카는 원래 보임(Figma), 제주는 저장해야 나타남 */
-  sample?: 'always' | 'after-save'
+  sample?: 'after-save'
   /**
    * 바우처 상태. 기본은 첨부됨.
    * 'missing' = 여행사가 일정만 보내고 바우처는 안 보냄 → 사용자가 직접 등록
@@ -120,10 +124,9 @@ export const TRIPS: Trip[] = [
       { id: 'o1', day: 0, time: '09:10', title: '인천 → 간사이', icon: 'plane', source: { kind: 'self', via: '항공사 직접 예약' } },
       {
         id: 'o2', day: 0, time: '14:00', title: '유니버설 스튜디오 재팬', icon: 'ticket', source: { kind: 'self', via: 'Klook' },
-        note: '내 QR', conflict: true, to: 'trip-home', sample: 'always',
-        warnAfter: { text: '관람 중 셔틀 출발', detail: 'USJ 입장(14:00) 20분 뒤에 셔틀이 출발해요' },
+        note: '내 QR', location: '메인 게이트', durationMinutes: 120, sample: 'after-save',
       },
-      { id: 'o3', day: 0, time: '14:20', title: '난바행 셔틀', icon: 'bus', source: { kind: 'self', via: '교통 예약처' }, conflict: true },
+      { id: 'o3', day: 0, time: '14:20', title: '난바행 셔틀', icon: 'bus', source: { kind: 'self', via: '교통 예약처' } },
       { id: 'o4', day: 0, time: '18:30', title: '도톤보리 리버 크루즈', icon: 'ship', source: { kind: 'self', via: 'KKday' }, note: '내 QR', to: 'ticket' },
       { id: 'o5', day: 1, time: '09:30', title: '교토행 셔틀', icon: 'bus', source: { kind: 'self', via: '교통 예약처' } },
       { id: 'o6', day: 1, time: '13:00', title: '호즈강 뱃놀이', icon: 'ship', source: { kind: 'self', via: 'KKday' }, note: '내 QR', to: 'ticket' },
@@ -254,8 +257,8 @@ export function makeTrip(name: string, startIso: string, endIso: string, order: 
 export const NEXT_ENTRY = {
   title: '유니버설 스튜디오 재팬',
   time: '14:00',
-  code: 'DEMO-0612',
-  gate: '메인',
+  code: TRIPS[0].sample.code,
+  gate: '메인 게이트',
   qrValue: TRIPS[0].sample.qrValue,
 }
 
@@ -287,21 +290,28 @@ export interface VoucherInfo {
 /** 일정 → 바우처 내용 (시연용으로 일정 정보에서 만들어 냄) */
 export function voucherOf(plan: Plan, trip: Trip): VoucherInfo {
   const day = trip.days[plan.day]
+  const calendarDate = dateAt(trip, plan.day)
   const provider = plan.source.kind === 'agency' ? plan.source.name : plan.source.via
   const short = plan.id.toUpperCase().replace(/[^A-Z0-9]/g, '')
   return {
     provider,
     title: plan.title,
-    file: `${plan.title.replace(/\s+/g, '_')}_바우처.pdf`,
-    date: `${trip.month}.${day.date} ${day.dow}`,
+    file: plan.original?.name ?? (plan.sample ? trip.sample.file : `${plan.title.replace(/\s+/g, '_')}_바우처.pdf`),
+    date: fmt(parseDate(calendarDate)),
     time: plan.time,
-    code: plan.code ?? `DEMO-${short}-${trip.month}${String(day.date).padStart(2, '0')}`,
+    code: plan.code ?? (plan.sample ? trip.sample.code : undefined) ?? `DEMO-${short}-${trip.month}${String(day.date).padStart(2, '0')}`,
     people: plan.people ?? '성인 1매',
-    qrValue: `TRIPOFF-DEMO-${trip.id}-${plan.id}`,
+    qrValue: plan.qrValue ?? (plan.sample ? trip.sample.qrValue : `TRIPOFF-DEMO-${trip.id}-${plan.id}`),
   }
 }
 
 /** 출처 사람이 읽는 표현: 「제주로드트립에서 보낸 일정」 / 「Klook 예약 · 내가 추가」 */
+export function dateAt(trip: Trip, index: number) {
+  const d = parseDate(trip.startIso)
+  d.setDate(d.getDate() + index)
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
+}
+
 export function sourceLabel(plan: Plan) {
   return plan.source.kind === 'agency' ? `${plan.source.name}에서 보낸 일정` : `${plan.source.via} · 내가 추가`
 }

@@ -1,0 +1,16 @@
+.body { position: absolute; inset: 108px 20px 72px; overflow: auto; color: var(--ink); }
+.title { margin: 0 0 8px; font-size: 26px; line-height: 1.23; }
+.sub { color: #53696c; line-height: 1.55; overflow-wrap: anywhere; }
+.card { background: white; border: 1px solid #dae5e4; border-radius: 18px; margin-top: 16px; padding: 16px; }
+.card h2 { font-size: 18px; margin: 0 0 8px; }
+.card p { margin: 6px 0; overflow-wrap: anywhere; }
+.buttons { display: grid; gap: 10px; margin-top: 16px; }
+.buttons button, .buttons a {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 48px; padding: 8px 12px; border-radius: 14px; border: 1px solid #cfdfdf;
+  color: var(--ink); background: white; text-align: center; text-decoration: none; font: inherit; font-weight: 700; cursor: pointer;
+}
+.buttons .primary { color: white; background: var(--deep); border-color: var(--deep); }
+.file { display: block; width: 100%; margin: 12px 0; font: inherit; }
+.preview { display: block; margin: 12px 0 0; width: 100%; min-height: 280px; object-fit: contain; border: 0; border-radius: 8px; background: white; }
+.error { color: #a72431; }

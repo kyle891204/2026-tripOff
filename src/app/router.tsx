@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router'
 import Layout from '@/components/layout/Layout'
 import HomePage from '@/pages/Home/HomePage'
 import DemoPage from '@/pages/Demo/DemoPage'
+import InviteLandingPage from '@/pages/Demo/InviteLandingPage'
 import NotFoundPage from '@/pages/NotFound/NotFoundPage'
 import ScreenOnlyPage from '@/pages/ScreenOnly/ScreenOnlyPage'
 import { PartnerLayout } from '@/features/partner'
@@ -34,6 +35,7 @@ export const router = createBrowserRouter([
     children: [
       { path: ROUTES.home, element: <HomePage /> },
       { path: ROUTES.demo, element: <DemoPage /> },
+      { path: '/j/:tripId', element: <InviteLandingPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

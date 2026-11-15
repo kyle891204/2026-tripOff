@@ -7,3 +7,16 @@
 .main {
   flex: 1;
 }
+
+@media (max-width: 767px) {
+  .demo {
+    min-height: 0;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .demo > :not(.main) {
+    display: none;
+  }
+}

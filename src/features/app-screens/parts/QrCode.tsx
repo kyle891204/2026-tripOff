@@ -14,7 +14,9 @@ interface Props {
  */
 export default function QrCode({ value, size, color = 'var(--ink)' }: Props) {
   const { count, cells } = useMemo(() => {
-    const qr = QRCode.create(value, { errorCorrectionLevel: 'M', version: 2 })
+    let qr: ReturnType<typeof QRCode.create>
+    try { qr = QRCode.create(value, { errorCorrectionLevel: 'M' }) }
+    catch { return { count: 0, cells: [] } }
     const n = qr.modules.size
     const out: Array<[number, number]> = []
     for (let r = 0; r < n; r++) {
@@ -27,6 +29,8 @@ export default function QrCode({ value, size, color = 'var(--ink)' }: Props) {
     return { count: n, cells: out }
   }, [value])
 
+  if (!count) return <span role="status">QR을 표시할 수 없어요.</span>
+
   const finders: Array<[number, number]> = [
     [0, 0],
     [count - 7, 0],
@@ -34,7 +38,8 @@ export default function QrCode({ value, size, color = 'var(--ink)' }: Props) {
   ]
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${count} ${count}`} role="img" aria-label="QR 코드">
+    <svg width={size} height={size} viewBox={`-4 -4 ${count+8} ${count+8}`} role="img" aria-label="QR 코드">
+      <rect x={-4} y={-4} width={count+8} height={count+8} fill="#fff" />
       {cells.map(([x, y]) => (
         <rect key={`${x}-${y}`} x={x} y={y} width={1.02} height={1.02} fill={color} />
       ))}

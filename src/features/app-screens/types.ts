@@ -10,6 +10,14 @@ export type ScreenId =
   | 'ticket'
   | 'companions'
   | 'lock'
+  | 'voucher-import'
+  | 'voucher-original'
+  | 'profile'
+  | 'invite'
+  | 'premium'
+  | 'dynamic-voucher'
+  | 'agency-join'
+  | 'notifications'
 
 export interface GoOptions {
   /** 도착한 화면에 띄울 짧은 안내 (예: 저장 완료) */

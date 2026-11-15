@@ -122,6 +122,17 @@
   border-bottom: 0;
 }
 
+.fieldsMore .field {
+  height: 43px;
+}
+
+.file {
+  max-width: 353px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .field dt {
   font-size: 16px;
   color: var(--ink-sub);

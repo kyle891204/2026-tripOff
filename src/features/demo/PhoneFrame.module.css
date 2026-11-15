@@ -30,10 +30,23 @@
   transform-origin: 0 0;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 767px) {
   .frame {
-    --w: 270;
-    --h: 585;
-    border-radius: 36px;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .canvas {
+    position: absolute;
+    inset: 0 auto auto 0;
+    transform: scale(var(--mobile-scale-x, 1), var(--mobile-scale-y, 1));
+  }
+
+  .canvas svg[aria-label="QR 코드"] {
+    transform: scale(var(--qr-scale-x, 1), var(--qr-scale-y, 1));
+    transform-origin: center;
   }
 }

@@ -32,6 +32,7 @@ export interface Voucher {
 }
 
 export const PARTNER_SAMPLE_VOUCHERS: Voucher[] = [
+  { id: 'TO-2606-0618', customer: '김용태', phone: '010-****-0000', product: '제주 로컬 푸드 투어', option: '오후 출발 12:30', date: '2026-06-27', party: '성인 1', status: 'pending', channel: 'TripOff 시연', meeting: '제주 동문시장 1번 게이트 · 12:15', history: { issued: '6.26 09:00' } },
   {
     id: 'TO-2611-0418', customer: '김민준', phone: '010-****-2381', product: '제주 동부 오름 트레킹', option: '오전 출발 09:00',
     date: '2026-11-18', party: '성인 2', status: 'pending', channel: 'TripOff 앱', meeting: '성산일출봉 주차장 A구역 · 08:45',

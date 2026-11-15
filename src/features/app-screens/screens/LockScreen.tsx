@@ -5,8 +5,8 @@ import Screen from '../parts/Screen'
 import { IconAppLogo, IconCamera, IconFlash } from '../parts/icons'
 import shared from '../parts/shared.module.css'
 import { useToast } from '../parts/useToast'
-import { NEXT_ENTRY } from '../mock'
-import { setDemoState } from '../store'
+import { voucherOf } from '../mock'
+import { nextStoredTicket, setDemoState, useCurrentTrip, useDemoState } from '../store'
 import type { ScreenProps } from '../types'
 import styles from './LockScreen.module.css'
 
@@ -14,31 +14,35 @@ import styles from './LockScreen.module.css'
 export default function LockScreen({ go }: ScreenProps) {
   const [flash, setFlash] = useState(false)
   const [toast, showToast] = useToast()
+  const trip = useCurrentTrip()
+  const state = useDemoState()
+  const plan = nextStoredTicket(trip, state)
+  const voucher = plan && voucherOf(plan, trip)
 
   return (
     <Screen bg="var(--deep)" dark label="잠금 화면">
       <span className={styles.blobA} aria-hidden />
       <span className={styles.blobB} aria-hidden />
 
-      <p className={styles.date}>6월 12일 금요일</p>
+      <p className={styles.date}>{voucher?.date ?? trip.period}</p>
       <p className={styles.clock}>13:30</p>
 
       <button type="button" className={cn(styles.widget, shared.tappable)} onClick={() => {
-          setDemoState({ planId: undefined })
-          go('ticket')
+          setDemoState({ planId: plan?.id })
+          go(plan ? 'ticket' : 'premium')
         }}>
         <span className={styles.logo}>
           <IconAppLogo />
         </span>
-        <span className={styles.name}>USJ 입장</span>
-        <span className={styles.eta}>30분 후</span>
-        <span className={styles.time}>{NEXT_ENTRY.time}</span>
-        <span className={styles.gate}>메인 게이트 · 성인 1매</span>
+        <span className={styles.name}>{voucher?.title ?? '저장된 티켓 없음'}</span>
+        <span className={styles.eta}>{voucher ? '저장된 티켓' : '시연용 위젯'}</span>
+        <span className={styles.time}>{voucher?.time ?? '—'}</span>
+        <span className={styles.gate}>{plan?.location ?? '여행 지갑'} · 시연</span>
         <span className={styles.progress} aria-hidden>
           <span />
         </span>
         <span className={styles.qr}>
-          <QrCode value={NEXT_ENTRY.qrValue} size={76} />
+          {voucher && <QrCode value={voucher.qrValue} size={76} />}
         </span>
       </button>
 
