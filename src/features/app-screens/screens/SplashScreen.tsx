@@ -1,10 +1,10 @@
-import { useEffect, useId, useRef } from 'react'
+import { useEffect, useId, useRef, type CSSProperties } from 'react'
 import Screen from '../parts/Screen'
 import type { ScreenProps } from '../types'
 import styles from './SplashScreen.module.css'
 
 /** 애니메이션 끝나고 홈으로 넘어가는 시점 (ms) */
-const AUTO_NEXT_MS = 1400
+const AUTO_NEXT_MS = 1900
 const AUTO_NEXT_REDUCED_MS = 500
 
 /** 티켓이 새 로고의 포켓에 내려앉은 뒤 홈으로 이동한다. */
@@ -34,7 +34,13 @@ export default function SplashScreen({ go }: ScreenProps) {
             </defs>
             {/* 티켓 전체를 움직이고, 지갑 입구 아래로 들어간 부분만 가린다. */}
             <g mask={`url(#${ticketMaskId})`}>
-              <path className={styles.ticket} fill="#FF7955" d="M407 430 381.6 256Q378 219 411 210L488 194C490 211 503 223 519 223 539 223 552 205 547 181L607 168Q646 161 654 201L676 365Q680 400 646 408L445 454Q411 464 407 430Z" />
+              {['#EAC976', '#83BFBB', '#F4B295', '#FF7955'].map((color, index) => <path
+                key={color}
+                className={`${styles.ticket} ${index === 3 ? styles.lastTicket : styles.passingTicket}`}
+                style={{ '--delay': `${index * 0.19}s`, '--entry-x': `${index % 2 ? 100 : -100}px`, '--entry-angle': `${index % 2 ? 16 : -16}deg` } as CSSProperties}
+                fill={color}
+                d="M407 430 381.6 256Q378 219 411 210L488 194C490 211 503 223 519 223 539 223 552 205 547 181L607 168Q646 161 654 201L676 365Q680 400 646 408L445 454Q411 464 407 430Z"
+              />)}
             </g>
             <path fill="#00A7A0" d="M348 420Q348 384 378 373L710 255Q723 251 728 257Q733 262 730 276L694 500Q687 553 641 553H411Q348 553 348 491Z" />
           </svg>

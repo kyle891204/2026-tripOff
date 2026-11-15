@@ -14,20 +14,32 @@
   width: 132px;
   height: 133px;
   margin-left: -66px;
-  animation: squash 0.22s cubic-bezier(0.3, 1.6, 0.5, 1) 0.42s both;
+  animation: squash 0.22s cubic-bezier(0.3, 1.6, 0.5, 1) 1.04s both;
   transform-origin: 50% 100%;
 }
 
 .wallet svg { display: block; overflow: visible; }
 
 .ticket {
-  animation: drop 0.45s cubic-bezier(0.25, 0.9, 0.3, 1.15) 0.05s both;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: slideIn 0.62s cubic-bezier(0.32, 0, 0.24, 1) var(--delay) both;
 }
 
-@keyframes drop {
-  from { opacity: 0; transform: translateY(-220px); }
-  20% { opacity: 1; }
-  to { opacity: 1; transform: translateY(0); }
+.lastTicket { animation-name: settle; }
+
+@keyframes slideIn {
+  0% { opacity: 0; transform: translate(var(--entry-x), -330px) rotate(var(--entry-angle)); }
+  14% { opacity: 1; }
+  65% { opacity: 1; transform: translate(0, 30px) rotate(0deg); }
+  100% { opacity: 0; transform: translate(0, 380px) rotate(0deg); }
+}
+
+@keyframes settle {
+  0% { opacity: 0; transform: translate(var(--entry-x), -330px) rotate(var(--entry-angle)); }
+  14% { opacity: 1; }
+  80% { opacity: 1; transform: translateY(12px) rotate(0deg); }
+  100% { opacity: 1; transform: translateY(0) rotate(0deg); }
 }
 
 @keyframes squash {
@@ -71,6 +83,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .passingTicket { display: none; }
   .wallet,
   .ticket,
   .brand,

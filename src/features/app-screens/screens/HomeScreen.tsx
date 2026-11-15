@@ -160,15 +160,11 @@ function TripCard({ trip, plans, onOpen, onPlan, onMembers }: CardProps) {
             <span key={p.id} className={styles.snap} style={{ top: k * STEP }} aria-hidden />
           ))}
 
-          <button
-            type="button"
-            className={cn(styles.card, shared.tappable)}
-            onClick={(event) => { if (!empty && !(event.target as HTMLElement).closest('[data-trip-info]')) onPlan(plans[index]); else onOpen(plans[index]?.day ?? 0) }}
-            aria-label={empty ? `${trip.name} 일정 보기` : `${plans[index].title} 일정 상세 보기`}
-          >
+          <div className={styles.card}>
+            <button type="button" className={styles.cardAction} onClick={() => onOpen(plans[index]?.day ?? 0)} aria-label={`${trip.name} 일정 보기`} />
             <span className={styles.cardCircle} aria-hidden />
 
-            <span className={styles.stack} aria-hidden>
+            <span className={styles.stack}>
               {plans.map((p, i) => (
                 <TicketCard key={p.id} plan={p} trip={trip} offset={i - progress} index={i} />
               ))}
@@ -179,6 +175,7 @@ function TripCard({ trip, plans, onOpen, onPlan, onMembers }: CardProps) {
                   눌러서 추가
                 </span>
               )}
+              {!empty && <button type="button" className={styles.ticketAction} aria-label={`${plans[index].title} 일정 상세 보기`} onClick={() => onPlan(plans[index])} />}
             </span>
             <span className={styles.dday}>{trip.dday}</span>
             <span data-trip-info className={cn(styles.city, trip.name.length > 5 && styles.cityLong, trip.name.length > 9 && styles.cityXLong)}>{trip.name}</span>
@@ -191,7 +188,7 @@ function TripCard({ trip, plans, onOpen, onPlan, onMembers }: CardProps) {
                 {index + 1} / {plans.length}
               </span>
             )}
-          </button>
+          </div>
         </div>
       </div>
 
@@ -241,7 +238,7 @@ function TicketCard({ plan, trip, offset, index }: { plan: Plan; trip: Trip; off
     }
   }
   return (
-    <span className={styles.ticket} style={{ ...style, zIndex: 100 - index, ['--stub' as string]: stubColor(plan) }}>
+    <span aria-hidden className={styles.ticket} style={{ ...style, zIndex: 100 - index, ['--stub' as string]: stubColor(plan) }}>
       <span className={styles.tWhen}>
         {plan.source.kind === 'agency' && <span className={styles.tAgency} aria-label="여행사 일정" />}
         {trip.month}.{day.date} {plan.time}

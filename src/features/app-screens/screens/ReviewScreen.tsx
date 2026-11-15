@@ -12,7 +12,7 @@ import styles from './ReviewScreen.module.css'
 
 /**
  * Figma 18:167 「추출 결과 확인」 — 추출한 값을 확인하고 고치는 화면.
- * 모드: 새 바우처(샘플, 원본과 다른 입장 시간을 잡아냄) / 일정에 등록 / 바우처 수정
+ * 모드: 새 바우처(샘플 정보 확인) / 일정에 등록 / 바우처 수정
  * 모든 값(제목·날짜·시간·예약번호·인원)은 눌러서 바로 고칠 수 있다.
  */
 export default function ReviewScreen({ go, back }: ScreenProps) {
@@ -27,8 +27,6 @@ export default function ReviewScreen({ go, back }: ScreenProps) {
   const baseDate = dateAt(trip, mode === 'new' ? (isSample ? samplePlan?.day ?? 0 : Math.min(dayIndex, trip.days.length-1)) : plan!.day)
   const qrValue = draft?.kind === 'file' ? draft.qrValue ?? '' : base.qrValue
 
-  // 새 바우처: 입장 시간 칸을 누르면 원본 값으로 고쳐짐 / 등록·수정: 처음부터 맞는 값
-  const [fixed, setFixed] = useState(mode !== 'new' || !isSample)
   const [title, setTitle] = useState(base.title)
   const [date, setDate] = useState(baseDate)
   const [time, setTime] = useState(base.time)
@@ -109,19 +107,7 @@ export default function ReviewScreen({ go, back }: ScreenProps) {
         <div className={styles.field}>
           <dt>입장</dt>
           <dd>
-            {fixed ? (
-              <input className={styles.inline} type="time" value={time} onChange={(e) => setTime(e.target.value)} aria-label="입장 시간" />
-            ) : (
-              <button
-                type="button"
-                className={cn(styles.warn, shared.tappable)}
-                onClick={() => setFixed(true)}
-                aria-label={`입장 ${base.wrongTime}, 원본과 다름. 눌러서 고치기`}
-              >
-                <span className={styles.warnDot} aria-hidden />
-                {base.wrongTime}
-              </button>
-            )}
+            <input className={styles.inline} type="time" value={time} onChange={(e) => setTime(e.target.value)} aria-label="입장 시간" />
           </dd>
         </div>
         <div className={styles.field}>
@@ -141,9 +127,9 @@ export default function ReviewScreen({ go, back }: ScreenProps) {
       </dl>
 
       <p className={styles.note}>
-        {!fixed ? `원본 PDF의 입장 시간은 ${base.time}이에요 · 눌러서 고치기` : '값을 눌러서 바로 고칠 수 있어요'}
+        정보를 확인하고 여행에 저장해 주세요.
         <br />
-        {isSample ? `${people} 예약 · 시연에 쓰는 샘플 정보예요` : '원본과 비교해 값을 입력해 주세요.'}
+        {isSample ? `${people} 예약 · 샘플 정보가 준비됐어요. 필요하면 수정할 수 있어요.` : '원본과 비교해 값을 입력해 주세요.'}
       </p>
 
       <button type="button" className={cn(shared.cta, shared.ctaTeal, shared.tappable)} onClick={save}>
@@ -153,9 +139,7 @@ export default function ReviewScreen({ go, back }: ScreenProps) {
             : '그대로 저장'
           : mode === 'register'
             ? '이 일정에 등록'
-            : fixed
-              ? '저장'
-              : `${base.time}으로 고치고 저장`}
+            : '여행에 저장'}
       </button>
 
       {toast}

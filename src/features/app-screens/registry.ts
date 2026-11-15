@@ -38,7 +38,7 @@ export const SCREENS: ScreenMeta[] = [
   { id: 'timeline', title: '여행 타임라인', caption: '여행사에서 상품을 사면 일정(바우처 포함)이 자동으로 들어와요. 여행사 일정은 작은 체크로 구분', source: 'hifi', figmaNode: '18:232', floatingBack: { left: 325, top: 762 }, Component: TimelineScreen },
   { id: 'plan', title: '일정 상세 · 바우처', caption: '모든 일정의 바우처를 보고 고칠 수 있어요. 여행사가 바우처 없이 보낸 일정은 직접 등록, 문제가 있으면 문의', source: 'temp', Component: PlanDetailScreen },
   { id: 'add-voucher', title: '바우처 추가', caption: '여행 안에서 추가 — PDF·메일·캡처 어디서 받은 바우처든 이 여행에 들어가요', source: 'hifi', figmaNode: '18:74', Component: AddVoucherScreen },
-  { id: 'review', title: '추출 결과 확인', caption: '원본과 다른 값은 표시해 주고 한 번에 고쳐요. 동행 몫 QR 은 각자에게', source: 'hifi', figmaNode: '18:167', Component: ReviewScreen },
+  { id: 'review', title: '추출 결과 확인', caption: '예약 정보를 확인하고 바로 여행에 저장해요. 필요한 값만 선택해서 수정할 수 있어요', source: 'hifi', figmaNode: '18:167', Component: ReviewScreen },
   { id: 'trip-home', title: '여행 중 홈', caption: '오프라인이어도 다음 입장 QR 이 바로 떠요 (내 티켓만)', source: 'hifi', figmaNode: '18:325', floatingBack: { left: 325, top: 762 }, Component: TripHomeScreen },
   { id: 'ticket', title: '티켓', caption: '현장에서 보여줄 내 QR 을 크게, 밝기 최대로', source: 'hifi', figmaNode: '18:367', Component: TicketScreen },
   { id: 'companions', title: '동행 · 정산', caption: '여행 단위로 동행을 초대하고 1인당 비용까지. 티켓은 각자 자기 것만', source: 'hifi', figmaNode: '18:410', Component: CompanionsScreen },
@@ -51,3 +51,4 @@ export const SCREENS: ScreenMeta[] = [
 ]
 
 export const SCREEN_BY_ID = Object.fromEntries(SCREENS.map((s) => [s.id, s])) as Record<ScreenId, ScreenMeta>
+
