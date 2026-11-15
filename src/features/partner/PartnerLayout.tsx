@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from 'react-router'
+import { Link, NavLink, Outlet } from 'react-router'
 import { useScrollToTop } from '@/hooks/useScrollToTop'
 import { ROUTES } from '@/lib/routes'
 import { cn } from '@/lib/cn'
@@ -44,6 +44,9 @@ export default function PartnerLayout() {
               ))}
             </ul>
           </nav>
+          <Link to={ROUTES.demo} className={styles.back}>
+            ← 사용자 앱 시연으로
+          </Link>
         </div>
       </aside>
       <Outlet />

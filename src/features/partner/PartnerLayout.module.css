@@ -101,3 +101,18 @@
 .disabled:hover {
   background: transparent;
 }
+
+.back {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding-left: 12px;
+  border-top: 1px solid var(--p-divider);
+  padding-top: 16px;
+  box-sizing: content-box;
+  color: var(--p-text-sub);
+  font-size: 14px;
+}
+.back:hover {
+  color: var(--p-primary);
+}
