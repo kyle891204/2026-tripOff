@@ -1,5 +1,5 @@
 # 2026-tripOff
-캡스톤에서 도망칠 것
+캡스톤에서 돔황챠ㅑㅑㅑㅑ
 
 TripOff 앱 시연용 웹 사이트 (React 19 + Vite + TypeScript + React Router).
 
