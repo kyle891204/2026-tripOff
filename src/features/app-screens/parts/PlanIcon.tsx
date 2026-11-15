@@ -1,6 +1,6 @@
 import { cn } from '@/lib/cn'
 import type { PlanIcon as Kind } from '../mock'
-import { IconBed, IconBus, IconPlane, IconShip, IconTicketCoral } from './icons'
+import { IconBed, IconBus, IconPlane, IconShip, IconTicketCoral, IconTicketGold } from './icons'
 import shared from './shared.module.css'
 
 interface Props {
@@ -10,17 +10,16 @@ interface Props {
   agency?: string
 }
 
-/** 일정 종류별 아이콘 + 아이콘 상자. 입장권(ticket)·겹침 일정은 coral 톤 */
+/** 입장권은 노란색, 겹침 경고는 주황색으로 구분한다. */
 export default function PlanIcon({ kind, coral, agency }: Props) {
-  const warm = coral || kind === 'ticket'
   return (
-    <span className={cn(shared.iconBox, warm && shared.iconBoxCoral, shared.iconBoxMarked)}>
+    <span className={cn(shared.iconBox, coral ? shared.iconBoxCoral : kind === 'ticket' && shared.iconBoxGold, shared.iconBoxMarked)}>
       {agency && <AgencyMark name={agency} />}
       {kind === 'plane' && <IconPlane />}
       {kind === 'bus' && <IconBus tone={coral ? 'coral' : 'teal'} />}
       {kind === 'bed' && <IconBed />}
       {kind === 'ship' && <IconShip />}
-      {kind === 'ticket' && <IconTicketCoral />}
+      {kind === 'ticket' && (coral ? <IconTicketCoral /> : <IconTicketGold />)}
     </span>
   )
 }

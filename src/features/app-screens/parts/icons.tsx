@@ -31,6 +31,7 @@ import ship from '@/assets/icons/ic-ship.svg'
 import sunCore from '@/assets/icons/ic-sun-core.svg'
 import sunRays from '@/assets/icons/ic-sun-rays.svg'
 import ticketCoral from '@/assets/icons/ic-ticket-coral.svg'
+import ticketGold from '@/assets/icons/ic-ticket-gold.svg'
 import wallet from '@/assets/icons/ic-wallet.svg'
 
 /** 단일 SVG 아이콘 */
@@ -55,6 +56,7 @@ export const IconPlane = () => <Img src={plane} />
 export const IconBed = () => <Img src={bed} />
 export const IconShip = () => <Img src={ship} />
 export const IconTicketCoral = () => <Img src={ticketCoral} />
+export const IconTicketGold = () => <Img src={ticketGold} />
 export const IconFile = () => <Img src={file} />
 export const IconChevronRight = () => <Img src={chevronRight} />
 export const IconBack = () => <Img src={back} />
