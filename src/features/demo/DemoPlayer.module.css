@@ -3,7 +3,8 @@
   grid-template-columns: auto minmax(0, 360px);
   justify-content: center;
   gap: var(--space-5) 72px;
-  align-items: center;
+  /* 오른쪽 설명 높이가 화면마다 달라도 폰 위치·크기는 그대로 */
+  align-items: start;
 }
 
 @media (max-width: 860px) {
@@ -36,6 +37,7 @@
 .side {
   display: flex;
   flex-direction: column;
+  align-self: center;
 }
 
 .step {
@@ -174,7 +176,7 @@
 .shortcuts button { padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: white; color: var(--ink-sub); font: inherit; cursor: pointer; }
 .shortcuts button[aria-current] { background: var(--teal-soft); color: var(--deep); }
 @media (min-width:768px) {
-  .root { grid-template-columns:auto minmax(0,420px); gap:32px; align-items:center; }
+  .root { grid-template-columns:auto minmax(0,420px); gap:32px; align-items:start; }
   .title { font-size:24px; }.caption { font-size:13px; margin-top:6px; }
   .list { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:16px; }
   .item { height:100%; padding:12px; gap:8px; border:1px solid var(--line); align-items:flex-start; }

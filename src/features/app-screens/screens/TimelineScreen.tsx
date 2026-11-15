@@ -3,6 +3,7 @@ import { cn } from '@/lib/cn'
 import Avatar from '../parts/Avatar'
 import PlanIcon from '../parts/PlanIcon'
 import Screen from '../parts/Screen'
+import TabBar from '../parts/TabBar'
 import shared from '../parts/shared.module.css'
 import { useToast } from '../parts/useToast'
 import { sourceLine, type Plan } from '../mock'
@@ -144,9 +145,7 @@ export default function TimelineScreen({ go, toast: initialToast, overlay }: Pro
         </div>
       </div>
 
-      {!overlay && <button type="button" className={styles.shopFloat} onClick={() => { setDemoState({ shopCountry: undefined, shopDestination: undefined }); go('shop') }}>
-        추천 특가 둘러보기 <span aria-hidden>↗</span>
-      </button>}
+      {!overlay && <TabBar active="home" inside go={go} />}
       {toast}
       {overlay}
     </Screen>

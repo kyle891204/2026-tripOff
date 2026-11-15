@@ -39,10 +39,10 @@ export default function VouchersScreen({ go, toast: initialToast }: ScreenProps)
   }
 
   return (
-    <Screen bg="var(--mist)" label="바우처">
+    <Screen bg="var(--mist)" label="일정">
       <header className={styles.header}>
-        <h1>바우처</h1>
-        <p>여행별로 모은 바우처를 한곳에서 봐요</p>
+        <h1>일정</h1>
+        <p>여행별 일정과 바우처를 한곳에서 봐요</p>
       </header>
 
       <div className={styles.actions}>
