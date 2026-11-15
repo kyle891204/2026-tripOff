@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useId, useRef } from 'react'
 import Screen from '../parts/Screen'
 import type { ScreenProps } from '../types'
 import styles from './SplashScreen.module.css'
@@ -9,6 +9,7 @@ const AUTO_NEXT_REDUCED_MS = 500
 
 /** 티켓이 새 로고의 포켓에 내려앉은 뒤 홈으로 이동한다. */
 export default function SplashScreen({ go }: ScreenProps) {
+  const ticketMaskId = useId()
   // 부모가 다시 렌더돼도 타이머가 리셋되지 않도록 최신 go 만 ref 로 참조
   const goRef = useRef(go)
   useEffect(() => {
@@ -28,7 +29,15 @@ export default function SplashScreen({ go }: ScreenProps) {
 
         <span className={styles.wallet} aria-hidden>
           <svg viewBox="347 167 385 387" width="132" height="133" focusable="false">
-            <path className={styles.ticket} fill="#FF7955" d="M391 340 381.6 256Q378 219 411 210L488 194C490 211 503 223 519 223 539 223 552 205 547 181L607 168Q646 161 654 201L661 247Z" />
+            <defs>
+              <mask id={ticketMaskId} maskUnits="userSpaceOnUse" x="100" y="-500" width="800" height="1100">
+                <path fill="white" d="M100-500H900V164.7L100 440.2Z" />
+              </mask>
+            </defs>
+            {/* 티켓 전체를 움직이고, 지갑 입구 아래로 들어간 부분만 가린다. */}
+            <g mask={`url(#${ticketMaskId})`}>
+              <path className={styles.ticket} fill="#FF7955" d="M407 430 381.6 256Q378 219 411 210L488 194C490 211 503 223 519 223 539 223 552 205 547 181L607 168Q646 161 654 201L676 365Q680 400 646 408L445 454Q411 464 407 430Z" />
+            </g>
             <path fill="#00A7A0" d="M348 420Q348 384 378 373L710 255Q723 251 728 257Q733 262 730 276L694 500Q687 553 641 553H411Q348 553 348 491Z" />
           </svg>
         </span>
