@@ -53,6 +53,8 @@
   .immersive .sizer {
     display: block;
     position: relative;
+    width: min(100%, 393px);
+    margin-inline: auto;
     height: var(--mobile-scroll-height, 100%);
     overflow: hidden;
   }

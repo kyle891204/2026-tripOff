@@ -16,11 +16,11 @@ export default function PhoneFrame({ children, immersive = false, screenKey, sho
   useLayoutEffect(() => {
     const frame = frameRef.current
     if (!frame || !immersive) return
-    // 가로 기준 배율 하나만 사용하므로 글자, 버튼, QR의 비율이 유지됩니다.
+    // 좁은 창에서는 줄이고, 넓어져도 393px 디자인 크기 이상 키우지 않습니다.
     const update = () => {
       const { width, height } = frame.getBoundingClientRect()
       if (!width || !height) return
-      const scale = width / 393
+      const scale = Math.min(width / 393, 1)
       const contentHeight = Math.max(852, height / scale)
       frame.style.setProperty('--mobile-scale', String(scale))
       frame.style.setProperty('--mobile-content-height', `${contentHeight}px`)
