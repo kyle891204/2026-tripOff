@@ -9,10 +9,10 @@ import {
   QrPlaceholder,
   RadioMark,
   partnerStyles as p,
+  useCompany,
   useProductStore,
   useToast,
 } from '@/features/partner'
-import { PARTNER_COMPANY_NAME } from '@/data/partnerVouchers'
 import type { CodeType } from '@/data/partnerProducts'
 import { ROUTES } from '@/lib/routes'
 import { cn } from '@/lib/cn'
@@ -49,7 +49,8 @@ function formatDate(value: string) {
 }
 
 export default function ProductRegisterPage() {
-  const companyName = PARTNER_COMPANY_NAME
+  const { company } = useCompany()
+  const companyName = company.name
   const toast = useToast()
   const navigate = useNavigate()
   const { addProduct } = useProductStore()

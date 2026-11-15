@@ -3,12 +3,13 @@ import {
   Badge,
   PartnerButton as Button,
   historyStamp,
+  useCompany,
   partnerStyles as p,
   useProductStore,
   useToast,
   useVoucherStore,
 } from '@/features/partner'
-import { PARTNER_COMPANY_NAME, PARTNER_DEMO_TODAY, type Voucher } from '@/data/partnerVouchers'
+import { PARTNER_DEMO_TODAY, type Voucher } from '@/data/partnerVouchers'
 import { FEE_RATE, WEEKDAY, parseParty, priceOf, won } from '@/features/partner/calc'
 import { ROUTES } from '@/lib/routes'
 import { cn } from '@/lib/cn'
@@ -25,6 +26,7 @@ export default function DashboardPage() {
   const toast = useToast()
   const { vouchers, setVouchers } = useVoucherStore()
   const { products } = useProductStore()
+  const { company } = useCompany()
 
   const todayDate = new Date(`${PARTNER_DEMO_TODAY}T00:00:00`)
   const todayLabel = `${todayDate.getMonth() + 1}월 ${todayDate.getDate()}일 (${WEEKDAY[todayDate.getDay()]})`
@@ -98,7 +100,7 @@ export default function DashboardPage() {
       <header className={p.header}>
         <div className={p.headerTitle}>
           <p className={p.crumb}>{todayLabel} 기준</p>
-          <h1>안녕하세요, {PARTNER_COMPANY_NAME}님</h1>
+          <h1>안녕하세요, {company.name}님</h1>
           <p className={p.desc}>오늘 처리할 예약과 바우처를 한눈에 확인하세요.</p>
         </div>
         <div className={p.actions}>

@@ -1,22 +1,8 @@
 import { useState, type ChangeEvent } from 'react'
-import { Card, Field, PartnerButton as Button, partnerStyles as p, useToast } from '@/features/partner'
-import { PARTNER_COMPANY_NAME } from '@/data/partnerVouchers'
+import { Card, Field, PartnerButton as Button, partnerStyles as p, useCompany, useToast } from '@/features/partner'
+import type { CompanyProfile } from '@/data/partnerCompany'
 import { cn } from '@/lib/cn'
 import s from './CompanySettingsPage.module.css'
-
-/** 업체 설정 초기값 (시연용 목업). 실제로는 업체 정보 API에서 불러온다. */
-const INITIAL = {
-  name: PARTNER_COMPANY_NAME,
-  bizNo: '123-45-67890',
-  owner: '김현우',
-  field: '국내여행 · 투어/액티비티',
-  manager: '이수진',
-  phone: '064-123-4567',
-  email: 'partner@jejuroadtrip.kr',
-  bank: '국민은행',
-  account: '1234-56-7890123',
-  holder: '제주로드트립',
-}
 
 const NOTIFICATIONS = [
   { key: 'booking', title: '새 예약 알림', desc: '예약이 확정되면 알림톡으로 알려드려요.' },
@@ -28,23 +14,35 @@ type NotiKey = (typeof NOTIFICATIONS)[number]['key']
 
 export default function CompanySettingsPage() {
   const toast = useToast()
-  const [form, setForm] = useState(INITIAL)
-  const [noti, setNoti] = useState<Record<NotiKey, boolean>>({ booking: true, cancel: true, settle: false })
+  const { company, setCompany } = useCompany()
+  // 저장된 값을 초안으로 복제해 편집하고, '저장'을 눌러야 공용 저장소에 반영된다.
+  const [form, setForm] = useState<CompanyProfile>(company)
 
-  const set = (key: keyof typeof INITIAL) => (e: ChangeEvent<HTMLInputElement>) =>
+  const set = (key: keyof CompanyProfile) => (e: ChangeEvent<HTMLInputElement>) =>
     setForm((prev) => ({ ...prev, [key]: e.target.value }))
 
-  const save = () => toast.show('업체 정보를 저장했어요.')
+  const toggle = (key: NotiKey) =>
+    setForm((prev) => ({ ...prev, notifications: { ...prev.notifications, [key]: !prev.notifications[key] } }))
+
+  const dirty = JSON.stringify(form) !== JSON.stringify(company)
+
+  const save = () => {
+    setCompany(form)
+    toast.show('업체 정보를 저장했어요.')
+  }
 
   return (
     <main className={p.main}>
       <header className={p.header}>
         <div className={p.headerTitle}>
           <h1>업체 설정</h1>
-          <p className={p.desc}>고객 앱과 바우처, 정산에 쓰이는 업체 정보를 관리하세요.</p>
+          <p className={p.desc}>고객 앱과 바우처, 정산에 쓰이는 업체 정보를 관리하세요. 저장하면 사이드바와 대시보드, 바우처 미리보기에 바로 반영됩니다.</p>
         </div>
         <div className={p.actions}>
-          <Button variant="primary" onClick={save}>
+          <Button variant="secondary" disabled={!dirty} onClick={() => setForm(company)}>
+            되돌리기
+          </Button>
+          <Button variant="primary" disabled={!dirty} onClick={save}>
             저장
           </Button>
         </div>
@@ -108,10 +106,10 @@ export default function CompanySettingsPage() {
                   <button
                     type="button"
                     role="switch"
-                    aria-checked={noti[n.key]}
+                    aria-checked={form.notifications[n.key]}
                     aria-label={n.title}
                     className={s.switch}
-                    onClick={() => setNoti((prev) => ({ ...prev, [n.key]: !prev[n.key] }))}
+                    onClick={() => toggle(n.key)}
                   />
                 </label>
               ))}
