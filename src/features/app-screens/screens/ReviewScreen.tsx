@@ -50,9 +50,9 @@ export default function ReviewScreen({ go, back }: ScreenProps) {
     const original = draft?.original ?? plan?.original
     const values = { title: title.trim(), day, time, code: code.trim(), people: people.trim(), location: location.trim() || undefined, original, qrValue: qrText.trim() }
     if (owner) {
-      addPlan(trip.id, { ...values, id: crypto.randomUUID(), icon: 'ticket', owner, note: `${owner}님 바우처`, source: { kind: 'self', via: draft?.kind === 'file' ? '첨부 파일' : isSample ? trip.sample.provider : '직접 입력' } })
+      addPlan(trip.id, { ...values, id: crypto.randomUUID(), icon: 'ticket', owner, note: `${owner}님 일정`, source: { kind: 'self', via: draft?.kind === 'file' ? '첨부 파일' : isSample ? trip.sample.provider : '직접 입력' } })
       setDemoState({ voucherOwner: undefined, voucherTarget: undefined, draft: undefined })
-      go('vouchers', { toast: `${owner}님 바우처를 「${trip.name}」에 추가했어요` })
+      go('vouchers', { toast: `${owner}님 일정을 「${trip.name}」에 추가했어요` })
       return
     }
     const target = mode === 'new' ? (isSample ? samplePlan : undefined) : plan
@@ -148,7 +148,7 @@ export default function ReviewScreen({ go, back }: ScreenProps) {
           : mode === 'register'
             ? '이 일정에 등록'
             : owner
-              ? `${owner}님 바우처로 저장`
+              ? `${owner}님 일정으로 저장`
               : '여행에 저장'}
       </button>
 

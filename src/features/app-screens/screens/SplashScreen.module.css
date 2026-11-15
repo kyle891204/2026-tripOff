@@ -14,7 +14,7 @@
   width: 132px;
   height: 133px;
   margin-left: -66px;
-  animation: squash 0.22s cubic-bezier(0.3, 1.6, 0.5, 1) 1.04s both;
+  animation: squash 0.16s cubic-bezier(0.3, 1.6, 0.5, 1) 0.68s both;
   transform-origin: 50% 100%;
 }
 
@@ -23,7 +23,7 @@
 .ticket {
   transform-box: fill-box;
   transform-origin: center;
-  animation: slideIn 0.62s cubic-bezier(0.32, 0, 0.24, 1) var(--delay) both;
+  animation: slideIn 0.4s cubic-bezier(0.32, 0, 0.24, 1) var(--delay) both;
 }
 
 .lastTicket { animation-name: settle; }
@@ -64,7 +64,7 @@
   font-size: 30px;
   font-weight: 800;
   letter-spacing: -0.5px;
-  animation: rise 0.3s ease 0.5s both;
+  animation: rise 0.24s ease 0.25s both;
 }
 
 .headline {
@@ -72,7 +72,7 @@
   font-size: 17px;
   line-height: 26px;
   color: #616C68;
-  animation: rise 0.3s ease 0.6s both;
+  animation: rise 0.24s ease 0.32s both;
 }
 
 @keyframes rise {

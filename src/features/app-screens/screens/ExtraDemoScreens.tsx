@@ -103,7 +103,7 @@ export function ProfileScreen({ go, back }: ScreenProps) {
       <Avatar label={ME.label} name={ME.name} tone="coral" size={72} fontSize={28} />
       <h2>{ME.name}<span>님</span></h2><p>가볍게 떠나는 여행자</p><span className={styles.badge}>시연 계정</span>
     </div>
-    <div className={styles.menu}><button onClick={() => go('home', { replace: true })}><span>내 여행</span><IconChevronRight /></button><button onClick={() => go('vouchers', { replace: true })}><span>내 바우처</span><IconChevronRight /></button><button onClick={() => go('invite')}><span>동행 초대</span><IconChevronRight /></button><button onClick={() => go('notifications')}><span>알림함</span><IconChevronRight /></button></div>
+    <div className={styles.menu}><button onClick={() => go('home', { replace: true })}><span>내 여행</span><IconChevronRight /></button><button onClick={() => go('vouchers', { replace: true })}><span>내 일정</span><IconChevronRight /></button><button onClick={() => go('invite')}><span>동행 초대</span><IconChevronRight /></button><button onClick={() => go('notifications')}><span>알림함</span><IconChevronRight /></button></div>
     <div className={styles.menu} aria-label="계정 및 지원">
       <button type="button" title="시연용 버튼"><span>설정</span><IconChevronRight /></button>
       <button type="button" title="시연용 버튼"><span>도움말 · 문의</span><IconChevronRight /></button>

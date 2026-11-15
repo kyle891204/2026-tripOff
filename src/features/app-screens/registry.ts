@@ -39,7 +39,7 @@ export const SCREENS: ScreenMeta[] = [
   { id: 'add-trip', title: '여행 추가', caption: '어디로·언제만 정하면 빈 여행이 생기고, 바로 바우처를 모을 수 있어요', source: 'temp', Component: AddTripScreen },
   { id: 'timeline', title: '여행 타임라인', caption: '여행사에서 상품을 사면 일정(바우처 포함)이 자동으로 들어와요. 여행사 일정은 작은 체크로 구분', source: 'hifi', figmaNode: '18:232', Component: TimelineScreen },
   { id: 'plan', title: '일정 상세 · 바우처', caption: '모든 일정의 바우처를 보고 고칠 수 있어요. 여행사가 바우처 없이 보낸 일정은 직접 등록, 문제가 있으면 문의', source: 'temp', Component: PlanDetailScreen },
-  { id: 'vouchers', title: '일정', caption: '모든 여행의 바우처를 한곳에서. 내 바우처도, 대신 받은 일행 바우처도 여기서 추가해요', source: 'temp', Component: VouchersScreen },
+  { id: 'vouchers', title: '일정', caption: '모든 여행의 일정을 날짜별로 한곳에서. 내 일정도, 대신 받은 일행 일정도 여기서 추가해요', source: 'temp', Component: VouchersScreen },
   { id: 'add-voucher', title: '바우처 추가', caption: '여행 안에서 추가 — PDF·메일·캡처 어디서 받은 바우처든 이 여행에 들어가요', source: 'hifi', figmaNode: '18:74', Component: AddVoucherScreen },
   { id: 'review', title: '추출 결과 확인', caption: '예약 정보를 확인하고 바로 여행에 저장해요. 필요한 값만 선택해서 수정할 수 있어요', source: 'hifi', figmaNode: '18:167', Component: ReviewScreen },
   { id: 'trip-home', title: '여행 중 홈', caption: '오프라인이어도 다음 입장 QR 이 바로 떠요 (내 티켓만)', source: 'hifi', figmaNode: '18:325', floatingBack: { left: 325, top: 762 }, Component: TripHomeScreen },
