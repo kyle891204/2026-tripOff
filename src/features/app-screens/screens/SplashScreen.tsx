@@ -1,21 +1,13 @@
 import { useEffect, useRef } from 'react'
-import { cn } from '@/lib/cn'
 import Screen from '../parts/Screen'
 import type { ScreenProps } from '../types'
 import styles from './SplashScreen.module.css'
 
-/** 지갑으로 떨어지는 티켓 (뒤 → 앞 순서로 들어감) */
-const TICKETS = ['coral', 'sand', 'mint', 'paper'] as const
-
 /** 애니메이션 끝나고 홈으로 넘어가는 시점 (ms) */
-const AUTO_NEXT_MS = 1800
-const AUTO_NEXT_REDUCED_MS = 800
+const AUTO_NEXT_MS = 1400
+const AUTO_NEXT_REDUCED_MS = 500
 
-/**
- * ⚠ 임시 화면 — Figma 하이파이에 스플래시가 없음.
- * 티켓 4장이 지갑에 차례로 들어가고 → 로고·문구가 뜬 뒤 → 홈으로 자동 이동.
- * 화면을 누르면 바로 넘어감.
- */
+/** 티켓이 새 로고의 포켓에 내려앉은 뒤 홈으로 이동한다. */
 export default function SplashScreen({ go }: ScreenProps) {
   // 부모가 다시 렌더돼도 타이머가 리셋되지 않도록 최신 go 만 ref 로 참조
   const goRef = useRef(go)
@@ -35,13 +27,10 @@ export default function SplashScreen({ go }: ScreenProps) {
         <span className={styles.blob} aria-hidden />
 
         <span className={styles.wallet} aria-hidden>
-          <span className={styles.back} />
-          {TICKETS.map((tone, i) => (
-            <span key={tone} className={cn(styles.ticket, styles[tone], styles[`t${i}`])} />
-          ))}
-          <span className={styles.front}>
-            <span className={styles.clasp} />
-          </span>
+          <svg viewBox="347 167 385 387" width="132" height="133" focusable="false">
+            <path className={styles.ticket} fill="#FF7955" d="M391 340 381.6 256Q378 219 411 210L488 194C490 211 503 223 519 223 539 223 552 205 547 181L607 168Q646 161 654 201L661 247Z" />
+            <path fill="#00A7A0" d="M348 420Q348 384 378 373L710 255Q723 251 728 257Q733 262 730 276L694 500Q687 553 641 553H411Q348 553 348 491Z" />
+          </svg>
         </span>
 
         <span className={styles.copy}>
