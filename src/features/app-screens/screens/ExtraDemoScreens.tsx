@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { DEMO_AGENCY_TRIP_ID, DEMO_DELIVERY_ID, getDemoDeliveries } from '@/data/demoDelivery'
 import Screen from '../parts/Screen'
 import QrCode from '../parts/QrCode'
 import { IconBack } from '../parts/icons'
@@ -125,25 +124,5 @@ export function DynamicVoucherScreen({ back }: ScreenProps) {
     <div className={styles.card}><h2>오사카 전망대 입장권</h2><p>예약번호 DYNAMIC-DEMO-12</p><p>온라인 필요 · QR이 실시간으로 바뀌는 티켓</p></div>
     <div className={styles.buttons}><button className={styles.primary} onClick={() => setOpened(true)}>원본 앱에서 열기</button></div>
     {opened && <p role="status">시연용 티켓이라 실제 발급처 앱은 열리지 않아요.</p>}
-  </Page>
-}
-
-export function AgencyJoinScreen({ go, back }: ScreenProps) {
-  const [code, setCode] = useState('')
-  const [message, setMessage] = useState('')
-  return <Page back={back} title="여행사 초대 참여" subtitle="파트너센터에서 발송한 시연 바우처 번호로 일정을 열어요.">
-    <div className={styles.card}>
-      <label htmlFor="agency-code">시연 초대 코드</label>
-      <input className={styles.file} id="agency-code" value={code} placeholder={DEMO_DELIVERY_ID} onChange={e => setCode(e.target.value)} />
-      <div className={styles.buttons}><button className={styles.primary} onClick={() => {
-        if (!getDemoDeliveries().some(row => row.id === code.trim().toUpperCase())) {
-          setMessage('아직 받은 바우처가 없거나 코드가 달라요.')
-          return
-        }
-        setDemoState({ tripId: DEMO_AGENCY_TRIP_ID, dayIndex: 0, planId: undefined })
-        go('timeline')
-      }}>고객 일정 열기</button></div>
-      {message && <p role="status">{message}</p>}
-    </div>
   </Page>
 }

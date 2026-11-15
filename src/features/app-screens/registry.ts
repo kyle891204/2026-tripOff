@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react'
-import { AgencyJoinScreen, DynamicVoucherScreen, InviteScreen, PremiumScreen, ProfileScreen, VoucherImportScreen, VoucherOriginalScreen } from './screens/ExtraDemoScreens'
+import { DynamicVoucherScreen, InviteScreen, PremiumScreen, ProfileScreen, VoucherImportScreen, VoucherOriginalScreen } from './screens/ExtraDemoScreens'
 import AddTripScreen from './screens/AddTripScreen'
 import AddVoucherScreen from './screens/AddVoucherScreen'
 import CompanionsScreen from './screens/CompanionsScreen'
@@ -48,7 +48,6 @@ export const SCREENS: ScreenMeta[] = [
   { id: 'invite', title: '동행 초대', caption: '같은 브라우저에서 열 수 있는 초대 링크', source: 'temp', Component: InviteScreen },
   { id: 'premium', title: '프리미엄 기간권', caption: '6,000원 기간권 결제 화면 시연', source: 'temp', Component: PremiumScreen },
   { id: 'dynamic-voucher', title: '실시간 QR 티켓', caption: '실시간 QR은 오프라인 저장 대신 발급처 앱 안내', source: 'temp', Component: DynamicVoucherScreen },
-  { id: 'agency-join', title: '여행사 초대 참여', caption: '시연용 발송 바우처 번호로 고객 여행을 열어요', source: 'temp', Component: AgencyJoinScreen },
   { id: 'notifications', title: '알림함', caption: '바우처 변경 알림과 입장 알림을 열어 일정을 확인해요', source: 'temp', Component: NotificationsScreen },
   { id: 'lock', title: '잠금 화면 위젯', caption: '폰을 열지 않아도 입장 QR 을 꺼내요 (프리미엄)', source: 'hifi', figmaNode: '18:458', floatingBack: { left: 325, top: 532 }, Component: LockScreen },
 ]

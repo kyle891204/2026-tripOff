@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { cn } from '@/lib/cn'
 import Screen from '../parts/Screen'
-import { IconBack, IconChevronRight } from '../parts/icons'
+import { IconBack } from '../parts/icons'
 import shared from '../parts/shared.module.css'
 import { makeTrip } from '../mock'
 import { getDemoState, setDemoState } from '../store'
@@ -13,7 +13,6 @@ const SUGGESTIONS = ['도쿄', '다낭', '방콕', '타이베이', '파리']
 /**
  * ⚠ 임시 화면 — Figma 에 없음.
  * 새 여행 만들기: 어디로 + 언제. 만들면 빈 여행 타임라인으로 들어가 바우처를 추가한다.
- * 여행사 패키지는 여행사가 보낸 초대 링크로 자동 추가되는 흐름이라 별도 안내만.
  */
 export default function AddTripScreen({ go, back }: ScreenProps) {
   const [city, setCity] = useState('')
@@ -81,18 +80,6 @@ export default function AddTripScreen({ go, back }: ScreenProps) {
       {end < start && <p className={styles.error}>오는 날이 가는 날보다 빨라요</p>}
 
       <p className={styles.note}>함께 가는 사람은 여행을 만든 뒤 초대할 수 있어요</p>
-
-      <button
-        type="button"
-        className={cn(styles.agency, shared.tappable)}
-        onClick={() => go('agency-join')}
-      >
-        <span>
-          <strong>여행사 패키지로 가시나요?</strong>
-          <span>여행사 초대 코드로 참여하기</span>
-        </span>
-        <IconChevronRight />
-      </button>
 
       <button
         type="button"

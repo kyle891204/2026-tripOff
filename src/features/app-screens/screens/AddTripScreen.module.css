@@ -136,37 +136,6 @@
   color: var(--ink-muted);
 }
 
-/* ---------- 여행사 패키지 ---------- */
-.agency {
-  position: absolute;
-  left: 20px;
-  top: 532px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 353px;
-  height: 68px;
-  padding: 0 18px;
-  border-radius: 20px;
-  background: var(--mist);
-}
-
-.agency > span {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.agency strong {
-  font-size: 15px;
-}
-
-.agency > span > span {
-  font-size: 13px;
-  color: var(--teal);
-  font-weight: 700;
-}
-
 .create:disabled {
   opacity: 0.3;
   cursor: default;

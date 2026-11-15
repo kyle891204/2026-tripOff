@@ -16,7 +16,6 @@ export type ScreenId =
   | 'invite'
   | 'premium'
   | 'dynamic-voucher'
-  | 'agency-join'
   | 'notifications'
 
 export interface GoOptions {
