@@ -4,4 +4,8 @@ export const ROUTES = {
   demo: '/demo',
   /** 앱 화면 단독 보기 (캡처·QA 용) */
   screen: '/screens/:id',
+  /** 파트너센터 (여행사 관리자) */
+  partner: '/partners',
+  partnerProducts: '/partners/products',
+  partnerVouchers: '/partners/vouchers',
 } as const

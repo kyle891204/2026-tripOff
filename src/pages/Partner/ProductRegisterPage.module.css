@@ -1,0 +1,261 @@
+.images {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.slot {
+  position: relative;
+  width: 160px;
+  height: 120px;
+  border-radius: var(--p-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 13px;
+}
+.slotAdd {
+  background: var(--p-surface-subtle);
+  border: 1.5px dashed var(--p-border-dashed);
+  color: var(--p-text-body);
+}
+.slotAdd:not(:disabled):hover {
+  border-color: var(--p-primary);
+  color: var(--p-primary);
+}
+.slotEmpty {
+  background: var(--p-surface-muted);
+  color: var(--p-text-sub);
+}
+.slot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.slotTag {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--p-primary);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+.slotRemove {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.92);
+  display: grid;
+  place-items: center;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.optionRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 130px 130px 100px 44px;
+  gap: 8px;
+  align-items: center;
+}
+.optionHead {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--p-text-sub);
+}
+.iconBtn {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--p-border);
+  border-radius: var(--p-radius-sm);
+  background: var(--p-surface);
+  display: grid;
+  place-items: center;
+}
+.iconBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.days {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.chips {
+  display: flex;
+  gap: 8px;
+}
+
+.codeTypes {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.codeTypes legend {
+  padding: 0;
+  margin-bottom: 10px;
+}
+.codeRow {
+  display: flex;
+  gap: 10px;
+}
+.codeType {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--p-border-strong);
+  border-radius: var(--p-radius-md);
+  background: var(--p-surface);
+  cursor: pointer;
+}
+.codeSelected {
+  border: 1.5px solid var(--p-primary);
+  background: var(--p-primary-tint);
+  padding: 13.5px;
+}
+.codeType:focus-within {
+  box-shadow: 0 0 0 3px rgba(36, 83, 201, 0.15);
+}
+.codeText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.5;
+}
+.codeText strong {
+  font-size: 14px;
+  font-weight: 500;
+}
+.codeText span {
+  font-size: 12px;
+  color: var(--p-text-sub);
+}
+
+.rule {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+.ruleTail {
+  font-size: 14px;
+  color: var(--p-text-body);
+}
+
+/* 고객 바우처 미리보기 */
+.preview {
+  position: sticky;
+  top: 32px;
+  width: 360px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.previewTitle {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+.voucher {
+  background: var(--p-surface);
+  border: 1px solid var(--p-border);
+  border-radius: var(--p-radius-xl);
+  overflow: hidden;
+}
+.voucherHead {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px 22px;
+  background: var(--p-voucher-head);
+  line-height: 1.5;
+}
+.voucherCompany {
+  font-size: 12px;
+  color: #c3cce0;
+}
+.voucherName {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+.voucherMeta {
+  font-size: 13px;
+  color: #dce2ee;
+}
+.voucherCode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 0;
+  font-size: 13px;
+  color: var(--p-text-sub);
+}
+.voucherDivider {
+  margin: 0;
+  border: 0;
+  height: 1px;
+  background: #d5d9e0;
+}
+.voucherInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 18px 22px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.voucherInfo > div {
+  display: flex;
+  gap: 12px;
+}
+.voucherInfo dt {
+  width: 64px;
+  flex-shrink: 0;
+  color: var(--p-text-sub);
+}
+.voucherInfo dd {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-weight: 500;
+}
+.voucherSub {
+  font-weight: 400;
+  color: var(--p-text-sub);
+}
+.voucherSync {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 22px 20px;
+  padding: 12px 14px;
+  border-radius: var(--p-radius-md);
+  background: var(--p-primary-soft);
+  color: var(--p-primary-strong);
+  font-size: 13px;
+  font-weight: 500;
+}

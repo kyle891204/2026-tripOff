@@ -1,6 +1,11 @@
 # 파트너센터(여행사 관리자) 구현 방식
 
-> 상태: **방식 확정, 구현 전**. Figma 페이지 「파트너센터 (여행사 관리자)」 기준.
+> 상태: **1차 구현됨** (YONG, `feat: 관리자 페이지 구현`). Figma 페이지 「파트너센터 (여행사 관리자)」 기준.
+>
+> 실제 구현 위치: `src/features/partner/` (레이아웃·공용 컴포넌트), `src/pages/Partner/` (상품 등록, 바우처 관리),
+> `src/data/partnerVouchers.ts` (목 데이터). 경로는 `/partners` → `/partners/products`, `/partners/vouchers`.
+> 색은 `PartnerLayout.module.css` 의 `--p-*` 토큰으로 앱(라군 틸)과 분리돼 있음.
+> 아래는 처음 정한 방식이며, 아직 반영 안 된 항목: `src/api/` 데이터 계층, `React.lazy` 분리, 앱 ↔ 관리자 데이터 연동.
 
 ## 결론
 

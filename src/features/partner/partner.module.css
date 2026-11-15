@@ -1,0 +1,293 @@
+/* 파트너센터 공통 스타일. 토큰은 PartnerLayout.module.css의 .root에서 정의 */
+
+/* Page header */
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 32px 40px 64px;
+}
+.header {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+}
+.headerTitle {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  line-height: 1.5;
+}
+.crumb {
+  font-size: 13px;
+  color: var(--p-text-sub);
+}
+.headerTitle h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+}
+.desc {
+  font-size: 14px;
+  color: var(--p-text-sub);
+}
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.body {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+.stack {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.row {
+  display: flex;
+  gap: 16px;
+}
+.row > * {
+  flex: 1;
+  min-width: 0;
+}
+.hint {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--p-text-sub);
+}
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Button */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 18px;
+  border-radius: var(--p-radius-sm);
+  border: 1px solid transparent;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background-color 0.15s, opacity 0.15s;
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.primary {
+  background: var(--p-primary);
+  color: #fff;
+  font-weight: 700;
+}
+.primary:not(:disabled):hover {
+  background: var(--p-primary-strong);
+}
+.secondary {
+  background: var(--p-surface);
+  border-color: var(--p-border-strong);
+  color: var(--p-text);
+}
+.secondary:not(:disabled):hover {
+  background: var(--p-surface-subtle);
+}
+.outline {
+  background: var(--p-surface);
+  border-color: var(--p-primary);
+  color: var(--p-primary);
+}
+.outline:not(:disabled):hover {
+  background: var(--p-primary-tint);
+}
+.danger {
+  background: var(--p-surface);
+  border-color: var(--p-danger-border);
+  color: var(--p-danger);
+}
+.danger:not(:disabled):hover {
+  background: #fdf3f2;
+}
+.block {
+  width: 100%;
+}
+.lg {
+  height: 48px;
+}
+
+/* Field */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.fieldLabel {
+  font-size: 14px;
+  font-weight: 500;
+}
+.input {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--p-border-strong);
+  border-radius: var(--p-radius-sm);
+  background: var(--p-surface);
+  color: var(--p-text);
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+}
+.input::placeholder {
+  color: var(--p-text-placeholder);
+}
+.input:focus {
+  border-color: var(--p-primary);
+  box-shadow: 0 0 0 3px rgba(36, 83, 201, 0.15);
+}
+.input:disabled {
+  background: var(--p-surface-subtle);
+  color: var(--p-text-sub);
+}
+select.input {
+  appearance: none;
+  padding-right: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%236b717c' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+textarea.input {
+  height: auto;
+  min-height: 44px;
+  padding: 11px 12px;
+  line-height: 1.5;
+  resize: vertical;
+}
+.inputSm {
+  width: 80px;
+}
+
+/* Chip, Tab */
+.chip {
+  height: 44px;
+  min-width: 47px;
+  padding: 0 16px;
+  border-radius: 22px;
+  border: 1px solid var(--p-border-strong);
+  background: var(--p-surface);
+  color: var(--p-text-body);
+  font-size: 14px;
+  font-weight: 500;
+}
+.chip[aria-pressed='true'] {
+  background: var(--p-primary);
+  border-color: var(--p-primary);
+  color: #fff;
+}
+.tab {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 20px;
+  border: 1px solid var(--p-border-strong);
+  background: var(--p-surface);
+  color: var(--p-text-body);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: pre;
+}
+.tab[aria-selected='true'] {
+  background: var(--p-text);
+  border-color: var(--p-text);
+  color: #fff;
+}
+
+/* Badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 13px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.pending {
+  background: #fff1e0;
+  color: #8a4300;
+}
+.sent {
+  background: #e6eeff;
+  color: var(--p-primary-strong);
+}
+.used {
+  background: #e4f4ea;
+  color: #1a633a;
+}
+.cancelled {
+  background: #eef0f3;
+  color: #4d535e;
+}
+
+/* Card */
+.card {
+  background: var(--p-surface);
+  border: 1px solid var(--p-border);
+  border-radius: var(--p-radius-lg);
+}
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px;
+}
+.cardHeading {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  line-height: 1.5;
+}
+.cardHeading h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+.cardHeading p {
+  font-size: 13px;
+  color: var(--p-text-sub);
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  transform: translateX(-50%);
+  padding: 12px 18px;
+  border-radius: var(--p-radius-md);
+  background: var(--p-text);
+  color: #fff;
+  font-size: 14px;
+  box-shadow: 0 8px 24px rgba(22, 24, 29, 0.18);
+  z-index: 10;
+}

@@ -23,6 +23,7 @@ src/
 │  ├─ Home/                #   랜딩 (sections/ Hero·Features·Cta)
 │  ├─ Demo/                #   앱 시연 페이지
 │  ├─ ScreenOnly/          #   /screens/:id — 앱 화면 단독 (캡처·QA 용)
+│  ├─ Partner/             #   /partners/products, /partners/vouchers (관리자)
 │  └─ NotFound/
 ├─ components/
 │  ├─ layout/              # Header, Footer, Layout (사이트 공통)
@@ -33,13 +34,14 @@ src/
 │  │  ├─ parts/            #   StatusBar, QrCode, Avatar, icons 등 화면 공용 부품
 │  │  ├─ registry.ts       #   화면 목록·순서·설명 (시연 순서는 여기서)
 │  │  └─ mock.ts           #   시나리오 데이터 (오사카 여행)
-│  └─ demo/                # PhoneFrame(폰 베젤·축소), DemoPlayer(시연 플레이어)
+│  ├─ demo/                # PhoneFrame(화면 축소 틀), DemoPlayer(시연 플레이어·뒤로가기)
+│  └─ partner/             # 파트너센터(관리자) 레이아웃·공용 컴포넌트
 ├─ data/                   # 사이트 문구·기능 목록 ← 텍스트 수정은 여기
 ├─ hooks/  lib/  types/
 ├─ styles/                 # global.css, variables.css (라군 틸 디자인 토큰)
 └─ assets/icons/           # Figma 에서 받은 아이콘 SVG
 docs/
-└─ admin-plan.md           # 파트너센터(관리자) 구현 방식
+└─ admin-plan.md           # 파트너센터(관리자) 구현 방식·현황
 ```
 
 ## 규칙
