@@ -1,12 +1,25 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { CalendarIcon, Card, CloseIcon, Field, PartnerButton as Button, QrPlaceholder, RadioMark, partnerStyles as p, useToast } from '@/features/partner'
+import { useEffect, useRef, useState } from 'react'
+import { Link, useNavigate } from 'react-router'
+import {
+  CalendarIcon,
+  Card,
+  CloseIcon,
+  Field,
+  PartnerButton as Button,
+  QrPlaceholder,
+  RadioMark,
+  partnerStyles as p,
+  useProductStore,
+  useToast,
+} from '@/features/partner'
 import { PARTNER_COMPANY_NAME } from '@/data/partnerVouchers'
+import type { CodeType } from '@/data/partnerProducts'
+import { ROUTES } from '@/lib/routes'
 import { cn } from '@/lib/cn'
 import s from './ProductRegisterPage.module.css'
 
 type Option = { id: number; name: string; adult: string; child: string; stock: string }
 type RefundRule = { id: number; days: string; percent: string }
-type CodeType = 'qr' | 'barcode' | 'number'
 
 const DAYS = ['월', '화', '수', '목', '금', '토', '일']
 const WEEKDAY = ['일', '월', '화', '수', '목', '금', '토']
@@ -29,6 +42,9 @@ function formatDate(value: string) {
 export default function ProductRegisterPage() {
   const companyName = PARTNER_COMPANY_NAME
   const toast = useToast()
+  const navigate = useNavigate()
+  const { addProduct } = useProductStore()
+  const nameRef = useRef<HTMLInputElement>(null)
 
   // 1. 기본 정보
   const [name, setName] = useState('')
@@ -101,39 +117,46 @@ export default function ProductRegisterPage() {
   const refundSummary = firstRule ? `이용 ${firstRule.days}일 전까지 ${firstRule.percent}% 환불` : '[취소 규정]'
   const optionName = options.find((o) => o.name.trim())?.name.trim() || '[옵션명]'
 
-  const missing = useMemo(() => {
-    const m: string[] = []
-    if (!name.trim()) m.push('상품명')
-    if (!region.trim()) m.push('지역')
-    if (!options.some((o) => o.name.trim() && o.adult.trim())) m.push('옵션과 성인 가격')
-    if (!meetPlace.trim()) m.push('집결 장소')
-    return m
-  }, [name, region, options, meetPlace])
-
-  const requestReview = () => {
-    if (missing.length) {
-      toast.show(`아직 비어 있는 필수 항목: ${missing.join(', ')}`)
+  /** 시연용: 승인 절차 없이 바로 등록하고 목록으로 이동한다. 필수값은 상품명만 확인한다. */
+  const register = () => {
+    if (!name.trim()) {
+      toast.show('상품명을 입력해 주세요.')
+      nameRef.current?.focus()
       return
     }
-    toast.show('검수 요청을 보냈어요. 승인되면 판매가 시작돼요.')
+    const created = addProduct({
+      name: name.trim(),
+      category,
+      region: region.trim() || '지역 미정',
+      duration: duration.trim(),
+      options: options
+        .filter((o) => o.name.trim() || o.adult)
+        .map(({ name: optionName, adult, child, stock }) => ({ name: optionName.trim(), adult, child, stock })),
+      days: DAYS.filter((d) => days.has(d)),
+      codeType,
+      meetPlace: meetPlace.trim(),
+    })
+    navigate(ROUTES.partnerProducts, { state: { createdId: created.id } })
   }
 
   return (
     <main className={p.main}>
       <header className={p.header}>
         <div className={p.headerTitle}>
-          <p className={p.crumb}>상품 등록·관리 › 새 상품</p>
+          <p className={p.crumb}>
+            <Link to={ROUTES.partnerProducts}>상품 등록·관리</Link> › 새 상품
+          </p>
           <h1>새 상품 등록</h1>
           <p className={p.desc}>
-            등록한 상품은 검수 후 판매되고, 예약이 확정되면 바우처가 고객의 TripOff 일정에 자동으로 들어갑니다.
+            등록하면 바로 판매가 시작되고, 예약이 확정되면 바우처가 고객의 TripOff 일정에 자동으로 들어갑니다.
           </p>
         </div>
         <div className={p.actions}>
-          <Button variant="secondary" onClick={() => toast.show('임시 저장했어요.')}>
-            임시 저장
+          <Button variant="secondary" onClick={() => navigate(ROUTES.partnerProducts)}>
+            취소
           </Button>
-          <Button variant="primary" onClick={requestReview}>
-            검수 요청
+          <Button variant="primary" onClick={register}>
+            등록
           </Button>
         </div>
       </header>
@@ -142,7 +165,7 @@ export default function ProductRegisterPage() {
         <div className={p.stack}>
           <Card title="1. 기본 정보" description="고객 앱 상품 카드와 바우처 상단에 표시됩니다.">
             <Field label="상품명 *" htmlFor="p-name">
-              <input id="p-name" className={p.input} placeholder="예: 제주 동부 오름 트레킹 반일 투어" value={name} onChange={(e) => setName(e.target.value)} />
+              <input id="p-name" ref={nameRef} className={p.input} placeholder="예: 제주 동부 오름 트레킹 반일 투어" value={name} onChange={(e) => setName(e.target.value)} />
             </Field>
             <div className={p.row}>
               <Field label="카테고리 *" htmlFor="p-category">

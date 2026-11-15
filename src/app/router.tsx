@@ -4,6 +4,7 @@ import HomePage from '@/pages/Home/HomePage'
 import DemoPage from '@/pages/Demo/DemoPage'
 import NotFoundPage from '@/pages/NotFound/NotFoundPage'
 import { PartnerLayout } from '@/features/partner'
+import ProductListPage from '@/pages/Partner/ProductListPage'
 import ProductRegisterPage from '@/pages/Partner/ProductRegisterPage'
 import VoucherManagementPage from '@/pages/Partner/VoucherManagementPage'
 import { ROUTES } from '@/lib/routes'
@@ -13,7 +14,8 @@ export const router = createBrowserRouter([
     // 파트너센터: 사이트 Header/Footer 없이 전용 사이드바 레이아웃
     element: <PartnerLayout />,
     children: [
-      { path: ROUTES.partnerProducts, element: <ProductRegisterPage /> },
+      { path: ROUTES.partnerProducts, element: <ProductListPage /> },
+      { path: ROUTES.partnerProductNew, element: <ProductRegisterPage /> },
       { path: ROUTES.partnerVouchers, element: <VoucherManagementPage /> },
     ],
   },

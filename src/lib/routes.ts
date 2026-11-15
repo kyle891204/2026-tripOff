@@ -5,5 +5,6 @@ export const ROUTES = {
   /** 파트너센터 (여행사 관리자) */
   partner: '/partners',
   partnerProducts: '/partners/products',
+  partnerProductNew: '/partners/products/new',
   partnerVouchers: '/partners/vouchers',
 } as const
