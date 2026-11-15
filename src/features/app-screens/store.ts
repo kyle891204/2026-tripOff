@@ -19,6 +19,7 @@ export interface ShopBooking {
   title: string
 }
 export interface DemoState {
+  shopDestination?: string
   shopProductId?: string
   shopBooking?: ShopBooking
   shopOrders?: ShopBooking[]
