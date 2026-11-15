@@ -4,7 +4,7 @@ import { useDemoNotifications } from '@/data/demoNotifications'
 import Avatar from '../parts/Avatar'
 import PlanIcon from '../parts/PlanIcon'
 import Screen from '../parts/Screen'
-import { IconWallet } from '../parts/icons'
+import homeLogo from '@/assets/icons/ic-home-logo.svg'
 import shared from '../parts/shared.module.css'
 import { ME, type Plan, type PlanIcon as Kind, type Trip } from '../mock'
 import { allTrips, setDemoState, tripPlans, useDemoState } from '../store'
@@ -46,7 +46,7 @@ export default function HomeScreen({ go }: ScreenProps) {
   return (
     <Screen bg="var(--mist)" label="홈">
       <header className={styles.header}>
-        <h1 className={styles.title}>내 여행</h1>
+        <h1 className={styles.title}><img className={styles.homeLogo} src={homeLogo} alt="TripOff" />내 여행</h1>
         <div className={styles.headerActions}>
           <button type="button" className={cn(styles.bell, shared.tappable)} aria-label={unread ? '알림함, 새 알림 있음' : '알림함'} onClick={() => go('notifications')}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -175,10 +175,6 @@ function TripCard({ trip, plans, onOpen, onMembers }: CardProps) {
                   눌러서 추가
                 </span>
               )}
-            </span>
-
-            <span className={styles.wallet}>
-              <IconWallet />
             </span>
             <span className={styles.dday}>{trip.dday}</span>
             <span className={cn(styles.city, trip.name.length > 5 && styles.cityLong, trip.name.length > 9 && styles.cityXLong)}>{trip.name}</span>

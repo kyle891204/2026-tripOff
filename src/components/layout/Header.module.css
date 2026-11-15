@@ -34,3 +34,9 @@
 .active {
   color: var(--color-text);
 }
+.header { transition: height .12s ease; }
+.compact { height: 44px; }
+.logo, .link { transition: font-size .12s ease; }
+.compact .logo { font-size: 1.05rem; }
+.compact .link { font-size: 13px; }
+@media (prefers-reduced-motion: reduce) { .header, .logo, .link { transition: none; } }

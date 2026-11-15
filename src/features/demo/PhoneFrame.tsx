@@ -18,6 +18,11 @@ export default function PhoneFrame({ children, immersive = false, screenKey, sho
     if (!frame || !immersive) return
     // 좁은 창에서는 줄이고, 넓어져도 393px 디자인 크기 이상 키우지 않습니다.
     const update = () => {
+      if (window.innerWidth > 767) {
+        const desktopHeight = Math.min(852, Math.max(320, window.innerHeight - 88))
+        frame.style.setProperty('--w', String(desktopHeight * 393 / 852))
+        frame.style.setProperty('--h', String(desktopHeight))
+      }
       const { width, height } = frame.getBoundingClientRect()
       if (!width || !height) return
       const scale = Math.min(width / 393, 1)
@@ -29,7 +34,8 @@ export default function PhoneFrame({ children, immersive = false, screenKey, sho
     update()
     const observer = new ResizeObserver(update)
     observer.observe(frame)
-    return () => observer.disconnect()
+    window.addEventListener('resize', update)
+    return () => { observer.disconnect(); window.removeEventListener('resize', update) }
   }, [immersive])
 
   useLayoutEffect(() => {

@@ -66,7 +66,7 @@
 .caption {
   margin-top: var(--space-2);
   color: var(--color-text-muted);
-  min-height: 3.2em;
+  line-height: 1.6;
 }
 
 .list {
@@ -75,15 +75,15 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 8px;
 }
 
 .item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
   width: 100%;
-  padding: 9px 12px;
+  padding: 14px 12px;
   border: 0;
   border-radius: 12px;
   background: none;
@@ -160,4 +160,26 @@
   margin-top: var(--space-2);
   font-size: 13px;
   color: var(--ink-muted);
+}
+.stepCopy { display: grid; gap: 6px; }
+.stepCopy strong { font-size: 16px; color: var(--ink); }
+.stepCopy > span { font-size: 13px; line-height: 1.6; font-weight: 400; color: var(--ink-sub); word-break: keep-all; }
+.item .num { padding-top: 3px; }
+.current { padding: 14px 16px; margin-top: 16px; border: 1px solid var(--line); border-radius: 14px; background: white; }
+.current > span { font-size: 12px; font-weight: 700; color: var(--teal); }
+.current p { margin: 6px 0 0; font-size: 13px; line-height: 1.6; color: var(--ink-sub); }
+.details { margin-top: 16px; font-size: 13px; color: var(--ink-sub); }
+.details summary { cursor: pointer; padding: 8px 0; }
+.shortcuts { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0; }
+.shortcuts button { padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: white; color: var(--ink-sub); font: inherit; cursor: pointer; }
+.shortcuts button[aria-current] { background: var(--teal-soft); color: var(--deep); }
+@media (min-width:768px) {
+  .root { grid-template-columns:auto minmax(0,420px); gap:32px; align-items:center; }
+  .title { font-size:24px; }.caption { font-size:13px; margin-top:6px; }
+  .list { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:16px; }
+  .item { height:100%; padding:12px; gap:8px; border:1px solid var(--line); align-items:flex-start; }
+  .stepCopy strong { font-size:14px; }.stepCopy > span { font-size:12px; line-height:1.5; }
+  .current { margin-top:12px; padding:10px 12px; }
+  .nav { margin-top:12px; }.nav button { height:40px; }
+  .details { margin-top:8px; }.restart { margin-top:4px; height:32px; }.hint { margin-top:4px; font-size:12px; }
 }

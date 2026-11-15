@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Link, NavLink } from 'react-router'
 import { SITE } from '@/data/site'
 import { ROUTES } from '@/lib/routes'
@@ -6,8 +7,15 @@ import Container from '@/components/ui/Container'
 import styles from './Header.module.css'
 
 export default function Header() {
+  const [compact, setCompact] = useState(false)
+  useEffect(() => {
+    const update = () => setCompact(current => window.scrollY > (current ? 2 : 24))
+    update()
+    window.addEventListener('scroll', update, { passive: true })
+    return () => window.removeEventListener('scroll', update)
+  }, [])
   return (
-    <header className={styles.header}>
+    <header className={cn(styles.header, compact && styles.compact)}>
       <Container className={styles.inner}>
         <Link to={ROUTES.home} className={styles.logo}>
           {SITE.name}

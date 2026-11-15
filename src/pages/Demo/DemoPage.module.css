@@ -1,9 +1,4 @@
-.switch {
-  display: flex;
-  justify-content: center;
-  margin-bottom: var(--space-5);
-}
-
-@media (max-width: 767px) {
-  .switch { display: none; }
-}
+.page { padding: 12px 0; }
+.switch { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.switch h1 { font-size:20px; margin:0; }
+@media (max-width:767px) { .page { padding:0; }.page > div { width:100%; max-width:none; padding:0; margin:0; }.switch { display:none; } }

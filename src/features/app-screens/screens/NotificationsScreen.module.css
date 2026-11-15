@@ -1,5 +1,6 @@
-.list { display: grid; gap: 10px; list-style: none; margin: 16px 0 0; padding: 0; }
-.list .row { width: 100%; display: grid; gap: 6px; padding: 14px; border: 1px solid var(--line); border-radius: 16px; background: white; cursor: pointer; overflow-wrap: anywhere; }
-.row span, .row small, .hint { color: var(--ink-sub); }
-.row .unread { color: var(--deep); font-size: 12px; }
-.hint { margin-top: 10px !important; font-size: 14px; }
+.summary { display:flex; align-items:center; gap:8px; margin:28px 0 16px; font-size:14px; color:var(--ink); }.summary strong { font-size:20px; }.summary small { font-size:14px; font-weight:400; margin-left:3px; }.count { margin-left:auto; padding:7px 10px; border-radius:8px; background:#e7f0ee; color:var(--deep); font-size:12px; }
+.list { display:grid; gap:12px; list-style:none; margin:0; padding:0; }
+.row { width:100%; display:flex; align-items:flex-start; gap:12px; padding:20px 16px; border:1px solid #e1eae8; border-radius:20px; background:white; cursor:pointer; text-align:left; font:inherit; color:var(--ink); }
+.fresh { border-color:#bad5cf; }.icon { display:grid; place-items:center; flex:none; width:40px; height:40px; border-radius:14px; color:var(--deep); background:#edf5f3; font-size:24px; }
+.content { display:grid; min-width:0; gap:8px; }.content strong { font-size:15px; line-height:1.5; }.content > span { color:#607779; font-size:14px; line-height:1.6; overflow-wrap:anywhere; }.content small { color:#607779; font-size:12px; }.dot { display:inline-block; width:6px; height:6px; margin:0 0 2px 8px; border-radius:50%; background:var(--coral); }
+.empty { display:flex; align-items:center; flex-direction:column; text-align:center; background:white; border-radius:28px; padding:56px 20px; margin-top:20px; }.emptyIcon { display:grid; place-items:center; width:80px; height:80px; border-radius:28px; background:#edf5f3; color:var(--teal); margin-bottom:24px; }.empty h2 { font-size:18px; margin:0 0 12px; }.empty p,.hint { font-size:14px; color:#607779; line-height:1.7; margin:0; }.hint { margin-bottom:16px; }.row:focus-visible { outline:2px solid var(--teal); outline-offset:3px; }

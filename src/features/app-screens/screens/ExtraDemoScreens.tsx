@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import Screen from '../parts/Screen'
+import Avatar from '../parts/Avatar'
 import QrCode from '../parts/QrCode'
-import { IconBack } from '../parts/icons'
+import { IconBack, IconFile, IconTicketCoral, IconChevronRight } from '../parts/icons'
 import shared from '../parts/shared.module.css'
 import { ME, NEXT_ENTRY, voucherOf } from '../mock'
 import { setDemoState, useCurrentPlan, useCurrentTrip } from '../store'
@@ -9,7 +10,7 @@ import { detectImageQr, fileRecord } from '../voucherFiles'
 import type { ScreenProps } from '../types'
 import styles from './ExtraDemoScreens.module.css'
 
-function Page({ back, title, subtitle, children }: {
+export function Page({ back, title, subtitle, children }: {
   back: () => void; title: string; subtitle: string; children: React.ReactNode
 }) {
   return <Screen bg="var(--mist)" label={title}>
@@ -39,18 +40,22 @@ export function VoucherImportScreen({ go, back }: ScreenProps) {
     finally { setBusy(false) }
   }
   return <Page back={back} title="원본 파일 선택" subtitle="PDF 또는 사진을 기기에 저장해 바우처에 첨부해요.">
-    <div className={styles.card}>
-      <label htmlFor="voucher-file">바우처 파일</label>
+    <div className={styles.upload}>
+      <span className={styles.uploadIcon}><IconFile /></span>
+      <h2>예약한 바우처를 가져오세요</h2>
+      <p className={styles.sub}>예약 메일의 PDF도, 저장한 캡처도 좋아요.</p>
+      <label className={styles.fileLabel} htmlFor="voucher-file">{busy ? '파일을 저장하는 중…' : '기기에서 파일 선택'}</label>
       <input id="voucher-file" className={styles.file} type="file" accept=".pdf,.png,.jpg,.jpeg,.webp" disabled={busy} onChange={e => {
         const file = e.currentTarget.files?.[0]
         e.currentTarget.value = ''
         if (file) void select(file)
       }} />
+      <small className={styles.formats}>PDF · JPG · PNG · WebP / 최대 10MB</small>
       {busy && <p role="status">파일을 저장하고 있어요…</p>}
       {error && <p role="alert" className={styles.error}>{error}</p>}
     </div>
     <div className={styles.card}>
-      <h2>샘플로 시연하기</h2><p>{trip.sample.file}</p>
+      <span className={styles.eyebrow}>먼저 체험해 보세요</span><div className={styles.fileRow}><span className={shared.iconBoxCoral}><IconTicketCoral /></span><div><h2>샘플 바우처</h2><p>{trip.sample.file}</p></div></div>
       <p className={styles.sub}>샘플은 추출 결과와 QR이 미리 준비돼 있어요.</p>
       <div className={styles.buttons}><button className={styles.primary} onClick={() => { setDemoState({ draft: { kind: 'sample' } }); go('review') }}>샘플 바우처 사용</button></div>
     </div>
@@ -76,23 +81,34 @@ export function VoucherOriginalScreen({ back }: ScreenProps) {
     }).catch(() => { if (!disposed) setUnavailable(true) })
     return () => { disposed = true; if (url) URL.revokeObjectURL(url) }
   }, [original])
-  return <Page back={back} title="원본 바우처" subtitle={data.file}>
+  return <Page back={back} title="원본 바우처" subtitle={original?.name ?? data.file}>
     {original ? <div className={styles.card}>
       {preview ? <>
         {preview.type.startsWith('image/') ? <img className={styles.preview} src={preview.url} alt="첨부한 바우처 원본" /> : <iframe className={styles.preview} src={preview.url} title="첨부한 PDF 원본" />}
         <div className={styles.buttons}><a href={preview.url} download={original.name}>원본 다운로드</a></div>
       </> : <p role="status">{unavailable ? '기기에 저장된 원본을 찾을 수 없어요.' : '기기에서 원본을 불러오는 중이에요.'}</p>}
-    </div> : <div className={styles.card}>
-      <p>시연용 샘플</p><h2>{data.title}</h2><p>{data.date} · {data.time}</p><p>예약번호 {data.code}</p>
-      {data.qrValue && <QrCode value={data.qrValue} size={132} />}
+    </div> : <div className={styles.ticket}>
+      <div className={styles.ticketHeader}><span className={styles.eyebrow}>TRAVEL VOUCHER</span><span className={styles.badge}>시연용 샘플</span><h2>{data.title}</h2></div>
+      <dl className={styles.details}><div><dt>이용 일시</dt><dd>{data.date} · {data.time}</dd></div><div><dt>예약 번호</dt><dd>{data.code}</dd></div></dl>
+      {data.qrValue && <div className={styles.qr}><QrCode value={data.qrValue} size={148} /><p>입장 시 QR을 보여 주세요</p></div>}
     </div>}
   </Page>
 }
 
 export function ProfileScreen({ go, back }: ScreenProps) {
-  return <Page back={back} title="내 프로필" subtitle="트립오프 시연 계정">
-    <div className={styles.card}><h2>{ME.name}</h2><p>여행자 · 시연 모드</p></div>
-    <div className={styles.buttons}><button onClick={() => go('home')}>내 여행으로</button></div>
+  const trip = useCurrentTrip()
+  return <Page back={back} title="내 프로필" subtitle="여행의 시작부터 끝까지, 트립오프와 함께">
+    <div className={styles.profileCard}>
+      <Avatar label={ME.label} name={ME.name} tone="coral" size={72} fontSize={28} />
+      <h2>{ME.name}<span>님</span></h2><p>가볍게 떠나는 여행자</p><span className={styles.badge}>시연 계정</span>
+    </div>
+    <div className={styles.card}><span className={styles.eyebrow}>함께하는 여행</span><h2 className={styles.tripName}>{trip.name}</h2><div className={styles.members}>{trip.members.map(member => <Avatar key={member.name} {...member} size={36} fontSize={15} />)}<span>{trip.members.length}명의 동행</span></div></div>
+    <div className={styles.menu}><button onClick={() => go('home')}><span>내 여행</span><IconChevronRight /></button><button onClick={() => go('invite')}><span>동행 초대</span><IconChevronRight /></button><button onClick={() => go('notifications')}><span>알림함</span><IconChevronRight /></button></div>
+    <div className={styles.menu} aria-label="계정 및 지원">
+      <button type="button" title="시연용 버튼"><span>설정</span><IconChevronRight /></button>
+      <button type="button" title="시연용 버튼"><span>도움말 · 문의</span><IconChevronRight /></button>
+      <button type="button" className={styles.logout} title="시연용 버튼 · 실제로 로그아웃되지 않아요"><span>로그아웃</span><IconChevronRight /></button>
+    </div>
   </Page>
 }
 
@@ -100,11 +116,11 @@ export function InviteScreen({ back }: ScreenProps) {
   const trip = useCurrentTrip()
   const [state, setState] = useState('')
   const link = new URL(`/j/${encodeURIComponent(trip.id)}`, location.origin).href
-  return <Page back={back} title="동행 초대" subtitle={`「${trip.name}」 일정에 동행을 초대해요.`}>
-    <div className={styles.card}><p>시연 링크 · 같은 브라우저의 여행을 열 수 있어요.</p><p>{link}</p></div>
-    <div className={styles.buttons}>
-      <button className={styles.primary} onClick={async () => { try { await navigator.clipboard.writeText(link); setState('링크를 복사했어요.') } catch { setState('복사가 차단됐어요. 위 주소를 직접 복사해 주세요.') } }}>초대 링크 복사</button>
+  return <Page back={back} title="동행 초대" subtitle="함께 떠날 친구에게 여행을 공유해 보세요.">
+    <div className={styles.inviteCard}><span className={styles.eyebrow}>OUR NEXT TRIP</span><h2>{trip.name}</h2><div className={styles.members}>{trip.members.map(member => <Avatar key={member.name} {...member} size={44} fontSize={18} ring={{ width: 3, color: 'var(--deep)' }} />)}</div><p>같은 일정, 함께하는 여행</p></div>
+    <div className={styles.card}><h2>초대 링크</h2><p className={styles.sub}>링크를 열어 여행 일정을 확인할 수 있어요.</p><input className={styles.linkInput} aria-label="초대 링크" value={link} readOnly onFocus={e => e.currentTarget.select()} /><div className={styles.buttons}>
+      <button className={styles.primary} onClick={async () => { try { await navigator.clipboard.writeText(link); setState('링크를 복사했어요.') } catch { setState('위 링크를 길게 눌러 직접 복사해 주세요.') } }}>{state === '링크를 복사했어요.' ? '복사 완료' : '초대 링크 복사'}</button>
       <a href={link} target="_blank" rel="noreferrer">초대 화면 미리 보기</a>
-    </div><p role="status">{state}</p>
+    </div></div><p className={styles.notice}>시연에서는 같은 브라우저의 여행을 공유해요.</p><p role="status" className={styles.feedback}>{state}</p>
   </Page>
 }

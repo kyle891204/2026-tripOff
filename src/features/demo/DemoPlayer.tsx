@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router'
-import { openDemoNotification, useDemoNotifications } from '@/data/demoNotifications'
+import { Link, useSearchParams } from 'react-router'
 import { allTrips, getDemoState, setDemoState } from '@/features/app-screens/store'
 import { FloatingBack, SCREENS, SCREEN_BY_ID, resetDemoState, type GoOptions, type ScreenId } from '@/features/app-screens'
 import { cn } from '@/lib/cn'
+import { ROUTES } from '@/lib/routes'
 import PhoneFrame from './PhoneFrame'
 import styles from './DemoPlayer.module.css'
 
@@ -18,6 +18,13 @@ interface Nav {
 }
 
 const START: ScreenId = 'splash'
+
+const DEMO_STEPS: { title: string; description: string; entry: ScreenId; screens: ScreenId[] }[] = [
+  { title: '여행 확인', description: '여러 곳에서 예약한 일정을 하나의 여행에서 확인해요.', entry: 'home', screens: ['splash', 'home', 'add-trip', 'timeline', 'plan', 'profile', 'notifications'] },
+  { title: '바우처 등록', description: '파일이나 샘플을 선택하고, 추출된 정보를 확인·수정한 뒤 저장해요.', entry: 'voucher-import', screens: ['add-voucher', 'voucher-import', 'review', 'voucher-original'] },
+  { title: '현장에서 사용', description: '다가오는 일정을 확인하고, 저장한 내 QR을 크게 열어요.', entry: 'trip-home', screens: ['trip-home', 'ticket', 'lock'] },
+  { title: '동행 관리', description: '동행을 초대하고 함께하는 일정과 정산 내역을 확인해요.', entry: 'companions', screens: ['companions', 'invite'] },
+]
 
 /**
  * 이동 후 방문 기록.
@@ -40,15 +47,6 @@ export default function DemoPlayer() {
   const [query] = useSearchParams()
   const inviteTrip = query.get('trip')
   const [nav, setNav] = useState<Nav>(() => ({ current: inviteTrip && allTrips().some(t => t.id === inviteTrip) ? 'timeline' : START, history: [], nonce: 0 }))
-  const newest = useDemoNotifications()[0]
-  const [dismissed, setDismissed] = useState<string>()
-  const banner = newest && !newest.read && newest.id !== dismissed ? newest : undefined
-  const bannerId = banner?.id
-  useEffect(() => {
-    if (!bannerId || nav.current === START) return
-    const timer = window.setTimeout(() => setDismissed(bannerId), 10000)
-    return () => window.clearTimeout(timer)
-  }, [bannerId, nav.current])
   useEffect(() => {
     if (inviteTrip && getDemoState().tripId !== inviteTrip && allTrips().some(t => t.id === inviteTrip)) setDemoState({ tripId: inviteTrip, dayIndex: 0, planId: undefined })
   }, [inviteTrip])
@@ -77,7 +75,7 @@ export default function DemoPlayer() {
 
   const meta = SCREEN_BY_ID[nav.current]
   const { Component } = meta
-  const index = SCREENS.findIndex((s) => s.id === nav.current)
+  const index = DEMO_STEPS.findIndex(step => step.screens.includes(nav.current))
 
   return (
     <div className={styles.root}>
@@ -85,59 +83,55 @@ export default function DemoPlayer() {
         <div className={styles.screen}>
           <Component key={nav.nonce} go={go} back={back} toast={nav.toast} />
           {meta.floatingBack && <FloatingBack key={`b-${nav.nonce}`} onClick={back} {...meta.floatingBack} />}
-          {banner && nav.current !== START && <div className={styles.notification}>
-            <span className={styles.srOnly} role="status">{banner.title} {banner.body}</span>
-            <button type="button" className={styles.notificationOpen} onClick={() => { setDismissed(banner.id); openDemoNotification(banner, go) }}>
-              <small>TripOff · 방금</small><strong>{banner.title}</strong><span>{banner.body}</span>
-            </button>
-            <button type="button" className={styles.notificationClose} aria-label="알림 배너 닫기" onClick={() => setDismissed(banner.id)}>×</button>
-          </div>}
+
         </div>
       </PhoneFrame>
 
       <div className={styles.side}>
         <p className={styles.step}>
-          {String(index + 1).padStart(2, '0')} / {String(SCREENS.length).padStart(2, '0')}
+          핵심 시연 · {index + 1} / {DEMO_STEPS.length}
         </p>
         <h2 className={styles.title}>
-          {meta.title}
-          {meta.source === 'temp' && <span className={styles.temp}>임시 화면</span>}
+          예약부터 입장까지
         </h2>
-        <p className={styles.caption}>{meta.caption}</p>
+        <p className={styles.caption}>네 가지 흐름으로 트립오프를 만나보세요.</p>
 
         <ol className={styles.list}>
-          {SCREENS.map((s, i) => (
-            <li key={s.id}>
+          {DEMO_STEPS.map((s, i) => (
+            <li key={s.entry}>
               <button
                 type="button"
-                className={cn(styles.item, s.id === nav.current && styles.active)}
-                onClick={() => go(s.id)}
+                className={cn(styles.item, i === index && styles.active)}
+                aria-current={i === index ? 'step' : undefined}
+                onClick={() => go(s.entry)}
               >
                 <span className={styles.num}>{String(i + 1).padStart(2, '0')}</span>
-                {s.title}
-                {s.source === 'temp' && <span className={styles.tempDot} title="하이파이 없음" />}
+                <span className={styles.stepCopy}><strong>{s.title}</strong><span>{s.description}</span></span>
               </button>
             </li>
           ))}
         </ol>
 
+        <div className={styles.current} aria-live="polite"><span>지금 화면 · {meta.title}</span><p>{meta.caption}</p></div>
+
         <div className={styles.nav}>
-          <button type="button" disabled={index <= 0} onClick={() => go(SCREENS[index - 1].id)}>
-            이전 화면
+          <button type="button" disabled={index <= 0} onClick={() => go(DEMO_STEPS[index - 1].entry)}>
+            이전 단계
           </button>
           <button
             type="button"
             className={styles.primary}
-            disabled={index >= SCREENS.length - 1}
-            onClick={() => go(SCREENS[index + 1].id)}
+            disabled={index >= DEMO_STEPS.length - 1}
+            onClick={() => go(DEMO_STEPS[index + 1].entry)}
           >
-            다음 화면
+            다음 단계
           </button>
         </div>
+        <details className={styles.details}><summary>세부 화면 바로가기</summary><div className={styles.shortcuts}>{SCREENS.map(s => <button key={s.id} type="button" aria-current={s.id === nav.current ? 'page' : undefined} onClick={() => go(s.id)}>{s.title}</button>)}</div></details>
         <button type="button" className={styles.restart} onClick={restart}>
           ↻ 처음부터 다시
         </button>
-        <p className={styles.hint}>폰 화면 안의 버튼·카드·탭도 모두 눌러 보세요.</p>
+        <p className={styles.hint}>폰 화면 안의 버튼·카드·탭도 모두 눌러 보세요.</p><Link className={styles.hint} to={ROUTES.partner}>관리자 화면(파트너센터) 보기 →</Link>
       </div>
     </div>
   )
