@@ -1,5 +1,6 @@
 export { SCREENS, SCREEN_BY_ID } from './registry'
 export type { ScreenMeta } from './registry'
-export type { ScreenId, ScreenProps } from './types'
+export type { GoOptions, ScreenId, ScreenProps } from './types'
+export { resetDemoState } from './store'
 export { default as HomeScreen } from './screens/HomeScreen'
 export { default as FloatingBack } from './parts/FloatingBack'

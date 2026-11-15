@@ -1,104 +1,81 @@
-import { useState, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { cn } from '@/lib/cn'
+import Avatar from '../parts/Avatar'
+import PlanIcon, { AgencyBadge } from '../parts/PlanIcon'
 import Screen from '../parts/Screen'
-import { IconBed, IconBus, IconPlane, IconShip, IconTicketCoral } from '../parts/icons'
 import shared from '../parts/shared.module.css'
 import { useToast } from '../parts/useToast'
-import { TRIP } from '../mock'
-import type { ScreenId, ScreenProps } from '../types'
+import { MEMBERS, TRIP_BY_ID, isVisible, sourceLine, type Plan } from '../mock'
+import { setDemoState, useDemoState } from '../store'
+import type { ScreenProps } from '../types'
 import styles from './TimelineScreen.module.css'
 
-interface Item {
-  time: string
-  /** 카드 top (y). 12일은 Figma 좌표 그대로 */
-  top: number
-  icon: ReactNode
-  title: string
-  sub: string
-  /** 일정 겹침 강조 (coral 테두리) */
-  conflict?: boolean
-  /** 누르면 이동할 화면 (없으면 안내 토스트) */
-  to?: ScreenId
+/** 스크롤 영역 시작 y (날짜 탭 아래). 카드 위치는 Figma y − 이 값 */
+const BODY_TOP = 212
+const CARD_H = 76
+
+interface Props extends ScreenProps {
+  /** 바우처 추가 바텀시트 등 위에 덮을 레이어 */
+  overlay?: ReactNode
 }
 
-interface Day {
-  dow: string
-  date: number
-  items: Item[]
-  /** 겹침 경고 (12일만) */
-  warn?: { top: number; text: string; detail: string }
-  /** 「일정 추가」 줄 위치 */
-  addTop: number
+/** 카드·경고·「일정 추가」 위치 계산 (12일 오사카는 Figma 좌표와 같게 나옴) */
+function layout(plans: Plan[]) {
+  let y = 228 - BODY_TOP
+  const cards: Array<{ plan: Plan; top: number; warnTop?: number }> = []
+  for (const plan of plans) {
+    const top = y
+    const bottom = top + CARD_H
+    if (plan.warnAfter) {
+      cards.push({ plan, top, warnTop: bottom + 24 })
+      y = bottom + 76
+    } else {
+      cards.push({ plan, top })
+      y = bottom + 14
+    }
+  }
+  return { cards, addTop: y + 14 }
 }
 
-/** 12일 이외 날짜: 카드 간격 90px 로 단순 배치 */
-const stack = (items: Omit<Item, 'top'>[]): Item[] => items.map((it, i) => ({ ...it, top: 228 + i * 90 }))
-
-const DAYS: Day[] = [
-  {
-    dow: '금',
-    date: 12,
-    items: [
-      { time: '09:10', top: 228, icon: <IconPlane />, title: '인천 → 간사이', sub: '항공사 직접 예약' },
-      { time: '14:00', top: 318, icon: <IconTicketCoral />, title: '유니버설 스튜디오 재팬', sub: 'Klook · QR 3매', conflict: true, to: 'trip-home' },
-      { time: '14:20', top: 470, icon: <IconBus tone="coral" />, title: '난바행 셔틀', sub: '교통 예약처', conflict: true },
-      { time: '18:30', top: 560, icon: <IconShip />, title: '도톤보리 리버 크루즈', sub: 'KKday · QR 3매', to: 'ticket' },
-    ],
-    warn: { top: 418, text: '관람 중 셔틀 출발', detail: 'USJ 입장(14:00) 20분 뒤에 셔틀이 출발해요' },
-    addTop: 664,
-  },
-  {
-    dow: '토',
-    date: 13,
-    items: stack([
-      { time: '09:30', icon: <IconBus />, title: '교토행 셔틀', sub: '교통 예약처' },
-      { time: '13:00', icon: <IconShip />, title: '호즈강 뱃놀이', sub: 'KKday · QR 3매', to: 'ticket' },
-      { time: '20:00', icon: <IconBed />, title: '호텔 한큐 리스파이어', sub: '연박 · 2일차' },
-    ]),
-    addTop: 228 + 3 * 90 + 14,
-  },
-  {
-    dow: '일',
-    date: 14,
-    items: stack([
-      { time: '11:00', icon: <IconShip />, title: '가이유칸 수족관', sub: 'Klook · QR 3매', to: 'ticket' },
-      { time: '20:00', icon: <IconBed />, title: '호텔 한큐 리스파이어', sub: '연박 · 3일차' },
-    ]),
-    addTop: 228 + 2 * 90 + 14,
-  },
-  {
-    dow: '월',
-    date: 15,
-    items: stack([
-      { time: '11:00', icon: <IconBed />, title: '호텔 체크아웃', sub: '호텔 한큐 리스파이어' },
-      { time: '18:40', icon: <IconPlane />, title: '간사이 → 인천', sub: '항공사 직접 예약' },
-    ]),
-    addTop: 228 + 2 * 90 + 14,
-  },
-]
-
-/** Figma 18:232 「타임라인」 — 여러 예약처 바우처가 하루 일정으로 합쳐짐 */
-export default function TimelineScreen({ go, toast: initialToast }: ScreenProps) {
-  const [dayIndex, setDayIndex] = useState(0)
+/** Figma 18:232 「타임라인」 — 선택한 여행의 일정. 여행사 일정은 배지로 구분 */
+export default function TimelineScreen({ go, toast: initialToast, overlay }: Props) {
+  const { tripId, dayIndex, saved } = useDemoState()
+  const trip = TRIP_BY_ID[tripId]
   const [toast, showToast] = useToast(initialToast)
-  const day = DAYS[dayIndex]
+  const dayIdx = Math.min(dayIndex, trip.days.length - 1)
 
-  const open = (it: Item) =>
-    it.to ? go(it.to) : showToast(`${it.title} 원본 바우처 화면은 디자인 준비 중이에요`)
+  const plans = trip.plans.filter((p) => p.day === dayIdx && isVisible(p, !!saved[trip.id]))
+  const { cards, addTop } = layout(plans)
+  /** 이 여행에 일정을 보낸 여행사 (없으면 undefined) */
+  const agencyName = trip.plans.flatMap((p) => (p.source.kind === 'agency' ? [p.source.name] : []))[0]
+
+  const open = (p: Plan) => (p.to ? go(p.to) : showToast(`${p.title} 원본 바우처 화면은 디자인 준비 중이에요`))
 
   return (
     <Screen bg="var(--mist)" label="타임라인">
-      <h1 className={styles.title}>{TRIP.city}</h1>
+      <header className={styles.header}>
+        <h1 className={styles.title}>{trip.city}</h1>
+        <div className={styles.headerActions}>
+          <button type="button" className={cn(styles.members, shared.tappable)} aria-label="함께 가는 사람" onClick={() => go('companions')}>
+            {MEMBERS.map((m) => (
+              <Avatar key={m.name} label={m.label} name={m.name} tone={m.pending ? 'off' : m.tone} size={26} fontSize={12} ring={{ width: 2, color: 'var(--mist)' }} />
+            ))}
+          </button>
+          <button type="button" className={cn(styles.addBtn, shared.tappable)} onClick={() => go('add-voucher')}>
+            + 바우처
+          </button>
+        </div>
+      </header>
 
       <div className={styles.days} role="tablist" aria-label="날짜">
-        {DAYS.map((d, i) => (
+        {trip.days.map((d, i) => (
           <button
             key={d.date}
             type="button"
             role="tab"
-            aria-selected={i === dayIndex}
-            className={cn(styles.day, i === dayIndex && styles.dayActive, shared.tappable)}
-            onClick={() => setDayIndex(i)}
+            aria-selected={i === dayIdx}
+            className={cn(styles.day, i === dayIdx && styles.dayActive, shared.tappable)}
+            onClick={() => setDemoState({ dayIndex: i })}
           >
             <span className={styles.dow}>{d.dow}</span>
             <span className={styles.date}>{d.date}</span>
@@ -106,52 +83,70 @@ export default function TimelineScreen({ go, toast: initialToast }: ScreenProps)
         ))}
       </div>
 
-      <span className={styles.rail} aria-hidden />
+      {/* key 로 여행·날짜가 바뀔 때마다 카드 등장 애니메이션 */}
+      <div key={`${trip.id}-${dayIdx}`} className={styles.body} role="tabpanel">
+        <div className={styles.content} style={{ height: addTop + 48 + 120 }}>
+          <span className={styles.rail} style={{ height: addTop + 48 - 20 }} aria-hidden />
 
-      {/* key 로 날짜가 바뀔 때마다 카드 등장 애니메이션 */}
-      <div key={day.date} className={styles.dayBody} role="tabpanel">
-        {day.items.map((it) => (
-          <div key={it.time + it.title} className={styles.item} style={{ top: it.top }}>
-            <span className={styles.time}>{it.time}</span>
-            <span className={cn(styles.dot, it.conflict && styles.dotCoral)} aria-hidden />
-            <button
-              type="button"
-              className={cn(styles.card, it.conflict && styles.cardConflict, shared.tappable)}
-              onClick={() => open(it)}
-            >
-              <span className={cn(shared.iconBox, it.conflict && shared.iconBoxCoral)}>{it.icon}</span>
-              <span className={styles.text}>
-                <strong>{it.title}</strong>
-                <span>{it.sub}</span>
-              </span>
+          {cards.map(({ plan, top, warnTop }) => {
+            const agency = plan.source.kind === 'agency'
+            const justAdded = plan.sample && saved[trip.id]
+            return (
+              <div key={plan.id}>
+                <div className={styles.item} style={{ top }}>
+                  <span className={styles.time}>{plan.time}</span>
+                  <span className={cn(styles.dot, plan.conflict && styles.dotCoral, agency && styles.dotAgency)} aria-hidden />
+                  <button
+                    type="button"
+                    className={cn(styles.card, plan.conflict && styles.cardConflict, agency && styles.cardAgency, shared.tappable)}
+                    onClick={() => open(plan)}
+                  >
+                    <PlanIcon kind={plan.icon} coral={plan.conflict} />
+                    <span className={styles.text}>
+                      <strong>{plan.title}</strong>
+                      <span className={styles.sub}>
+                        {agency && <AgencyBadge />}
+                        {justAdded && <em className={styles.justAdded}>방금 추가</em>}
+                        <span className={styles.subText}>{sourceLine(plan)}</span>
+                      </span>
+                    </span>
+                  </button>
+                </div>
+                {plan.warnAfter && warnTop !== undefined && (
+                  <button
+                    type="button"
+                    className={cn(styles.warn, shared.tappable)}
+                    style={{ top: warnTop }}
+                    onClick={() => showToast(plan.warnAfter!.detail)}
+                  >
+                    <span className={styles.warnIcon} aria-hidden>
+                      !
+                    </span>
+                    {plan.warnAfter.text}
+                  </button>
+                )}
+              </div>
+            )
+          })}
+
+          <div className={styles.item} style={{ top: addTop }}>
+            <span className={cn(styles.time, styles.timeMuted)}>21:00</span>
+            <span className={styles.dotGray} aria-hidden />
+            <button type="button" className={cn(styles.add, shared.tappable)} onClick={() => go('add-voucher')}>
+              일정 추가
             </button>
           </div>
-        ))}
 
-        {day.warn && (
-          <button
-            type="button"
-            className={cn(styles.warn, shared.tappable)}
-            style={{ top: day.warn.top }}
-            onClick={() => showToast(day.warn!.detail)}
-          >
-            <span className={styles.warnIcon} aria-hidden>
-              !
-            </span>
-            {day.warn.text}
-          </button>
-        )}
-
-        <div className={styles.item} style={{ top: day.addTop }}>
-          <span className={cn(styles.time, styles.timeMuted)}>21:00</span>
-          <span className={styles.dotGray} aria-hidden />
-          <button type="button" className={cn(styles.add, shared.tappable)} onClick={() => go('add-voucher')}>
-            일정 추가
-          </button>
+          {agencyName && (
+            <p className={styles.legend} style={{ top: addTop + 64 }}>
+              <AgencyBadge /> 여행사 {agencyName}에서 보낸 일정
+            </p>
+          )}
         </div>
       </div>
 
       {toast}
+      {overlay}
     </Screen>
   )
 }

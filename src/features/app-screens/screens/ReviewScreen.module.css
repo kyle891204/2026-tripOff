@@ -167,7 +167,8 @@
 .note {
   position: absolute;
   left: 20px;
-  top: 699px;
+  top: 690px;
+  line-height: 20px;
   font-size: 13px;
   color: var(--ink-muted);
 }

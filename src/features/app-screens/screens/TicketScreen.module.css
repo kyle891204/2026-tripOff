@@ -39,20 +39,10 @@
   border: 1.5px solid var(--line);
   border-radius: 28px;
   background: #fff;
-  /* 좌우 스와이프로 장 넘김 */
-  touch-action: pan-y;
-  cursor: grab;
-  user-select: none;
 }
 
-.qrInner {
+.qrBox svg {
   display: block;
-  animation: swap 0.22s ease;
-}
-
-.qrInner svg {
-  display: block;
-  pointer-events: none;
 }
 
 @keyframes swap {
@@ -71,34 +61,13 @@
   animation: swap 0.3s ease;
 }
 
-.dots {
+.mine {
   position: absolute;
-  left: 176px;
-  top: 570px;
-  display: flex;
-  gap: 8px;
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--line);
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-/* 8px 점은 누르기 어려우니 터치 영역만 넓힘 */
-.dot::before {
-  content: '';
-  position: absolute;
-  margin: -8px;
-  width: 24px;
-  height: 24px;
-}
-
-.dot.dotOn {
-  background: var(--ink);
+  top: 564px;
+  width: 100%;
+  font-size: 13px;
+  color: var(--ink-muted);
+  text-align: center;
 }
 
 /* ---------- 입장 / 예약번호 / 게이트 ---------- */

@@ -1,13 +1,12 @@
-.body {
-  padding: 78px 20px 0;
-}
-
 .header {
+  position: absolute;
+  left: 20px;
+  right: 26px;
+  top: 78px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 36px;
-  padding-right: 6px;
 }
 
 .title {
@@ -15,19 +14,72 @@
   font-weight: 700;
 }
 
-/* ---------- 여행 카드 (353×228, r28) ---------- */
-.cardWrap {
+/* ---------- 여행 카드 캐러셀 (좌우) ---------- */
+.track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 136px;
+  height: 228px;
+  display: flex;
+  gap: 12px;
+  padding: 0 20px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 20px;
+  scrollbar-width: none;
+}
+
+.track::-webkit-scrollbar,
+.cardScroll::-webkit-scrollbar {
+  display: none;
+}
+
+.slide {
+  --trip-teal: color-mix(in srgb, var(--teal) 72%, var(--deep));
+  --card-bg: var(--deep);
   position: relative;
-  margin-top: 22px;
+  flex: none;
+  width: 353px;
+  height: 228px;
+  scroll-snap-align: start;
+}
+
+.slideTeal {
+  --card-bg: var(--trip-teal);
+}
+
+/* 카드 = 세로 스크롤 영역. 스크롤 양으로 티켓을 넘긴다 */
+.cardScroll {
+  height: 228px;
+  border-radius: 28px;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  background: var(--card-bg);
+}
+
+.cardInner {
+  position: relative;
+}
+
+.snap {
+  position: absolute;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  scroll-snap-align: start;
 }
 
 .card {
-  position: relative;
+  position: sticky;
+  top: 0;
   display: block;
   width: 353px;
   height: 228px;
   border-radius: 28px;
-  background: var(--deep);
+  background: var(--card-bg);
   color: #fff;
   overflow: hidden;
 }
@@ -43,10 +95,29 @@
   opacity: 0.35;
 }
 
+.slideTeal .cardCircle {
+  background: #fff;
+  opacity: 0.12;
+}
+
 .wallet {
   position: absolute;
   left: 24px;
   top: 26px;
+}
+
+.dday {
+  position: absolute;
+  right: 24px;
+  top: 24px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--coral);
+  z-index: 200;
+}
+
+.slideTeal .dday {
+  color: #fff;
 }
 
 .city {
@@ -78,28 +149,67 @@
 .count {
   position: absolute;
   right: 24px;
-  top: 185px;
-  font-size: 15px;
+  top: 187px;
+  font-size: 14px;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  z-index: 200;
 }
 
-/* ---------- 티켓 묶음 ---------- */
+.scrollCue {
+  margin-right: 6px;
+  opacity: 0.6;
+  font-weight: 400;
+}
+
+/* ---------- 여행 점 ---------- */
+.dots {
+  position: absolute;
+  top: 374px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--line);
+  cursor: pointer;
+  transition: width 0.2s, background 0.2s;
+}
+
+.dotOn {
+  width: 18px;
+  background: var(--ink);
+}
+
+/* ---------- 티켓 (스크롤로 넘어감) ---------- */
 .stack {
   position: absolute;
-  right: 0;
-  top: 0;
-  width: 150px;
-  height: 180px;
+  right: -16px;
+  top: 62px;
+  width: 152px;
+  height: 80px;
 }
 
 .ticket {
+  --stub: var(--coral);
   position: absolute;
-  width: 108px;
-  height: 58px;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 11px 50px 0 16px;
   border-radius: 10px;
-  box-shadow: 0 6px 14px rgb(0 0 0 / 0.18);
-  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
-  /* 양옆 반원 홈 */
+  /* 오른쪽 꼬리(절취선 뒤)만 색칠 */
+  background: linear-gradient(90deg, #fff 0 72%, var(--stub) 72% 100%);
+  color: var(--ink);
+  box-shadow: 0 6px 16px rgb(0 0 0 / 0.2);
+  transform-origin: 30% 50%;
+  will-change: transform, opacity;
   -webkit-mask:
     radial-gradient(circle 7px at left center, #0000 98%, #000) left / 51% 100% no-repeat,
     radial-gradient(circle 7px at right center, #0000 98%, #000) right / 51% 100% no-repeat;
@@ -115,51 +225,57 @@
   top: 9px;
   bottom: 9px;
   left: 72%;
-  border-left: 2px dashed rgb(255 255 255 / 0.55);
+  border-left: 2px dashed var(--line);
 }
 
-.sand { background: var(--sand); }
-.teal { background: var(--teal-mid); }
-.coral { background: var(--coral); }
-
-.front {
-  display: grid;
-  place-items: center;
-  padding-right: 30px;
-  background: #fff;
-}
-
-.front::after {
-  border-color: var(--line);
-}
-
-.dday {
-  font-size: 22px;
+.tWhen {
+  font-size: 11px;
   font-weight: 700;
-  color: var(--coral);
+  color: var(--ink-sub);
+  white-space: nowrap;
+  overflow: hidden;
 }
 
-.t0 { right: -26px; top: 104px; transform: rotate(14deg); }
-.t1 { right: -6px;  top: 78px;  transform: rotate(-7deg); }
-.t2 { right: -18px; top: 48px;  transform: rotate(9deg); }
-.t3 { right: 16px;  top: 18px;  transform: rotate(-4deg); }
+.tTitle {
+  margin-top: 3px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 16px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
-/* 카드에 마우스를 올리면 티켓이 살짝 펼쳐짐 */
-.card:hover .t0 { transform: translate(-6px, 8px) rotate(20deg); }
-.card:hover .t1 { transform: translate(-10px, 4px) rotate(-12deg); }
-.card:hover .t2 { transform: translate(-4px, -2px) rotate(14deg); }
-.card:hover .t3 { transform: translate(-6px, -4px) rotate(-7deg); }
+/* 여행사가 보낸 일정 표시 */
+.tAgency {
+  display: inline-block;
+  margin-right: 4px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: var(--deep);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  vertical-align: 1px;
+}
 
-/* ---------- 다가오는 일정 ---------- */
+/* ---------- 다가오는 일정 (고정) ---------- */
 .section {
-  margin-top: 29px;
+  position: absolute;
+  left: 20px;
+  top: 393px;
   font-size: 19px;
   font-weight: 700;
 }
 
 .list {
+  position: absolute;
+  left: 20px;
+  top: 436px;
+  width: 353px;
   list-style: none;
-  margin: 20px 0 0;
+  margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -196,16 +312,4 @@
 .kind {
   font-size: 14px;
   color: var(--ink-muted);
-}
-
-.fab {
-  position: absolute;
-  left: 311px;
-  top: 742px;
-  display: grid;
-  place-items: center;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: var(--ink);
 }

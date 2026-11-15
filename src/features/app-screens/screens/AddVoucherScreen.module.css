@@ -29,15 +29,22 @@
 }
 
 .title {
-  margin: 23px 0 0 12px;
+  margin: 20px 0 0 12px;
   font-size: 24px;
   font-weight: 700;
   line-height: 29px;
 }
 
+.context {
+  margin: 4px 0 0 12px;
+  font-size: 13px;
+  color: var(--teal);
+  font-weight: 700;
+}
+
 .list {
   list-style: none;
-  margin: 23px 0 0;
+  margin: 14px 0 0;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -72,7 +79,7 @@
 }
 
 .note {
-  margin-top: 21px;
+  margin-top: 12px;
   font-size: 13px;
   color: var(--ink-muted);
   text-align: center;

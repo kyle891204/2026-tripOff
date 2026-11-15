@@ -33,7 +33,8 @@ src/
 │  │  ├─ screens/          #   화면 1개 = 파일 1개 (+ .module.css)
 │  │  ├─ parts/            #   StatusBar, QrCode, Avatar, icons 등 화면 공용 부품
 │  │  ├─ registry.ts       #   화면 목록·순서·설명 (시연 순서는 여기서)
-│  │  └─ mock.ts           #   시나리오 데이터 (오사카 여행)
+│  │  ├─ mock.ts           #   시나리오 데이터 (여행 여러 개, 여행사 일정/내 일정 구분)
+│  │  └─ store.ts          #   화면 간 시연 상태 (선택한 여행·날짜, 저장 여부)
 │  ├─ demo/                # PhoneFrame(화면 축소 틀), DemoPlayer(시연 플레이어·뒤로가기)
 │  └─ partner/             # 파트너센터(관리자) 레이아웃·공용 컴포넌트
 ├─ data/                   # 사이트 문구·기능 목록 ← 텍스트 수정은 여기

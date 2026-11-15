@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { FloatingBack, SCREENS, SCREEN_BY_ID, type ScreenId } from '@/features/app-screens'
+import { FloatingBack, SCREENS, SCREEN_BY_ID, resetDemoState, type GoOptions, type ScreenId } from '@/features/app-screens'
 import { cn } from '@/lib/cn'
 import PhoneFrame from './PhoneFrame'
 import styles from './DemoPlayer.module.css'
@@ -24,13 +24,12 @@ const START: ScreenId = 'splash'
 export default function DemoPlayer() {
   const [nav, setNav] = useState<Nav>({ current: START, history: [], nonce: 0 })
 
-  const go = useCallback((id: ScreenId) => {
+  const go = useCallback((id: ScreenId, options?: GoOptions) => {
     setNav((n) => ({
       current: id,
       // 스플래시는 뒤로가기 대상에서 제외 (자동으로 지나가는 화면)
       history: n.current === 'splash' ? n.history : [...n.history, n.current],
-      // 추출 결과에서 저장 → 타임라인: 로우파이 「05 수정 후 저장」을 토스트로 대신 표현
-      toast: n.current === 'review' && id === 'timeline' ? '입장 시간을 14:00으로 저장했어요' : undefined,
+      toast: options?.toast,
       nonce: n.nonce + 1,
     }))
   }, [])
@@ -43,7 +42,10 @@ export default function DemoPlayer() {
     }))
   }, [])
 
-  const restart = () => setNav((n) => ({ current: START, history: [], nonce: n.nonce + 1 }))
+  const restart = () => {
+    resetDemoState()
+    setNav((n) => ({ current: START, history: [], nonce: n.nonce + 1 }))
+  }
 
   const meta = SCREEN_BY_ID[nav.current]
   const { Component } = meta

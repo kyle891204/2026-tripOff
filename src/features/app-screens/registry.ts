@@ -28,14 +28,14 @@ export interface ScreenMeta {
 
 /** 시연 순서대로 */
 export const SCREENS: ScreenMeta[] = [
-  { id: 'splash', title: '스플래시', caption: '예약은 따로, 관리는 한곳에서', source: 'temp', Component: SplashScreen },
-  { id: 'home', title: '내 여행', caption: '여행 카드 하나에 모든 예약처의 티켓이 모여요', source: 'hifi', figmaNode: '17:75', Component: HomeScreen },
-  { id: 'add-voucher', title: '바우처 추가', caption: 'PDF·메일·캡처 어디서 받은 바우처든 그대로 넣어요', source: 'hifi', figmaNode: '18:74', Component: AddVoucherScreen },
-  { id: 'review', title: '추출 결과 확인', caption: '원본과 다른 값은 표시해 주고, 한 번에 고쳐요', source: 'hifi', figmaNode: '18:167', Component: ReviewScreen },
-  { id: 'timeline', title: '통합 타임라인', caption: '흩어진 예약이 하루 일정으로, 겹치는 일정은 경고', source: 'hifi', figmaNode: '18:232', floatingBack: { left: 325, top: 762 }, Component: TimelineScreen },
-  { id: 'trip-home', title: '여행 중 홈', caption: '오프라인이어도 다음 입장 QR 이 바로 떠요', source: 'hifi', figmaNode: '18:325', floatingBack: { left: 325, top: 762 }, Component: TripHomeScreen },
-  { id: 'ticket', title: '티켓', caption: '현장에서 보여줄 QR 을 크게, 밝기 최대로', source: 'hifi', figmaNode: '18:367', Component: TicketScreen },
-  { id: 'companions', title: '동행 · 정산', caption: '함께 가는 사람과 티켓을 나누고 1인당 비용까지', source: 'hifi', figmaNode: '18:410', Component: CompanionsScreen },
+  { id: 'splash', title: '스플래시', caption: '티켓이 지갑에 쏙 — 예약은 따로, 관리는 한곳에서', source: 'temp', Component: SplashScreen },
+  { id: 'home', title: '내 여행', caption: '예정된 여행을 좌우로 넘기고, 카드 위에서 스크롤하면 티켓이 넘어가며 일정을 훑어봐요', source: 'hifi', figmaNode: '17:75', Component: HomeScreen },
+  { id: 'timeline', title: '여행 타임라인', caption: '여행사가 보낸 일정과 내가 모은 바우처가 하루 일정으로. 여행사 일정은 따로 표시', source: 'hifi', figmaNode: '18:232', floatingBack: { left: 325, top: 762 }, Component: TimelineScreen },
+  { id: 'add-voucher', title: '바우처 추가', caption: '여행 안에서 추가 — PDF·메일·캡처 어디서 받은 바우처든 이 여행에 들어가요', source: 'hifi', figmaNode: '18:74', Component: AddVoucherScreen },
+  { id: 'review', title: '추출 결과 확인', caption: '원본과 다른 값은 표시해 주고 한 번에 고쳐요. 동행 몫 QR 은 각자에게', source: 'hifi', figmaNode: '18:167', Component: ReviewScreen },
+  { id: 'trip-home', title: '여행 중 홈', caption: '오프라인이어도 다음 입장 QR 이 바로 떠요 (내 티켓만)', source: 'hifi', figmaNode: '18:325', floatingBack: { left: 325, top: 762 }, Component: TripHomeScreen },
+  { id: 'ticket', title: '티켓', caption: '현장에서 보여줄 내 QR 을 크게, 밝기 최대로', source: 'hifi', figmaNode: '18:367', Component: TicketScreen },
+  { id: 'companions', title: '동행 · 정산', caption: '여행 단위로 동행을 초대하고 1인당 비용까지. 티켓은 각자 자기 것만', source: 'hifi', figmaNode: '18:410', Component: CompanionsScreen },
   { id: 'lock', title: '잠금 화면 위젯', caption: '폰을 열지 않아도 입장 QR 을 꺼내요 (프리미엄)', source: 'hifi', figmaNode: '18:458', floatingBack: { left: 325, top: 532 }, Component: LockScreen },
 ]
 

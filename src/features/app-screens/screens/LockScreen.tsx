@@ -5,7 +5,7 @@ import Screen from '../parts/Screen'
 import { IconAppLogo, IconCamera, IconFlash } from '../parts/icons'
 import shared from '../parts/shared.module.css'
 import { useToast } from '../parts/useToast'
-import { VOUCHER } from '../mock'
+import { NEXT_ENTRY } from '../mock'
 import type { ScreenProps } from '../types'
 import styles from './LockScreen.module.css'
 
@@ -28,13 +28,13 @@ export default function LockScreen({ go }: ScreenProps) {
         </span>
         <span className={styles.name}>USJ 입장</span>
         <span className={styles.eta}>30분 후</span>
-        <span className={styles.time}>{VOUCHER.time}</span>
-        <span className={styles.gate}>메인 게이트 · 3매</span>
+        <span className={styles.time}>{NEXT_ENTRY.time}</span>
+        <span className={styles.gate}>메인 게이트 · 성인 1매</span>
         <span className={styles.progress} aria-hidden>
           <span />
         </span>
         <span className={styles.qr}>
-          <QrCode value={VOUCHER.qrValue} size={76} />
+          <QrCode value={NEXT_ENTRY.qrValue} size={76} />
         </span>
       </button>
 

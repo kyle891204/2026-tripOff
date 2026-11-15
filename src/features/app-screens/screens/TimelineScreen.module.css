@@ -1,10 +1,43 @@
-.title {
+/* ---------- 상단: 여행 이름 + 동행 · 바우처 추가 ---------- */
+.header {
   position: absolute;
   left: 20px;
+  right: 20px;
   top: 78px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+}
+
+.title {
   font-size: 30px;
   font-weight: 700;
   line-height: 36px;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.members {
+  display: flex;
+}
+
+.members > * + * {
+  margin-left: -6px;
+}
+
+.addBtn {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 17px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 /* ---------- 날짜 탭 (83×64, r20, 간격 7) ---------- */
@@ -49,26 +82,18 @@
   color: #fff;
 }
 
-/* ---------- 세로 레일 ---------- */
-.rail {
+/* ---------- 일정 목록 (스크롤) ---------- */
+.body {
   position: absolute;
-  left: 66px;
-  top: 232px;
-  width: 2px;
-  height: 520px;
-  background: var(--line);
-}
-
-.dayBody {
-  position: absolute;
-  inset: 0;
+  inset: 212px 0 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
   animation: dayIn 0.25s ease;
-  /* 화면 전체를 덮으므로 빈 곳 클릭은 아래(날짜 탭)로 통과 */
-  pointer-events: none;
 }
 
-.dayBody button {
-  pointer-events: auto;
+.body::-webkit-scrollbar {
+  display: none;
 }
 
 @keyframes dayIn {
@@ -76,6 +101,18 @@
     opacity: 0;
     transform: translateY(8px);
   }
+}
+
+.content {
+  position: relative;
+}
+
+.rail {
+  position: absolute;
+  left: 66px;
+  top: 20px;
+  width: 2px;
+  background: var(--line);
 }
 
 .item {
@@ -116,6 +153,11 @@
   border-color: var(--coral);
 }
 
+.dotAgency {
+  border-color: var(--deep);
+  background: var(--deep);
+}
+
 .dotGray {
   position: absolute;
   left: 63px;
@@ -144,10 +186,16 @@
   box-shadow: inset 0 0 0 1.4px var(--coral);
 }
 
+/* 여행사가 보낸 일정: 왼쪽 딥 틸 띠 */
+.cardAgency {
+  box-shadow: inset 4px 0 0 var(--deep);
+}
+
 .text {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 0;
   margin-left: 12px;
 }
 
@@ -156,10 +204,27 @@
   line-height: 19px;
 }
 
-.text span {
+.sub {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
   font-size: 13px;
   line-height: 16px;
   color: var(--ink-sub);
+}
+
+.subText {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.justAdded {
+  flex: none;
+  font-style: normal;
+  font-weight: 700;
+  color: var(--teal);
 }
 
 /* ---------- 겹침 경고 ---------- */
@@ -202,4 +267,14 @@
   border-radius: 16px;
   font-size: 14px;
   color: var(--ink-sub);
+}
+
+.legend {
+  position: absolute;
+  left: 86px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ink-muted);
 }

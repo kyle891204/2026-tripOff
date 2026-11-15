@@ -4,7 +4,7 @@ import Screen from '../parts/Screen'
 import { IconAirplaneSmall, IconBus, IconShip } from '../parts/icons'
 import shared from '../parts/shared.module.css'
 import { useToast } from '../parts/useToast'
-import { VOUCHER } from '../mock'
+import { ME, NEXT_ENTRY } from '../mock'
 import type { ScreenProps } from '../types'
 import styles from './TripHomeScreen.module.css'
 
@@ -29,16 +29,16 @@ export default function TripHomeScreen({ go }: ScreenProps) {
       </button>
 
       <p className={styles.eta}>30분 후</p>
-      <h1 className={styles.title}>{VOUCHER.title}</h1>
+      <h1 className={styles.title}>{NEXT_ENTRY.title}</h1>
 
       <button type="button" className={cn(styles.qrCard, shared.tappable)} onClick={() => go('ticket')} aria-label="티켓 크게 보기">
         <span className={styles.qrBox}>
-          <QrCode value={VOUCHER.qrValue} size={257} />
+          <QrCode value={NEXT_ENTRY.qrValue} size={257} />
         </span>
         <span className={styles.notchL} aria-hidden />
         <span className={styles.notchR} aria-hidden />
-        <span className={styles.holder}>김용태</span>
-        <span className={styles.page}>1 / 3</span>
+        <span className={styles.holder}>{ME.name}</span>
+        <span className={styles.page}>성인 1매</span>
       </button>
 
       <p className={styles.next}>이어서</p>
