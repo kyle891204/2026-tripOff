@@ -27,7 +27,7 @@ function catalog(partnerProducts: ReturnType<typeof loadPartnerProducts>): ShopP
     return {
       ...product, country, seller: product.seller || fallbackSeller,
       destination: product.destination || destinationOf(product.region),
-      image: product.image || countryImage(country),
+      image: product.images?.[0] ? 'indexeddb:' + product.images[0].id : product.image || countryImage(country),
     }
   })
   return [...partner, ...SHOP_SAMPLE_PRODUCTS]

@@ -34,3 +34,30 @@ export async function detectImageQr(file: File) {
     finally { bitmap.close() }
   } catch { return undefined }
 }
+
+/** 여러 상품 사진을 하나의 트랜잭션으로 저장한다. */
+export async function saveFileRecords(records: Array<{ id: string; file: File }>): Promise<void> {
+  if (!records.length) return
+  const db = await openFiles()
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(storeName, 'readwrite')
+      records.forEach(record => tx.objectStore(storeName).put(record.file, record.id))
+      tx.oncomplete = () => resolve()
+      tx.onabort = tx.onerror = () => reject(tx.error)
+    })
+  } finally { db.close() }
+}
+
+export async function deleteFileRecords(ids: string[]): Promise<void> {
+  if (!ids.length) return
+  const db = await openFiles()
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(storeName, 'readwrite')
+      ids.forEach(id => tx.objectStore(storeName).delete(id))
+      tx.oncomplete = () => resolve()
+      tx.onabort = tx.onerror = () => reject(tx.error)
+    })
+  } finally { db.close() }
+}

@@ -18,6 +18,7 @@ export interface PartnerProduct {
   destination?: string
   seller?: string
   image?: string
+  images?: Array<{ id: string; name: string }>
   region: string
   duration: string
   options: ProductOption[]

@@ -28,9 +28,11 @@ function readProducts(): PartnerProduct[] {
 
 let products = readProducts()
 const listeners = new Set<() => void>()
-function publish(next: PartnerProduct[]) {
+function publish(next: PartnerProduct[], requirePersistence = false) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)) } catch (error) {
+    if (requirePersistence) throw error
+  }
   products = next
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)) } catch { /* 메모리에서 시연을 계속한다. */ }
   listeners.forEach(listener => listener())
 }
 function onStorage(event: StorageEvent) {
@@ -70,7 +72,7 @@ export function useProductStoreValue(): ProductStore {
       ...input, seller: input.seller ?? loadPartnerCompany().name,
       id: 'P-' + crypto.randomUUID(), createdAt: new Date().toISOString().slice(0, 10),
     }
-    publish([created, ...loadPartnerProducts()])
+    publish([created, ...loadPartnerProducts()], Boolean(input.images?.length))
     return created
   }, [])
   const resetProducts = useCallback(() => publish(PARTNER_SAMPLE_PRODUCTS), [])

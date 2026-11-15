@@ -1,3 +1,4 @@
+import { fileRecord } from '../voucherFiles'
 import { SHOP_COUNTRIES, countryOf, countryImage } from '@/data/shopCountries'
 import { useEffect, useState, type ReactNode } from 'react'
 import { won } from '@/features/partner/calc'
@@ -38,8 +39,23 @@ const PROMOS = SHOP_COUNTRIES.map(country => ({
 
 
 function ShopPhoto({ src, alt, className }: { src: string; alt: string; className: string }) {
-  const [failed, setFailed] = useState(false)
-  return src && !failed ? <img className={className} src={src} alt={alt} loading="lazy" onError={() => setFailed(true)} />
+  const [local, setLocal] = useState<{ source: string; url: string }>()
+  const [failedSource, setFailedSource] = useState('')
+  const stored = src.startsWith('indexeddb:')
+  useEffect(() => {
+    if (!stored) return
+    let disposed = false
+    let url: string | undefined
+    void fileRecord(src.slice('indexeddb:'.length)).then(file => {
+      if (disposed) return
+      if (!file) { setFailedSource(src); return }
+      url = URL.createObjectURL(file)
+      setLocal({ source: src, url })
+    }).catch(() => { if (!disposed) setFailedSource(src) })
+    return () => { disposed = true; if (url) URL.revokeObjectURL(url) }
+  }, [src, stored])
+  const resolved = stored ? (local?.source === src ? local.url : undefined) : src
+  return resolved && failedSource !== src ? <img className={className} src={resolved} alt={alt} loading="lazy" onError={() => setFailedSource(src)} />
     : <span className={className + ' ' + s.photoFallback}>{alt}</span>
 }
 
@@ -139,11 +155,14 @@ export function ShopProductScreen({ go, back }: ScreenProps) {
   const initialTrip = matchingTrips.find(trip => trip.id === currentTrip.id) ?? matchingTrips[0] ?? currentTrip
   const [tripId, setTripId] = useState(initialTrip.id)
   const trip = matchingTrips.find(trip => trip.id === tripId) ?? matchingTrips[0] ?? initialTrip
+  const [photoIndex, setPhotoIndex] = useState(0)
   const [optionIndex, setOptionIndex] = useState(() => Math.max(0, product?.options.findIndex(bookable) ?? 0))
   const [time, setTime] = useState(() => product?.options.find(bookable)?.name.match(/\d{2}:\d{2}/)?.[0] ?? '09:00')
   const [date, setDate] = useState(dateAt(trip, Math.min(state.dayIndex, trip.days.length - 1)))
   const [count, setCount] = useState(1)
   if (!product) return <Page title="상품 상세" back={back}><p className={s.notice}>상점에서 상품을 선택해 주세요.</p><button className={s.cta} onClick={() => go('shop')}>상점으로</button></Page>
+  const photos = product.images?.length ? product.images.map(image => 'indexeddb:' + image.id) : [product.image]
+  const selectedPhoto = photos[photoIndex] ?? photos[0]
   const option = product.options[optionIndex]
   const stock = remaining(product, optionIndex, date)
   const weekday = '일월화수목금토'[new Date(date + 'T00:00:00Z').getUTCDay()]
@@ -158,7 +177,12 @@ export function ShopProductScreen({ go, back }: ScreenProps) {
     go('shop-checkout')
   }
   return <Page title="상품 상세" back={back}>
-    <ShopPhoto src={product.image} alt={product.name + ' 여행 이미지'} className={s.detailPhoto} />
+    <ShopPhoto src={selectedPhoto} alt={product.name + ' 상품 사진'} className={s.detailPhoto} />
+    {photos.length > 1 && <div className={s.photoGallery} aria-label="상품 사진 선택">
+      {photos.map((photo, index) => <button type="button" key={photo} aria-label={`상품 사진 ${index + 1}`} aria-pressed={index === photoIndex} onClick={() => setPhotoIndex(index)}>
+        <ShopPhoto src={photo} alt={`상품 사진 ${index + 1}`} className={s.galleryPhoto} />
+      </button>)}
+    </div>}
     <p className={s.seller}>{product.seller} · {product.region}</p><h2 className={s.title}>{product.name}</h2>
     <p className={s.notice}>{product.duration} · 운영 {product.days.join('·')}</p>
     <div className={s.panel}><h3>이용 안내</h3><p>집결 장소 · {product.meetPlace || '예약 후 안내'}</p>

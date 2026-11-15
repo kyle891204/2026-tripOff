@@ -1,3 +1,4 @@
+import { saveFileRecords, deleteFileRecords } from '@/features/app-screens/voucherFiles'
 import { SHOP_COUNTRIES } from '@/data/shopCountries'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
@@ -66,7 +67,10 @@ export default function ProductRegisterPage() {
   const [region, setRegion] = useState('')
   const [duration, setDuration] = useState('')
   const [intro, setIntro] = useState('')
-  const [images, setImages] = useState<Array<{ id: number; url: string; name: string }>>([])
+  const [images, setImages] = useState<Array<{ id: number; url: string; name: string; file: File }>>([])
+  const imageUrls = useRef(new Set<string>())
+  const registering = useRef(false)
+  const [isSaving, setIsSaving] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   // 2. 옵션 및 가격
@@ -97,7 +101,10 @@ export default function ProductRegisterPage() {
     { id: 2, days: '3', percent: '50' },
   ])
 
-  useEffect(() => () => images.forEach((img) => URL.revokeObjectURL(img.url)), [])
+  useEffect(() => {
+    const urls = imageUrls.current
+    return () => urls.forEach(url => URL.revokeObjectURL(url))
+  }, [])
 
   const updateOption = (id: number, patch: Partial<Option>) =>
     setOptions((prev) => prev.map((o) => (o.id === id ? { ...o, ...patch } : o)))
@@ -111,21 +118,28 @@ export default function ProductRegisterPage() {
     })
 
   const addImages = (files: FileList | null) => {
-    if (!files) return
+    if (!files || registering.current) return
     const room = 10 - images.length
-    const added = Array.from(files)
-      .slice(0, room)
-      .map((f) => ({ id: nextId++, url: URL.createObjectURL(f), name: f.name }))
+    const validFiles = Array.from(files).filter(file => ['image/jpeg', 'image/png'].includes(file.type))
+    const added = validFiles.slice(0, room).map(file => {
+      const url = URL.createObjectURL(file)
+      imageUrls.current.add(url)
+      return { id: nextId++, url, name: file.name, file }
+    })
+    if (validFiles.length !== files.length) toast.show('JPG 또는 PNG 사진을 선택해 주세요.')
     setImages((prev) => [...prev, ...added])
     if (files.length > room) toast.show('이미지는 최대 10장까지 등록할 수 있어요.')
   }
 
-  const removeImage = (id: number) =>
-    setImages((prev) => {
-      const target = prev.find((i) => i.id === id)
-      if (target) URL.revokeObjectURL(target.url)
-      return prev.filter((i) => i.id !== id)
-    })
+  const removeImage = (id: number) => {
+    if (registering.current) return
+    const target = images.find(image => image.id === id)
+    if (target) {
+      URL.revokeObjectURL(target.url)
+      imageUrls.current.delete(target.url)
+    }
+    setImages(previous => previous.filter(image => image.id !== id))
+  }
 
   const firstRule = rules.find((r) => r.days && r.percent)
   const refundSummary = firstRule ? `이용 ${firstRule.days}일 전까지 ${firstRule.percent}% 환불` : '[취소 규정]'
@@ -186,26 +200,42 @@ export default function ProductRegisterPage() {
   }
 
   /** 시연용: 승인 절차 없이 바로 등록하고 목록으로 이동한다. 필수값은 상품명만 확인한다. */
-  const register = () => {
+  const register = async () => {
+    if (registering.current) return
     if (!name.trim()) {
       toast.show('상품명을 입력해 주세요.')
       nameRef.current?.focus()
       return
     }
-    const created = addProduct({
-      name: name.trim(),
-      category,
-      country,
-      region: region.trim() || '지역 미정',
-      duration: duration.trim(),
-      options: options
-        .filter((o) => o.name.trim() || o.adult)
-        .map(({ name: optionName, adult, child, stock }) => ({ name: optionName.trim(), adult, child, stock })),
-      days: DAYS.filter((d) => days.has(d)),
-      codeType,
-      meetPlace: meetPlace.trim(),
-    })
-    navigate(ROUTES.partnerProducts, { state: { createdId: created.id } })
+    registering.current = true
+    setIsSaving(true)
+    const photos = images.map(image => ({
+      id: 'product-image-' + crypto.randomUUID(), file: image.file, name: image.name,
+    }))
+    try {
+      await saveFileRecords(photos)
+      const created = addProduct({
+        images: photos.map(({ id, name }) => ({ id, name })),
+        name: name.trim(),
+        category,
+        country,
+        region: region.trim() || '지역 미정',
+        duration: duration.trim(),
+        options: options
+          .filter((o) => o.name.trim() || o.adult)
+          .map(({ name: optionName, adult, child, stock }) => ({ name: optionName.trim(), adult, child, stock })),
+        days: DAYS.filter((d) => days.has(d)),
+        codeType,
+        meetPlace: meetPlace.trim(),
+      })
+      navigate(ROUTES.partnerProducts, { state: { createdId: created.id } })
+    } catch {
+      await deleteFileRecords(photos.map(photo => photo.id)).catch(() => {})
+      toast.show('사진이나 상품을 저장하지 못했어요. 브라우저 저장 공간을 확인하고 다시 등록해 주세요.')
+    } finally {
+      registering.current = false
+      setIsSaving(false)
+    }
   }
 
   return (
@@ -221,11 +251,11 @@ export default function ProductRegisterPage() {
           </p>
         </div>
         <div className={p.actions}>
-          <Button variant="secondary" onClick={() => navigate(ROUTES.partnerProducts)}>
+          <Button variant="secondary" disabled={isSaving} onClick={() => navigate(ROUTES.partnerProducts)}>
             취소
           </Button>
-          <Button variant="primary" onClick={register}>
-            등록
+          <Button variant="primary" disabled={isSaving} onClick={register}>
+            {isSaving ? '사진 저장 중…' : '등록'}
           </Button>
         </div>
       </header>
@@ -262,7 +292,7 @@ export default function ProductRegisterPage() {
             <div className={s.images}>
               <p className={p.label}>대표 이미지</p>
               <div className={s.slots}>
-                <button className={cn(s.slot, s.slotAdd)} onClick={() => fileRef.current?.click()} disabled={images.length >= 10}>
+                <button className={cn(s.slot, s.slotAdd)} onClick={() => fileRef.current?.click()} disabled={isSaving || images.length >= 10}>
                   + 이미지 추가
                 </button>
                 <input
@@ -270,6 +300,7 @@ export default function ProductRegisterPage() {
                   type="file"
                   accept="image/jpeg,image/png"
                   multiple
+                  disabled={isSaving}
                   className={p.visuallyHidden}
                   onChange={(e) => {
                     addImages(e.target.files)
@@ -283,7 +314,7 @@ export default function ProductRegisterPage() {
                     <div key={img.id} className={s.slot}>
                       <img src={img.url} alt={img.name} />
                       {i === 0 && <span className={s.slotTag}>대표</span>}
-                      <button className={s.slotRemove} aria-label={`${img.name} 삭제`} onClick={() => removeImage(img.id)}>
+                      <button className={s.slotRemove} disabled={isSaving} aria-label={`${img.name} 삭제`} onClick={() => removeImage(img.id)}>
                         <CloseIcon />
                       </button>
                     </div>
