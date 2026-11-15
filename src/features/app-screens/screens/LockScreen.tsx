@@ -28,8 +28,12 @@ export default function LockScreen({ go }: ScreenProps) {
       <p className={styles.clock}>13:30</p>
 
       <button type="button" className={cn(styles.widget, shared.tappable)} onClick={() => {
-          setDemoState({ planId: plan?.id })
-          go(plan ? 'ticket' : 'premium')
+          if (!plan) {
+            showToast('저장된 티켓이 없어요. 여행에 바우처를 추가해 주세요')
+            return
+          }
+          setDemoState({ planId: plan.id })
+          go('ticket')
         }}>
         <span className={styles.logo}>
           <IconAppLogo />

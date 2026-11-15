@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react'
-import { DynamicVoucherScreen, InviteScreen, PremiumScreen, ProfileScreen, VoucherImportScreen, VoucherOriginalScreen } from './screens/ExtraDemoScreens'
+import { InviteScreen, ProfileScreen, VoucherImportScreen, VoucherOriginalScreen } from './screens/ExtraDemoScreens'
 import AddTripScreen from './screens/AddTripScreen'
 import AddVoucherScreen from './screens/AddVoucherScreen'
 import CompanionsScreen from './screens/CompanionsScreen'
@@ -44,10 +44,8 @@ export const SCREENS: ScreenMeta[] = [
   { id: 'companions', title: '동행 · 정산', caption: '여행 단위로 동행을 초대하고 1인당 비용까지. 티켓은 각자 자기 것만', source: 'hifi', figmaNode: '18:410', Component: CompanionsScreen },
   { id: 'voucher-import', title: '원본 파일 선택', caption: '파일을 첨부하거나 준비된 샘플을 골라요', source: 'temp', Component: VoucherImportScreen },
   { id: 'voucher-original', title: '원본 바우처', caption: '첨부한 파일이나 시연용 원본을 확인해요', source: 'temp', Component: VoucherOriginalScreen },
-  { id: 'profile', title: '내 프로필', caption: '시연 계정과 기간권을 확인해요', source: 'temp', Component: ProfileScreen },
+  { id: 'profile', title: '내 프로필', caption: '시연 계정을 확인해요', source: 'temp', Component: ProfileScreen },
   { id: 'invite', title: '동행 초대', caption: '같은 브라우저에서 열 수 있는 초대 링크', source: 'temp', Component: InviteScreen },
-  { id: 'premium', title: '프리미엄 기간권', caption: '6,000원 기간권 결제 화면 시연', source: 'temp', Component: PremiumScreen },
-  { id: 'dynamic-voucher', title: '실시간 QR 티켓', caption: '실시간 QR은 오프라인 저장 대신 발급처 앱 안내', source: 'temp', Component: DynamicVoucherScreen },
   { id: 'notifications', title: '알림함', caption: '바우처 변경 알림과 입장 알림을 열어 일정을 확인해요', source: 'temp', Component: NotificationsScreen },
   { id: 'lock', title: '잠금 화면 위젯', caption: '폰을 열지 않아도 입장 QR 을 꺼내요 (프리미엄)', source: 'hifi', figmaNode: '18:458', floatingBack: { left: 325, top: 532 }, Component: LockScreen },
 ]

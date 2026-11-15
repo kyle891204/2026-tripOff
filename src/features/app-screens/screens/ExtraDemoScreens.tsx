@@ -92,7 +92,7 @@ export function VoucherOriginalScreen({ back }: ScreenProps) {
 export function ProfileScreen({ go, back }: ScreenProps) {
   return <Page back={back} title="내 프로필" subtitle="트립오프 시연 계정">
     <div className={styles.card}><h2>{ME.name}</h2><p>여행자 · 시연 모드</p></div>
-    <div className={styles.buttons}><button onClick={() => go('premium')}>프리미엄 기간권 보기</button><button onClick={() => go('home')}>내 여행으로</button></div>
+    <div className={styles.buttons}><button onClick={() => go('home')}>내 여행으로</button></div>
   </Page>
 }
 
@@ -106,23 +106,5 @@ export function InviteScreen({ back }: ScreenProps) {
       <button className={styles.primary} onClick={async () => { try { await navigator.clipboard.writeText(link); setState('링크를 복사했어요.') } catch { setState('복사가 차단됐어요. 위 주소를 직접 복사해 주세요.') } }}>초대 링크 복사</button>
       <a href={link} target="_blank" rel="noreferrer">초대 화면 미리 보기</a>
     </div><p role="status">{state}</p>
-  </Page>
-}
-
-export function PremiumScreen({ back }: ScreenProps) {
-  const [selected, setSelected] = useState(false)
-  return <Page back={back} title="프리미엄 여행 기간권" subtitle="여행 중 필요한 편의 기능을 한 여행에서 이용해요.">
-    <div className={styles.card}><h2>30일 · 6,000원</h2><p>잠금 화면 티켓 카드 · 시간과 위치에 맞춘 티켓 안내</p></div>
-    <div className={styles.buttons}><button className={styles.primary} onClick={() => setSelected(true)}>결제 단계 미리 보기</button></div>
-    {selected && <div className={styles.card} role="status">시연용 결제 화면입니다. 실제 결제는 진행되지 않아요.</div>}
-  </Page>
-}
-
-export function DynamicVoucherScreen({ back }: ScreenProps) {
-  const [opened, setOpened] = useState(false)
-  return <Page back={back} title="실시간 QR 티켓" subtitle="이 티켓은 인터넷에 연결한 뒤 발급처 앱에서 열어야 해요.">
-    <div className={styles.card}><h2>오사카 전망대 입장권</h2><p>예약번호 DYNAMIC-DEMO-12</p><p>온라인 필요 · QR이 실시간으로 바뀌는 티켓</p></div>
-    <div className={styles.buttons}><button className={styles.primary} onClick={() => setOpened(true)}>원본 앱에서 열기</button></div>
-    {opened && <p role="status">시연용 티켓이라 실제 발급처 앱은 열리지 않아요.</p>}
   </Page>
 }
