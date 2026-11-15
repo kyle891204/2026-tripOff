@@ -1,12 +1,30 @@
-/* 디자인 토큰: 색/간격/폰트는 여기서만 정의 */
+/* 디자인 토큰: 색/간격/폰트는 여기서만 정의
+ * 팔레트: Figma "디자인 소스 > 3. 라군 틸 (Lagoon Teal)" */
 :root {
+  /* --- 라군 틸 팔레트 (앱 하이파이 화면에서 추출) --- */
+  --teal: #2f9c98;
+  --teal-mid: #6db7b3;
+  --teal-soft: #eef7f6;
+  --deep: #1d4e5a;
+  --coral: #f2895e;
+  --coral-soft: #fff1ea;
+  --sand: #e9c46a;
+  --ink: #13282c;
+  --ink-sub: #5f7175;
+  --ink-muted: #9aa9ac;
+  --line: #e7eeed;
+  --mist: #f5f8f8;
+  --avatar-off: #d5dede;
+  --dim: rgb(11 26 29 / 0.42);
+
+  /* --- 사이트(마케팅 페이지) 시맨틱 토큰 --- */
   --color-bg: #ffffff;
-  --color-surface: #f5f7fa;
-  --color-text: #111827;
-  --color-text-muted: #6b7280;
-  --color-primary: #2563eb;
+  --color-surface: var(--mist);
+  --color-text: var(--ink);
+  --color-text-muted: var(--ink-sub);
+  --color-primary: var(--teal);
   --color-primary-contrast: #ffffff;
-  --color-border: #e5e7eb;
+  --color-border: var(--line);
 
   --radius-sm: 8px;
   --radius-md: 16px;

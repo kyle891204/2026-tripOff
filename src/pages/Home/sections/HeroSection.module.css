@@ -1,6 +1,6 @@
 .hero {
   padding: var(--space-6) 0;
-  background: linear-gradient(180deg, var(--color-surface), var(--color-bg));
+  background: linear-gradient(180deg, var(--teal-soft), var(--color-bg));
 }
 
 .inner {
@@ -10,13 +10,21 @@
   align-items: center;
 }
 
+.eyebrow {
+  font-weight: 800;
+  color: var(--teal);
+}
+
 .title {
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  margin-top: var(--space-2);
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
   font-weight: 800;
   line-height: 1.2;
+  white-space: pre-line;
 }
 
 .desc {
+  max-width: 30em;
   margin-top: var(--space-3);
   font-size: 1.125rem;
   color: var(--color-text-muted);
@@ -29,17 +37,14 @@
   gap: var(--space-2);
 }
 
-.placeholder {
-  height: 100%;
-  display: grid;
-  place-items: center;
-  color: var(--color-text-muted);
-}
-
-@media (max-width: 768px) {
+@media (max-width: 860px) {
   .inner {
     grid-template-columns: 1fr;
     text-align: center;
+  }
+
+  .desc {
+    margin-inline: auto;
   }
 
   .actions {

@@ -1,0 +1,81 @@
+/* 여러 화면에서 반복되는 블록 */
+
+.iconBox {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--teal-soft);
+  flex: none;
+}
+
+.iconBoxWhite {
+  background: #fff;
+}
+
+.iconBoxCoral {
+  background: var(--coral-soft);
+}
+
+.back {
+  position: absolute;
+  /* 아이콘 위치 (20.9, 72.9) 그대로, 터치 영역만 8px 넓힘 */
+  left: 12.9px;
+  top: 64.9px;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.cta {
+  position: absolute;
+  left: 20px;
+  top: 764px;
+  width: 353px;
+  height: 56px;
+  border-radius: 18px;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+}
+
+.ctaTeal {
+  background: var(--teal);
+}
+
+.ctaInk {
+  background: var(--ink);
+}
+
+.tappable {
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.tappable:active {
+  transform: scale(0.98);
+}
+
+.toast {
+  position: absolute;
+  left: 50%;
+  bottom: 40px;
+  transform: translateX(-50%);
+  padding: 12px 18px;
+  border-radius: 14px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  z-index: 6;
+  animation: toast 2.4s ease forwards;
+}
+
+@keyframes toast {
+  0% { opacity: 0; transform: translate(-50%, 12px); }
+  10%, 80% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, 0); }
+}

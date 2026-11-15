@@ -1,0 +1,205 @@
+.title {
+  position: absolute;
+  left: 20px;
+  top: 78px;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 36px;
+}
+
+/* ---------- 날짜 탭 (83×64, r20, 간격 7) ---------- */
+.days {
+  position: absolute;
+  left: 20px;
+  top: 128px;
+  display: flex;
+  gap: 7px;
+}
+
+.day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 83px;
+  height: 64px;
+  padding-top: 11px;
+  border-radius: 20px;
+  background: #fff;
+}
+
+.dow {
+  font-size: 13px;
+  line-height: 16px;
+  color: var(--ink-muted);
+}
+
+.date {
+  margin-top: 3px;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 24px;
+}
+
+.dayActive {
+  background: var(--ink);
+  color: #fff;
+}
+
+.dayActive .dow {
+  color: #fff;
+}
+
+/* ---------- 세로 레일 ---------- */
+.rail {
+  position: absolute;
+  left: 66px;
+  top: 232px;
+  width: 2px;
+  height: 520px;
+  background: var(--line);
+}
+
+.dayBody {
+  position: absolute;
+  inset: 0;
+  animation: dayIn 0.25s ease;
+  /* 화면 전체를 덮으므로 빈 곳 클릭은 아래(날짜 탭)로 통과 */
+  pointer-events: none;
+}
+
+.dayBody button {
+  pointer-events: auto;
+}
+
+@keyframes dayIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.item {
+  position: absolute;
+  left: 0;
+  width: 393px;
+}
+
+.time {
+  position: absolute;
+  left: 20px;
+  top: 21px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 16px;
+  color: var(--ink-sub);
+}
+
+.timeMuted {
+  top: 13px;
+  color: var(--ink-muted);
+}
+
+.dot {
+  position: absolute;
+  left: 62px;
+  top: 25px;
+  /* Figma: 10px 원 + 2.5px 중앙 정렬 stroke → 바깥 12.5px */
+  width: 12.5px;
+  height: 12.5px;
+  border: 2.5px solid var(--teal);
+  border-radius: 50%;
+  background: #fff;
+  margin: -1.25px;
+}
+
+.dotCoral {
+  border-color: var(--coral);
+}
+
+.dotGray {
+  position: absolute;
+  left: 63px;
+  top: 18px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line);
+}
+
+/* ---------- 일정 카드 (287×76, r20) ---------- */
+.card {
+  position: absolute;
+  left: 86px;
+  top: 0;
+  display: flex;
+  align-items: center;
+  width: 287px;
+  height: 76px;
+  padding: 0 14px;
+  border-radius: 20px;
+  background: #fff;
+}
+
+.cardConflict {
+  box-shadow: inset 0 0 0 1.4px var(--coral);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-left: 12px;
+}
+
+.text strong {
+  font-size: 16px;
+  line-height: 19px;
+}
+
+.text span {
+  font-size: 13px;
+  line-height: 16px;
+  color: var(--ink-sub);
+}
+
+/* ---------- 겹침 경고 ---------- */
+.warn {
+  position: absolute;
+  left: 86px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 172px;
+  height: 32px;
+  padding-left: 11px;
+  border-radius: 16px;
+  background: var(--coral-soft);
+  color: var(--coral);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.warnIcon {
+  display: grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--coral);
+  color: #fff;
+  font-size: 11px;
+}
+
+.add {
+  position: absolute;
+  left: 86px;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 287px;
+  height: 48px;
+  border: 1.2px solid var(--ink-muted);
+  border-radius: 16px;
+  font-size: 14px;
+  color: var(--ink-sub);
+}

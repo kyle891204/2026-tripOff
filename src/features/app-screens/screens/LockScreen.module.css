@@ -1,0 +1,142 @@
+.blobA,
+.blobB {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--teal);
+}
+
+.blobA {
+  left: -200px;
+  top: 500px;
+  width: 520px;
+  height: 520px;
+  opacity: 0.28;
+}
+
+.blobB {
+  left: 200px;
+  top: -60px;
+  width: 360px;
+  height: 360px;
+  opacity: 0.18;
+}
+
+.date {
+  position: absolute;
+  top: 95px;
+  width: 100%;
+  font-size: 17px;
+  color: #fff;
+  text-align: center;
+}
+
+.clock {
+  position: absolute;
+  top: 108px;
+  width: 100%;
+  font-size: 88px;
+  font-weight: 700;
+  line-height: 106px;
+  color: #fff;
+  text-align: center;
+}
+
+/* ---------- 위젯 (369×168, r30) ---------- */
+.widget {
+  position: absolute;
+  left: 12px;
+  top: 600px;
+  width: 369px;
+  height: 168px;
+  border-radius: 30px;
+  background: rgb(247 250 250 / 0.96);
+}
+
+.widget > span {
+  position: absolute;
+}
+
+.logo { left: 20px; top: 22px; }
+
+.name {
+  left: 56px;
+  top: 25px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.eta {
+  right: 20px;
+  top: 25px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--teal);
+}
+
+.time {
+  left: 20px;
+  top: 58px;
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 48px;
+}
+
+.gate {
+  left: 20px;
+  top: 116px;
+  font-size: 14px;
+  color: var(--ink-sub);
+}
+
+.progress {
+  left: 20px;
+  top: 148px;
+  width: 200px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line);
+}
+
+.progress span {
+  display: block;
+  width: 150px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--teal);
+}
+
+.qr {
+  left: 254px;
+  top: 64px;
+  width: 96px;
+  height: 96px;
+  padding: 10px;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.qr svg {
+  display: block;
+}
+
+.round {
+  position: absolute;
+  top: 765px;
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.16);
+}
+
+.on {
+  background: rgb(255 255 255 / 0.9);
+}
+
+.on img {
+  filter: brightness(0.2);
+}
+
+.left { left: 41px; }
+.right { left: 302px; }
