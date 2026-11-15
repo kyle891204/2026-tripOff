@@ -8,11 +8,15 @@
 
 html,
 body {
+  letter-spacing: -0.01em;
+  word-break: keep-all;
   margin: 0;
   padding: 0;
 }
 
 body {
+  letter-spacing: -0.01em;
+  word-break: keep-all;
   font-family: var(--font-sans);
   color: var(--color-text);
   background: var(--color-bg);
