@@ -1,0 +1,184 @@
+/*
+ * 타임라인 (총 ~3.4s, 이후 홈으로 자동 이동)
+ * 0.20 ~ 1.30s  티켓 4장이 0.22s 간격으로 지갑에 떨어짐
+ * 1.30 ~ 1.60s  지갑이 살짝 눌렸다 튀어오름
+ * 1.70 ~ 2.30s  브랜드·문구 등장
+ */
+
+.skip {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.blob {
+  position: absolute;
+  left: 140px;
+  top: -120px;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: var(--teal);
+  opacity: 0.22;
+}
+
+/* ---------- 지갑 (지갑 아이콘 ic-app-logo 모양을 크게) ---------- */
+.wallet {
+  position: absolute;
+  left: 50%;
+  top: 300px;
+  width: 132px;
+  height: 104px;
+  margin-left: -66px;
+  animation: squash 0.35s cubic-bezier(0.3, 1.6, 0.5, 1) 1.3s both;
+  transform-origin: 50% 100%;
+}
+
+.back {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 132px;
+  height: 88px;
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--teal) 78%, #000);
+}
+
+.front {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 132px;
+  height: 66px;
+  border-radius: 22px;
+  background: var(--teal);
+  box-shadow: 0 -2px 0 rgb(255 255 255 / 0.12) inset;
+  z-index: 2;
+}
+
+.clasp {
+  position: absolute;
+  right: -6px;
+  top: 18px;
+  width: 38px;
+  height: 26px;
+  border-radius: 13px;
+  background: #fff;
+}
+
+.clasp::after {
+  content: '';
+  position: absolute;
+  left: 9px;
+  top: 8px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--teal);
+}
+
+/* ---------- 티켓 ---------- */
+.ticket {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 78px;
+  height: 46px;
+  margin-left: -39px;
+  border-radius: 8px;
+  opacity: 0;
+  animation: drop 0.55s cubic-bezier(0.25, 0.9, 0.3, 1.15) both;
+  -webkit-mask:
+    radial-gradient(circle 6px at left center, #0000 98%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle 6px at right center, #0000 98%, #000) right / 51% 100% no-repeat;
+  mask:
+    radial-gradient(circle 6px at left center, #0000 98%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle 6px at right center, #0000 98%, #000) right / 51% 100% no-repeat;
+}
+
+.ticket::after {
+  content: '';
+  position: absolute;
+  top: 7px;
+  bottom: 7px;
+  left: 70%;
+  border-left: 2px dashed rgb(255 255 255 / 0.6);
+}
+
+.coral { background: var(--coral); }
+.sand  { background: var(--sand); }
+.mint  { background: var(--teal-mid); }
+.paper { background: #fff; }
+.paper::after { border-color: var(--line); }
+
+/* 각 티켓의 최종 위치(살짝 삐져나온 각도)와 떨어지는 순서 */
+.t0 { --x: -18px; --y: 2px;  --r: -10deg; animation-delay: 0.2s; }
+.t1 { --x: 16px;  --y: 6px;  --r: 8deg;   animation-delay: 0.42s; }
+.t2 { --x: -6px;  --y: 12px; --r: -3deg;  animation-delay: 0.64s; }
+.t3 { --x: 6px;   --y: 18px; --r: 4deg;   animation-delay: 0.86s; }
+
+@keyframes drop {
+  0% {
+    opacity: 0;
+    transform: translate(calc(var(--x) * 2), -300px) rotate(calc(var(--r) * -3));
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translate(var(--x), var(--y)) rotate(var(--r));
+  }
+}
+
+@keyframes squash {
+  0%   { transform: scale(1, 1); }
+  40%  { transform: scale(1.08, 0.9); }
+  100% { transform: scale(1, 1); }
+}
+
+/* ---------- 브랜드·문구 ---------- */
+.copy {
+  position: absolute;
+  top: 448px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: #fff;
+}
+
+.brand {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  animation: rise 0.6s ease 1.7s both;
+}
+
+.headline {
+  margin-top: 14px;
+  font-size: 17px;
+  line-height: 26px;
+  color: rgb(255 255 255 / 0.75);
+  animation: rise 0.6s ease 1.9s both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wallet,
+  .ticket,
+  .brand,
+  .headline {
+    animation-duration: 0.01s;
+    animation-delay: 0s;
+  }
+}

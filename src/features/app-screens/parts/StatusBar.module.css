@@ -1,0 +1,71 @@
+.bar {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 54px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.time {
+  position: absolute;
+  left: 32px;
+  top: 21px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19px;
+  color: var(--ink);
+}
+
+.icons img {
+  display: block;
+  max-width: none;
+}
+
+.signal {
+  position: absolute;
+  left: 300px;
+  top: 24px;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 10px;
+}
+
+.airplane {
+  position: absolute;
+  left: 300px;
+  top: 24.25px;
+}
+
+.battery {
+  position: absolute;
+  left: 326px;
+  top: 25px;
+}
+
+.battOutline {
+  position: absolute;
+  left: -0.5px;
+  top: -0.5px;
+}
+
+.battFill {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+}
+
+.battCap {
+  position: absolute;
+  left: 25px;
+  top: 4px;
+}
+
+/* 잠금 화면: 흰색으로 */
+.light .time {
+  color: #fff;
+}
+
+.light .icons img {
+  filter: brightness(0) invert(1);
+}

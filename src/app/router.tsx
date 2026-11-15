@@ -3,6 +3,7 @@ import Layout from '@/components/layout/Layout'
 import HomePage from '@/pages/Home/HomePage'
 import DemoPage from '@/pages/Demo/DemoPage'
 import NotFoundPage from '@/pages/NotFound/NotFoundPage'
+import ScreenOnlyPage from '@/pages/ScreenOnly/ScreenOnlyPage'
 import { PartnerLayout } from '@/features/partner'
 import ProductListPage from '@/pages/Partner/ProductListPage'
 import ProductRegisterPage from '@/pages/Partner/ProductRegisterPage'
@@ -28,4 +29,6 @@ export const router = createBrowserRouter([
       { path: '*', element: <NotFoundPage /> },
     ],
   },
+  // 사이트 레이아웃 없이 앱 화면만
+  { path: ROUTES.screen, element: <ScreenOnlyPage /> },
 ])

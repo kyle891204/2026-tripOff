@@ -1,0 +1,178 @@
+.close {
+  position: absolute;
+  left: 335px;
+  top: 68px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--mist);
+}
+
+.title {
+  position: absolute;
+  top: 148px;
+  width: 100%;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 26px;
+  text-align: center;
+}
+
+.holder {
+  position: absolute;
+  top: 183px;
+  width: 100%;
+  font-size: 15px;
+  color: var(--ink-sub);
+  text-align: center;
+}
+
+.qrBox {
+  position: absolute;
+  left: 44px;
+  top: 236px;
+  width: 305px;
+  height: 305px;
+  padding: 20.5px;
+  border: 1.5px solid var(--line);
+  border-radius: 28px;
+  background: #fff;
+  /* 좌우 스와이프로 장 넘김 */
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+}
+
+.qrInner {
+  display: block;
+  animation: swap 0.22s ease;
+}
+
+.qrInner svg {
+  display: block;
+  pointer-events: none;
+}
+
+@keyframes swap {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+/* 밝기 최대 */
+.glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 45%, rgb(255 255 255 / 0) 30%, rgb(255 246 214 / 0.55));
+  pointer-events: none;
+  animation: swap 0.3s ease;
+}
+
+.dots {
+  position: absolute;
+  left: 176px;
+  top: 570px;
+  display: flex;
+  gap: 8px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+/* 8px 점은 누르기 어려우니 터치 영역만 넓힘 */
+.dot::before {
+  content: '';
+  position: absolute;
+  margin: -8px;
+  width: 24px;
+  height: 24px;
+}
+
+.dot.dotOn {
+  background: var(--ink);
+}
+
+/* ---------- 입장 / 예약번호 / 게이트 ---------- */
+.info {
+  position: absolute;
+  left: 20px;
+  top: 616px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: center;
+  width: 353px;
+  height: 76px;
+  margin: 0;
+  border-radius: 22px;
+  background: var(--mist);
+}
+
+.info > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.info > div + div {
+  border-left: 1px solid var(--line);
+}
+
+.info dt {
+  font-size: 12px;
+  line-height: 14px;
+  color: var(--ink-muted);
+}
+
+.info dd {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19px;
+}
+
+/* ---------- 하단 액션 ---------- */
+.actions {
+  position: absolute;
+  left: 116px;
+  top: 735px;
+  display: flex;
+  align-items: center;
+  height: 20px;
+  font-size: 13px;
+}
+
+.bright {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink-sub);
+  cursor: pointer;
+}
+
+.brightOn {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.sep {
+  width: 1px;
+  height: 20px;
+  margin: 0 14px;
+  background: var(--line);
+}
+
+.origin {
+  font-weight: 700;
+  color: var(--teal);
+  cursor: pointer;
+}

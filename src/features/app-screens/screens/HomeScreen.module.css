@@ -1,0 +1,211 @@
+.body {
+  padding: 78px 20px 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+  padding-right: 6px;
+}
+
+.title {
+  font-size: 30px;
+  font-weight: 700;
+}
+
+/* ---------- 여행 카드 (353×228, r28) ---------- */
+.cardWrap {
+  position: relative;
+  margin-top: 22px;
+}
+
+.card {
+  position: relative;
+  display: block;
+  width: 353px;
+  height: 228px;
+  border-radius: 28px;
+  background: var(--deep);
+  color: #fff;
+  overflow: hidden;
+}
+
+.cardCircle {
+  position: absolute;
+  left: 242px;
+  top: -96px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: var(--teal);
+  opacity: 0.35;
+}
+
+.wallet {
+  position: absolute;
+  left: 24px;
+  top: 26px;
+}
+
+.city {
+  position: absolute;
+  left: 24px;
+  top: 76px;
+  font-size: 38px;
+  font-weight: 700;
+}
+
+.period {
+  position: absolute;
+  left: 24px;
+  top: 129px;
+  font-size: 15px;
+}
+
+.members {
+  position: absolute;
+  left: 22px;
+  top: 180px;
+  display: flex;
+}
+
+.members > * + * {
+  margin-left: -2px;
+}
+
+.count {
+  position: absolute;
+  right: 24px;
+  top: 185px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* ---------- 티켓 묶음 ---------- */
+.stack {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 150px;
+  height: 180px;
+}
+
+.ticket {
+  position: absolute;
+  width: 108px;
+  height: 58px;
+  border-radius: 10px;
+  box-shadow: 0 6px 14px rgb(0 0 0 / 0.18);
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* 양옆 반원 홈 */
+  -webkit-mask:
+    radial-gradient(circle 7px at left center, #0000 98%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle 7px at right center, #0000 98%, #000) right / 51% 100% no-repeat;
+  mask:
+    radial-gradient(circle 7px at left center, #0000 98%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle 7px at right center, #0000 98%, #000) right / 51% 100% no-repeat;
+}
+
+/* 절취선 */
+.ticket::after {
+  content: '';
+  position: absolute;
+  top: 9px;
+  bottom: 9px;
+  left: 72%;
+  border-left: 2px dashed rgb(255 255 255 / 0.55);
+}
+
+.sand { background: var(--sand); }
+.teal { background: var(--teal-mid); }
+.coral { background: var(--coral); }
+
+.front {
+  display: grid;
+  place-items: center;
+  padding-right: 30px;
+  background: #fff;
+}
+
+.front::after {
+  border-color: var(--line);
+}
+
+.dday {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--coral);
+}
+
+.t0 { right: -26px; top: 104px; transform: rotate(14deg); }
+.t1 { right: -6px;  top: 78px;  transform: rotate(-7deg); }
+.t2 { right: -18px; top: 48px;  transform: rotate(9deg); }
+.t3 { right: 16px;  top: 18px;  transform: rotate(-4deg); }
+
+/* 카드에 마우스를 올리면 티켓이 살짝 펼쳐짐 */
+.card:hover .t0 { transform: translate(-6px, 8px) rotate(20deg); }
+.card:hover .t1 { transform: translate(-10px, 4px) rotate(-12deg); }
+.card:hover .t2 { transform: translate(-4px, -2px) rotate(14deg); }
+.card:hover .t3 { transform: translate(-6px, -4px) rotate(-7deg); }
+
+/* ---------- 다가오는 일정 ---------- */
+.section {
+  margin-top: 29px;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.list {
+  list-style: none;
+  margin: 20px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 72px;
+  padding: 0 16px 0 14px;
+  border-radius: 20px;
+  background: #fff;
+}
+
+.rowText {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-left: 14px;
+  flex: 1;
+}
+
+.rowText strong {
+  font-size: 16px;
+}
+
+.rowText span {
+  font-size: 14px;
+  color: var(--ink-sub);
+}
+
+.kind {
+  font-size: 14px;
+  color: var(--ink-muted);
+}
+
+.fab {
+  position: absolute;
+  left: 311px;
+  top: 742px;
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--ink);
+}

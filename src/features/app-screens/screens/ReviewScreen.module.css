@@ -1,0 +1,173 @@
+.head {
+  position: absolute;
+  left: 20px;
+  top: 126px;
+}
+
+.provider {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--teal);
+  line-height: 17px;
+}
+
+.title {
+  margin-top: 7px;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 34px;
+}
+
+.file {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--ink-muted);
+  line-height: 17px;
+}
+
+/* ---------- 원본 → QR 패널 (353×168, r24) ---------- */
+.panel {
+  position: absolute;
+  left: 20px;
+  top: 236px;
+  width: 353px;
+  height: 168px;
+  border-radius: 24px;
+  background: var(--mist);
+}
+
+.doc {
+  position: absolute;
+  left: 28px;
+  top: 20px;
+  width: 96px;
+  height: 128px;
+  padding: 13px 0 0 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.docLine {
+  display: block;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--line);
+}
+
+.docQr {
+  position: absolute;
+  left: 45.2px;
+  top: 69.2px;
+  padding: 3.2px;
+  border: 1.6px solid var(--coral);
+  border-radius: 6px;
+}
+
+.docQr svg {
+  display: block;
+}
+
+.arrow {
+  position: absolute;
+  left: 147px;
+  top: 75px;
+}
+
+.qrCard {
+  position: absolute;
+  left: 216px;
+  top: 16px;
+  width: 116px;
+  height: 136px;
+  padding: 14px;
+  border-radius: 18px;
+  background: #fff;
+}
+
+.qrCard svg {
+  display: block;
+}
+
+.page {
+  display: block;
+  margin-top: 11px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-muted);
+  text-align: center;
+}
+
+/* ---------- 추출 필드 ---------- */
+.fields {
+  position: absolute;
+  left: 20px;
+  top: 416px;
+  width: 353px;
+  margin: 0;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  border-bottom: 1px solid var(--line);
+}
+
+.field:last-child {
+  border-bottom: 0;
+}
+
+.field dt {
+  font-size: 16px;
+  color: var(--ink-sub);
+}
+
+.field dd {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.warn {
+  font-size: 17px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 123px;
+  height: 36px;
+  padding: 0 16px 0 8.5px;
+  border-radius: 12px;
+  background: var(--coral-soft);
+  color: var(--coral);
+}
+
+.warnDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--coral);
+}
+
+/* 고친 뒤: 틸 톤 */
+.warn.fixed {
+  background: var(--teal-soft);
+  color: var(--teal);
+}
+
+.fixed .warnDot {
+  background: var(--teal);
+}
+
+.note {
+  position: absolute;
+  left: 20px;
+  top: 699px;
+  font-size: 13px;
+  color: var(--ink-muted);
+}

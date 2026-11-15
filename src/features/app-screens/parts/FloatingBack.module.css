@@ -1,0 +1,26 @@
+.button {
+  position: absolute;
+  z-index: 7;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  /* 아이콘(꺾쇠)이 시각적으로 가운데 보이도록 살짝 왼쪽 */
+  padding-right: 3px;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.86);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 0 0 1px rgb(19 40 44 / 0.06),
+    0 6px 18px rgb(19 40 44 / 0.18);
+  cursor: pointer;
+  animation: pop 0.25s cubic-bezier(0.3, 1.4, 0.5, 1) 0.15s both;
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}

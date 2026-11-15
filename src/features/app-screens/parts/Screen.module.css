@@ -1,0 +1,26 @@
+.screen {
+  position: relative;
+  width: 393px;
+  height: 852px;
+  overflow: hidden;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  line-height: normal;
+  letter-spacing: 0;
+  word-break: keep-all;
+  text-align: left;
+}
+
+/* :where → 특이성 0 이라 각 화면의 버튼/텍스트 스타일이 항상 이김 */
+:where(.screen button) {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  padding: 0;
+  background: none;
+  text-align: inherit;
+}
+
+:where(.screen p, .screen h1, .screen h2) {
+  margin: 0;
+}
