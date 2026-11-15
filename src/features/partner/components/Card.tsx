@@ -6,12 +6,16 @@ interface Props {
   title: string
   description?: string
   children: ReactNode
+  /** 스크롤 이동용 앵커 */
+  id?: string
+  /** 시연 중 방금 채워진 섹션 강조 */
+  highlighted?: boolean
 }
 
 /** 번호가 붙은 폼 섹션 카드 */
-export default function Card({ title, description, children }: Props) {
+export default function Card({ title, description, children, id, highlighted }: Props) {
   return (
-    <section className={cn(s.card, s.section)}>
+    <section id={id} className={cn(s.card, s.section, highlighted && s.highlighted)}>
       <div className={s.cardHeading}>
         <h2>{title}</h2>
         {description && <p>{description}</p>}
