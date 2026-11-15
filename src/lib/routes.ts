@@ -2,4 +2,8 @@
 export const ROUTES = {
   home: '/',
   demo: '/demo',
+  /** 파트너센터 (여행사 관리자) */
+  partner: '/partners',
+  partnerProducts: '/partners/products',
+  partnerVouchers: '/partners/vouchers',
 } as const
