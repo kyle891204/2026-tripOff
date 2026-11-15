@@ -21,7 +21,7 @@ const START: ScreenId = 'splash'
 
 const DEMO_STEPS: { title: string; description: string; entry: ScreenId; screens: ScreenId[] }[] = [
   { title: '여행 확인', description: '여러 곳에서 예약한 일정을 하나의 여행에서 확인해요.', entry: 'home', screens: ['splash', 'home', 'add-trip', 'timeline', 'plan', 'profile', 'notifications'] },
-  { title: '바우처 등록', description: '샘플을 선택하고 예약 정보를 확인한 뒤, 한 번에 여행에 저장해요.', entry: 'voucher-import', screens: ['add-voucher', 'voucher-import', 'review', 'voucher-original'] },
+  { title: '바우처 등록', description: '샘플을 선택하고 예약 정보를 확인한 뒤, 한 번에 여행에 저장해요.', entry: 'voucher-import', screens: ['vouchers', 'add-voucher', 'voucher-import', 'review', 'voucher-original'] },
   { title: '현장에서 사용', description: '다가오는 일정을 확인하고, 저장한 내 QR을 크게 열어요.', entry: 'trip-home', screens: ['trip-home', 'ticket', 'lock'] },
   { title: '상점 둘러보기', description: '상품 선택부터 시연 결제, 일정 저장까지 확인해요.', entry: 'shop', screens: ['shop', 'shop-product', 'shop-checkout'] },
   { title: '동행 관리', description: '동행을 초대하고 함께하는 일정과 정산 내역을 확인해요.', entry: 'companions', screens: ['companions', 'invite'] },

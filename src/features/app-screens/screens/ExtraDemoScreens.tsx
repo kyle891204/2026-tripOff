@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import Screen from '../parts/Screen'
+import TabBar from '../parts/TabBar'
 import Avatar from '../parts/Avatar'
 import QrCode from '../parts/QrCode'
 import { IconBack, IconFile, IconTicketCoral, IconChevronRight } from '../parts/icons'
@@ -10,12 +11,13 @@ import { detectImageQr, fileRecord } from '../voucherFiles'
 import type { ScreenProps } from '../types'
 import styles from './ExtraDemoScreens.module.css'
 
-export function Page({ back, title, subtitle, children }: {
-  back: () => void; title: string; subtitle: string; children: React.ReactNode
+export function Page({ back, title, subtitle, children, tabGo }: {
+  back: () => void; title: string; subtitle: string; children: React.ReactNode; tabGo?: ScreenProps['go']
 }) {
   return <Screen bg="var(--mist)" label={title}>
-    <button type="button" aria-label="뒤로" className={shared.back} onClick={back}><IconBack /></button>
-    <div className={styles.body}><h1 className={styles.title}>{title}</h1><p className={styles.sub}>{subtitle}</p>{children}</div>
+    {!tabGo && <button type="button" aria-label="뒤로" className={shared.back} onClick={back}><IconBack /></button>}
+    <div className={styles.body} style={tabGo ? { top: 72, bottom: 84 } : undefined}><h1 className={styles.title}>{title}</h1><p className={styles.sub}>{subtitle}</p>{children}</div>
+    {tabGo && <TabBar active="profile" go={tabGo} />}
   </Screen>
 }
 
@@ -97,13 +99,13 @@ export function VoucherOriginalScreen({ back }: ScreenProps) {
 
 export function ProfileScreen({ go, back }: ScreenProps) {
   const trip = useCurrentTrip()
-  return <Page back={back} title="내 프로필" subtitle="여행의 시작부터 끝까지, 트립오프와 함께">
+  return <Page back={back} tabGo={go} title="마이페이지" subtitle="여행의 시작부터 끝까지, 트립오프와 함께">
     <div className={styles.profileCard}>
       <Avatar label={ME.label} name={ME.name} tone="coral" size={72} fontSize={28} />
       <h2>{ME.name}<span>님</span></h2><p>가볍게 떠나는 여행자</p><span className={styles.badge}>시연 계정</span>
     </div>
     <div className={styles.card}><span className={styles.eyebrow}>함께하는 여행</span><h2 className={styles.tripName}>{trip.name}</h2><div className={styles.members}>{trip.members.map(member => <Avatar key={member.name} {...member} size={36} fontSize={15} />)}<span>{trip.members.length}명의 동행</span></div></div>
-    <div className={styles.menu}><button onClick={() => go('home')}><span>내 여행</span><IconChevronRight /></button><button onClick={() => go('invite')}><span>동행 초대</span><IconChevronRight /></button><button onClick={() => go('notifications')}><span>알림함</span><IconChevronRight /></button></div>
+    <div className={styles.menu}><button onClick={() => go('home', { replace: true })}><span>내 여행</span><IconChevronRight /></button><button onClick={() => go('vouchers', { replace: true })}><span>내 바우처</span><IconChevronRight /></button><button onClick={() => go('invite')}><span>동행 초대</span><IconChevronRight /></button><button onClick={() => go('notifications')}><span>알림함</span><IconChevronRight /></button></div>
     <div className={styles.menu} aria-label="계정 및 지원">
       <button type="button" title="시연용 버튼"><span>설정</span><IconChevronRight /></button>
       <button type="button" title="시연용 버튼"><span>도움말 · 문의</span><IconChevronRight /></button>

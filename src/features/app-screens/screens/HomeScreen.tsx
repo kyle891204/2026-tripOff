@@ -4,6 +4,7 @@ import { useDemoNotifications } from '@/data/demoNotifications'
 import Avatar from '../parts/Avatar'
 import PlanIcon from '../parts/PlanIcon'
 import Screen from '../parts/Screen'
+import TabBar from '../parts/TabBar'
 import homeLogo from '@/assets/icons/ic-home-logo.svg'
 import shared from '../parts/shared.module.css'
 import { ME, dateAt, type Plan, type PlanIcon as Kind, type Trip } from '../mock'
@@ -130,6 +131,7 @@ export default function HomeScreen({ go }: ScreenProps) {
         {upcoming.length === 0 && <li className={styles.emptyUpcoming}>등록된 일정이 없어요. 여행에 바우처를 추가해 보세요.</li>}
       </ul>
 
+      <TabBar active="home" go={go} />
     </Screen>
   )
 }

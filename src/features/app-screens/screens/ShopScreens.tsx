@@ -3,6 +3,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { won } from '@/features/partner/calc'
 import type { PartnerProduct } from '@/data/partnerProducts'
 import Screen from '../parts/Screen'
+import TabBar from '../parts/TabBar'
 import { destinationOf, loadShopProducts, useShopProducts } from '../shopCatalog'
 import { IconBack } from '../parts/icons'
 import { dateAt, type Plan } from '../mock'
@@ -10,10 +11,11 @@ import { allTrips, getDemoState, setDemoState, useCurrentTrip, useDemoState } fr
 import type { ScreenProps } from '../types'
 import s from './ShopScreens.module.css'
 
-function Page({ title, back, children }: { title: string; back: () => void; children: ReactNode }) {
+function Page({ title, back, children, tabGo }: { title: string; back: () => void; children: ReactNode; tabGo?: ScreenProps['go'] }) {
   return <Screen bg="var(--mist)" label={title}>
-    <header className={s.header}><button aria-label="뒤로" onClick={back}><IconBack /></button><h1>{title}</h1><span /></header>
-    <div className={s.body}>{children}</div>
+    <header className={s.header}>{tabGo ? <span /> : <button aria-label="뒤로" onClick={back}><IconBack /></button>}<h1>{title}</h1><span /></header>
+    <div className={s.body} style={tabGo ? { bottom: 84 } : undefined}>{children}</div>
+    {tabGo && <TabBar active="shop" go={tabGo} />}
   </Screen>
 }
 
@@ -79,7 +81,7 @@ export function ShopScreen({ go, back }: ScreenProps) {
   return <Page title={country ? (destination ?? country) + ' 상품' : '여행 상점'} back={country ? () => {
     setQuery('')
     setDemoState({ shopCountry: undefined, shopDestination: undefined })
-  } : back}>
+  } : back} tabGo={country ? undefined : go}>
     {!country ? <>
       <label className={s.search}>어디로 여행 가세요?<input value={query} onChange={e => setQuery(e.target.value)} placeholder="국가·도시 검색 · 일본, 파리, 다낭" /></label>
       <section className={s.promotion} aria-label="여행 특가" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocusCapture={() => setPaused(true)}>

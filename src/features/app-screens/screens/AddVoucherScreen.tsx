@@ -1,10 +1,10 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { cn } from '@/lib/cn'
 import InquiryPanel from '../parts/InquiryPanel'
 import { IconBack, IconChevronRight, IconFile, IconImage, IconKeyboard } from '../parts/icons'
 import shared from '../parts/shared.module.css'
 import { useToast } from '../parts/useToast'
-import { setDemoState, useCurrentPlan, useCurrentTrip, useDemoState } from '../store'
+import { getDemoState, setDemoState, useCurrentPlan, useCurrentTrip, useDemoState } from '../store'
 import type { ScreenProps } from '../types'
 import TimelineScreen from './TimelineScreen'
 import styles from './AddVoucherScreen.module.css'
@@ -35,6 +35,8 @@ export default function AddVoucherScreen({ go, back }: ScreenProps) {
   const target = voucherTarget?.mode === 'register' ? plan : undefined
   const [view, setView] = useState<'menu' | 'help'>('menu')
   const [toast, showToast] = useToast()
+  // 「바우처 추가」는 내 바우처 흐름 → 남아 있는 일행 대상 지우기
+  useEffect(() => { if (getDemoState().voucherOwner) setDemoState({ voucherOwner: undefined }) }, [])
 
   const sheet = (
     <>

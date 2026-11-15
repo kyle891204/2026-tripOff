@@ -18,9 +18,11 @@ import styles from './ReviewScreen.module.css'
 export default function ReviewScreen({ go, back }: ScreenProps) {
   const trip = useCurrentTrip()
   const plan = useCurrentPlan()
-  const { voucherTarget, draft, dayIndex } = useDemoState()
+  const { voucherTarget, draft, dayIndex, voucherOwner } = useDemoState()
   // 대상 일정이 있으면 그 일정의 바우처를 등록/수정, 없으면 새 바우처(샘플) 추가
   const mode = voucherTarget && plan ? voucherTarget.mode : 'new'
+  /** 일행 바우처: 새 바우처를 동행 몫으로 저장 */
+  const owner = mode === 'new' ? voucherOwner : undefined
   const isSample = draft?.kind === 'sample' || (mode === 'new' && !draft)
   const base = mode !== 'new' ? { ...voucherOf(plan!, trip), wrongTime: '' } : isSample ? trip.sample : { provider: '직접 등록', title: '', file: draft?.original?.name ?? '예약정보 직접 입력', wrongTime: '', time: '09:00', code: '', people: '1명', qrValue: '' }
   const samplePlan = trip.plans.find((p) => p.sample)
@@ -47,6 +49,12 @@ export default function ReviewScreen({ go, back }: ScreenProps) {
     const s = getDemoState()
     const original = draft?.original ?? plan?.original
     const values = { title: title.trim(), day, time, code: code.trim(), people: people.trim(), location: location.trim() || undefined, original, qrValue: qrText.trim() }
+    if (owner) {
+      addPlan(trip.id, { ...values, id: crypto.randomUUID(), icon: 'ticket', owner, note: `${owner}님 바우처`, source: { kind: 'self', via: draft?.kind === 'file' ? '첨부 파일' : isSample ? trip.sample.provider : '직접 입력' } })
+      setDemoState({ voucherOwner: undefined, voucherTarget: undefined, draft: undefined })
+      go('vouchers', { toast: `${owner}님 바우처를 「${trip.name}」에 추가했어요` })
+      return
+    }
     const target = mode === 'new' ? (isSample ? samplePlan : undefined) : plan
     if (target) editPlan(target.id, values)
     else addPlan(trip.id, { ...values, id: crypto.randomUUID(), icon: 'ticket', source: { kind: 'self', via: draft?.kind === 'file' ? '첨부 파일' : '직접 입력' } })
@@ -93,7 +101,7 @@ export default function ReviewScreen({ go, back }: ScreenProps) {
         </span>
         <span className={styles.qrCard}>
           {qrText ? <QrCode value={qrText} size={88} /> : <span>QR 없음</span>}
-          <span className={styles.page}>내 QR</span>
+          <span className={styles.page}>{owner ? `${owner} QR` : '내 QR'}</span>
         </span>
       </button>
 
@@ -139,7 +147,9 @@ export default function ReviewScreen({ go, back }: ScreenProps) {
             : '그대로 저장'
           : mode === 'register'
             ? '이 일정에 등록'
-            : '여행에 저장'}
+            : owner
+              ? `${owner}님 바우처로 저장`
+              : '여행에 저장'}
       </button>
 
       {toast}

@@ -63,6 +63,8 @@ export interface Plan {
   /** 사용자가 고친 바우처 값 (없으면 자동 생성) */
   code?: string
   people?: string
+  /** 일행 바우처: 이 바우처의 주인 (동행 이름). 내 타임라인·티켓에는 나오지 않음 */
+  owner?: string
 }
 
 export interface TripDay {

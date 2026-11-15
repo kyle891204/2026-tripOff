@@ -44,6 +44,8 @@ export interface DemoState {
   /** 여행별 「동행 티켓 함께 보기」 */
   shareTickets: Record<string, boolean>
   addedPlans: Record<string, Plan[]>
+  /** 「일행 바우처 추가」 흐름의 대상 동행 이름 */
+  voucherOwner?: string
   draft?: { kind: 'sample' | 'manual' | 'file'; original?: Plan['original']; qrValue?: string }
 }
 
@@ -75,12 +77,12 @@ const STORAGE_KEY = 'tripoff.traveler.v1'
 function loadState(): DemoState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? { ...INITIAL, ...JSON.parse(raw), planId: undefined, voucherTarget: undefined, draft: undefined } : INITIAL
+    return raw ? { ...INITIAL, ...JSON.parse(raw), planId: undefined, voucherTarget: undefined, draft: undefined, voucherOwner: undefined } : INITIAL
   } catch { return INITIAL }
 }
 let state: DemoState = loadState()
 function persist() {
-  const { draft: _draft, voucherTarget: _target, planId: _plan, ...data } = state
+  const { draft: _draft, voucherTarget: _target, planId: _plan, voucherOwner: _owner, ...data } = state
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)) } catch { /* 읽기 전용 환경에서는 메모리만 사용 */ }
 }
 const listeners = new Set<() => void>()
@@ -129,7 +131,7 @@ export function useCurrentTrip(): Trip {
 /** 여행의 전체 일정 (보이는 것만), 날짜·시간순 */
 export function tripPlans(trip: Trip, s: DemoState = state): Plan[] {
   const plans = [...trip.plans, ...(s.addedPlans[trip.id] ?? [])]
-    .filter((p) => isVisible(p, !!s.saved[trip.id]))
+    .filter((p) => !p.owner && isVisible(p, !!s.saved[trip.id]))
     .map((p) => withEdits(p, s))
     .sort((a, b) => a.day - b.day || minutes(a.time) - minutes(b.time))
   return plans.map((plan, i) => {
@@ -145,6 +147,14 @@ export function tripPlans(trip: Trip, s: DemoState = state): Plan[] {
 function minutes(time: string) {
   const [h, m] = time.split(':').map(Number)
   return h * 60 + m
+}
+
+/** 내가 대신 추가한 일행 바우처 (여행별), 날짜·시간순 */
+export function companionVouchers(trip: Trip, s: DemoState = state): Plan[] {
+  return (s.addedPlans[trip.id] ?? [])
+    .filter((p) => p.owner)
+    .map((p) => withEdits(p, s))
+    .sort((a, b) => a.day - b.day || minutes(a.time) - minutes(b.time))
 }
 
 export function addPlan(tripId: string, plan: Plan) {

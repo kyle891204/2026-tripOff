@@ -18,6 +18,7 @@ export type ScreenId =
   | 'shop'
   | 'shop-product'
   | 'shop-checkout'
+  | 'vouchers'
 
 export interface GoOptions {
   /** 도착한 화면에 띄울 짧은 안내 (예: 저장 완료) */
