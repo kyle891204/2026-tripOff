@@ -6,8 +6,8 @@ import Screen from '../parts/Screen'
 import { IconWallet } from '../parts/icons'
 import shared from '../parts/shared.module.css'
 import { useToast } from '../parts/useToast'
-import { MEMBERS, ME, TRIPS, isVisible, type Plan, type PlanIcon as Kind, type Trip } from '../mock'
-import { setDemoState, useDemoState } from '../store'
+import { ME, isVisible, type Plan, type PlanIcon as Kind, type Trip } from '../mock'
+import { allTrips, setDemoState, useDemoState } from '../store'
 import type { ScreenProps } from '../types'
 import styles from './HomeScreen.module.css'
 
@@ -30,7 +30,9 @@ const UPCOMING: Array<{ icon: Kind; title: string; when: string; kind: string }>
  * - 다가오는 일정 목록은 고정
  */
 export default function HomeScreen({ go }: ScreenProps) {
-  const { saved } = useDemoState()
+  const demo = useDemoState()
+  const { saved } = demo
+  const trips = allTrips(demo)
   const [toast, showToast] = useToast()
   const [slide, setSlide] = useState(0)
   const trackRef = useRef<HTMLDivElement>(null)
@@ -57,7 +59,7 @@ export default function HomeScreen({ go }: ScreenProps) {
         onScroll={(e) => setSlide(Math.round(e.currentTarget.scrollLeft / SLIDE))}
         aria-label="예정된 여행"
       >
-        {TRIPS.map((trip) => (
+        {trips.map((trip) => (
           <TripCard
             key={trip.id}
             trip={trip}
@@ -69,10 +71,19 @@ export default function HomeScreen({ go }: ScreenProps) {
             }}
           />
         ))}
+
+        {/* 맨 끝: 새 여행 만들기 */}
+        <button type="button" className={cn(styles.newTrip, shared.tappable)} onClick={() => go('add-trip')}>
+          <span className={styles.newPlus} aria-hidden>
+            +
+          </span>
+          <strong>새 여행</strong>
+          <span>여행을 만들고 바우처를 모아 보세요</span>
+        </button>
       </div>
 
       <div className={styles.dots} role="tablist" aria-label="여행 선택">
-        {TRIPS.map((t, i) => (
+        {trips.map((t, i) => (
           <button
             key={t.id}
             type="button"
@@ -83,13 +94,21 @@ export default function HomeScreen({ go }: ScreenProps) {
             onClick={() => goSlide(i)}
           />
         ))}
+        <button
+          type="button"
+          role="tab"
+          aria-selected={slide === trips.length}
+          aria-label="새 여행 만들기"
+          className={cn(styles.dot, styles.dotPlus, slide === trips.length && styles.dotOn)}
+          onClick={() => goSlide(trips.length)}
+        />
       </div>
 
       <h2 className={styles.section}>다가오는 일정</h2>
       <ul className={styles.list}>
         {UPCOMING.map((item) => (
           <li key={item.title}>
-            <button type="button" className={cn(styles.row, shared.tappable)} onClick={() => openTrip(TRIPS[0])}>
+            <button type="button" className={cn(styles.row, shared.tappable)} onClick={() => openTrip(trips[0])}>
               <PlanIcon kind={item.icon} />
               <span className={styles.rowText}>
                 <strong>{item.title}</strong>
@@ -118,14 +137,15 @@ interface CardProps {
 /** 여행 카드. 카드 자체가 세로 스크롤 영역이고, 스크롤 양만큼 티켓이 넘어간다 */
 function TripCard({ trip, plans, onOpen, onMembers }: CardProps) {
   const [scrollTop, setScrollTop] = useState(0)
-  const progress = Math.min(plans.length - 1, Math.max(0, scrollTop / STEP))
+  const empty = plans.length === 0
+  const progress = empty ? 0 : Math.min(plans.length - 1, Math.max(0, scrollTop / STEP))
   const index = Math.round(progress)
   const teal = trip.tone === 'teal'
 
   return (
     <div className={cn(styles.slide, teal && styles.slideTeal)}>
       <div className={styles.cardScroll} onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}>
-        <div className={styles.cardInner} style={{ height: 228 + (plans.length - 1) * STEP }}>
+        <div className={styles.cardInner} style={{ height: 228 + Math.max(0, plans.length - 1) * STEP }}>
           {plans.map((p, k) => (
             <span key={p.id} className={styles.snap} style={{ top: k * STEP }} aria-hidden />
           ))}
@@ -133,7 +153,7 @@ function TripCard({ trip, plans, onOpen, onMembers }: CardProps) {
           <button
             type="button"
             className={cn(styles.card, shared.tappable)}
-            onClick={() => onOpen(plans[index].day)}
+            onClick={() => onOpen(plans[index]?.day ?? 0)}
             aria-label={`${trip.city} 여행 일정 보기`}
           >
             <span className={styles.cardCircle} aria-hidden />
@@ -142,6 +162,13 @@ function TripCard({ trip, plans, onOpen, onMembers }: CardProps) {
               {plans.map((p, i) => (
                 <TicketCard key={p.id} plan={p} trip={trip} offset={i - progress} index={i} />
               ))}
+              {empty && (
+                <span className={styles.ticketEmpty}>
+                  아직 바우처가 없어요
+                  <br />
+                  눌러서 추가
+                </span>
+              )}
             </span>
 
             <span className={styles.wallet}>
@@ -150,19 +177,21 @@ function TripCard({ trip, plans, onOpen, onMembers }: CardProps) {
             <span className={styles.dday}>{trip.dday}</span>
             <span className={styles.city}>{trip.city}</span>
             <span className={styles.period}>{trip.period}</span>
-            <span className={styles.count}>
-              <span className={styles.scrollCue} aria-hidden>
-                ↕
+            {!empty && (
+              <span className={styles.count}>
+                <span className={styles.scrollCue} aria-hidden>
+                  ↕
+                </span>
+                {index + 1} / {plans.length}
               </span>
-              {index + 1} / {plans.length}
-            </span>
+            )}
           </button>
         </div>
       </div>
 
       {/* 카드 버튼 안에 버튼을 중첩할 수 없어서 형제로 겹쳐 둠 */}
       <button type="button" className={cn(styles.members, shared.tappable)} aria-label={`${trip.city} 여행 함께 가는 사람`} onClick={onMembers}>
-        {MEMBERS.map((m) => (
+        {trip.members.map((m) => (
           <Avatar
             key={m.name}
             label={m.label}
@@ -178,9 +207,8 @@ function TripCard({ trip, plans, onOpen, onMembers }: CardProps) {
   )
 }
 
-/** 티켓 오른쪽 꼬리 색 (여행사 일정은 딥 틸) */
+/** 티켓 오른쪽 꼬리 색 (일정 종류별) */
 function stubColor(p: Plan) {
-  if (p.source.kind === 'agency') return 'var(--deep)'
   if (p.icon === 'ticket') return 'var(--coral)'
   if (p.icon === 'bus' || p.icon === 'bed') return 'var(--sand)'
   return 'var(--teal-mid)'
@@ -209,7 +237,7 @@ function TicketCard({ plan, trip, offset, index }: { plan: Plan; trip: Trip; off
   return (
     <span className={styles.ticket} style={{ ...style, zIndex: 100 - index, ['--stub' as string]: stubColor(plan) }}>
       <span className={styles.tWhen}>
-        {plan.source.kind === 'agency' && <span className={styles.tAgency}>여행사</span>}
+        {plan.source.kind === 'agency' && <span className={styles.tAgency} aria-label="여행사 일정" />}
         {trip.month}.{day.date} {plan.time}
       </span>
       <span className={styles.tTitle}>{plan.title}</span>

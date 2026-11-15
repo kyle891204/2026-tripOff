@@ -17,6 +17,18 @@ interface Nav {
 const START: ScreenId = 'splash'
 
 /**
+ * 이동 후 방문 기록.
+ * - 이미 기록에 있는 화면으로 가면 그 지점까지 되돌림 (예: 바우처 저장 → 타임라인이면 시트·추출 화면은 기록에서 빠짐)
+ * - 스플래시, replace 이동은 기록에 남기지 않음
+ */
+function nextHistory(n: Nav, id: ScreenId, options?: GoOptions): ScreenId[] {
+  const seen = n.history.lastIndexOf(id)
+  if (seen >= 0) return n.history.slice(0, seen)
+  if (n.current === 'splash' || options?.replace) return n.history
+  return [...n.history, n.current]
+}
+
+/**
  * 시연 플레이어: 폰 안에서 직접 눌러 흐름대로 이동하거나,
  * 오른쪽 목록에서 원하는 화면으로 바로 점프.
  * 자체 뒤로 버튼이 없는 화면에는 앱 화면 안에 플로팅 뒤로가기를 띄운다.
@@ -27,8 +39,7 @@ export default function DemoPlayer() {
   const go = useCallback((id: ScreenId, options?: GoOptions) => {
     setNav((n) => ({
       current: id,
-      // 스플래시는 뒤로가기 대상에서 제외 (자동으로 지나가는 화면)
-      history: n.current === 'splash' ? n.history : [...n.history, n.current],
+      history: nextHistory(n, id, options),
       toast: options?.toast,
       nonce: n.nonce + 1,
     }))

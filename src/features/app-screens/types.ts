@@ -1,6 +1,7 @@
 export type ScreenId =
   | 'splash'
   | 'home'
+  | 'add-trip'
   | 'timeline'
   | 'add-voucher'
   | 'review'
@@ -12,6 +13,8 @@ export type ScreenId =
 export interface GoOptions {
   /** 도착한 화면에 띄울 짧은 안내 (예: 저장 완료) */
   toast?: string
+  /** 지금 화면을 방문 기록에 남기지 않음 (뒤로가기로 다시 오지 않게. 예: 작성 폼) */
+  replace?: boolean
 }
 
 export interface ScreenProps {

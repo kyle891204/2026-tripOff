@@ -42,6 +42,13 @@
   margin-top: 0;
 }
 
+.alone {
+  padding: 34px 0 0 56px;
+  font-size: 14px;
+  line-height: 21px;
+  color: var(--ink-muted);
+}
+
 .personBtn {
   display: flex;
   align-items: center;

@@ -8,8 +8,8 @@ import styles from './SplashScreen.module.css'
 const TICKETS = ['coral', 'sand', 'mint', 'paper'] as const
 
 /** 애니메이션 끝나고 홈으로 넘어가는 시점 (ms) */
-const AUTO_NEXT_MS = 3400
-const AUTO_NEXT_REDUCED_MS = 1200
+const AUTO_NEXT_MS = 1800
+const AUTO_NEXT_REDUCED_MS = 800
 
 /**
  * ⚠ 임시 화면 — Figma 하이파이에 스플래시가 없음.

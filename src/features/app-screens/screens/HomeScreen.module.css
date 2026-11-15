@@ -162,6 +162,61 @@
   font-weight: 400;
 }
 
+/* 일정이 없는 새 여행 */
+.ticketEmpty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding-right: 16px;
+  border: 1.5px dashed rgb(255 255 255 / 0.5);
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 18px;
+  color: rgb(255 255 255 / 0.85);
+  text-align: center;
+  transform: rotate(-3deg);
+}
+
+/* ---------- 새 여행 카드 ---------- */
+.newTrip {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 353px;
+  height: 228px;
+  border: 1.5px dashed var(--ink-muted);
+  border-radius: 28px;
+  background: #fff;
+  scroll-snap-align: start;
+}
+
+.newPlus {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 6px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: #fff;
+  font-size: 26px;
+  line-height: 1;
+}
+
+.newTrip strong {
+  font-size: 20px;
+}
+
+.newTrip span:last-child {
+  font-size: 14px;
+  color: var(--ink-sub);
+}
+
 /* ---------- 여행 점 ---------- */
 .dots {
   position: absolute;
@@ -185,6 +240,17 @@
 .dotOn {
   width: 18px;
   background: var(--ink);
+}
+
+/* 마지막 점(새 여행)은 테두리만 */
+.dotPlus {
+  background: none;
+  box-shadow: inset 0 0 0 1.5px var(--ink-muted);
+}
+
+.dotPlus.dotOn {
+  background: var(--ink-muted);
+  box-shadow: none;
 }
 
 /* ---------- 티켓 (스크롤로 넘어감) ---------- */
@@ -247,16 +313,14 @@
   overflow: hidden;
 }
 
-/* 여행사가 보낸 일정 표시 */
+/* 여행사가 보낸 일정 표시: 날짜 앞 작은 점 */
 .tAgency {
   display: inline-block;
-  margin-right: 4px;
-  padding: 1px 4px;
-  border-radius: 4px;
+  width: 6px;
+  height: 6px;
+  margin-right: 5px;
+  border-radius: 50%;
   background: var(--deep);
-  color: #fff;
-  font-size: 9px;
-  font-weight: 800;
   vertical-align: 1px;
 }
 

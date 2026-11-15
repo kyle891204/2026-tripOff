@@ -4,13 +4,12 @@ import Screen from '../parts/Screen'
 import { IconBack } from '../parts/icons'
 import shared from '../parts/shared.module.css'
 import { useToast } from '../parts/useToast'
-import { MEMBERS, TRIP_BY_ID, type Trip } from '../mock'
-import { useDemoState } from '../store'
+import { useCurrentTrip } from '../store'
 import type { ScreenProps } from '../types'
 import styles from './CompanionsScreen.module.css'
 
 /** 여행별 정산·초대 링크 (오사카는 Figma 값) */
-const BY_TRIP: Record<Trip['id'], { perPerson: string; link: string; costs: Array<{ label: string; amount: string; width: number; tone: string }> }> = {
+const BY_TRIP: Record<string, { perPerson: string; link: string; costs: Array<{ label: string; amount: string; width: number; tone: string }> }> = {
   osaka: {
     perPerson: '₩184,300',
     link: 'tripoff.app/j/8KQ2',
@@ -34,8 +33,9 @@ const BY_TRIP: Record<Trip['id'], { perPerson: string; link: string; costs: Arra
 /** Figma 18:410 「동행 · 정산」 — 여행 단위. 초대 링크도 이 여행으로 초대 */
 export default function CompanionsScreen({ back }: ScreenProps) {
   const [toast, showToast] = useToast()
-  const trip = TRIP_BY_ID[useDemoState().tripId]
-  const { perPerson, link, costs } = BY_TRIP[trip.id]
+  const trip = useCurrentTrip()
+  // 새로 만든 여행: 아직 정산할 비용 없음
+  const { perPerson, link, costs } = BY_TRIP[trip.id] ?? { perPerson: '₩0', link: `tripoff.app/j/${trip.id.slice(-4).toUpperCase()}`, costs: [] }
   
   const copy = async () => {
     try {
@@ -58,7 +58,7 @@ export default function CompanionsScreen({ back }: ScreenProps) {
       <h1 className={styles.title}>함께 가는 사람</h1>
 
       <ul className={styles.people}>
-        {MEMBERS.map((m) => (
+        {trip.members.map((m) => (
           <li key={m.name} className={styles.person}>
             <button
               type="button"
@@ -81,6 +81,7 @@ export default function CompanionsScreen({ back }: ScreenProps) {
             </button>
           </li>
         ))}
+        {trip.members.length === 1 && <li className={styles.alone}>아직 함께 가는 사람이 없어요. 아래 링크로 초대해 보세요</li>}
       </ul>
 
       <section className={styles.split} aria-label="정산">

@@ -3,8 +3,7 @@ import { cn } from '@/lib/cn'
 import { IconChevronRight, IconFile, IconImage, IconKeyboard } from '../parts/icons'
 import shared from '../parts/shared.module.css'
 import type { ScreenProps } from '../types'
-import { TRIP_BY_ID } from '../mock'
-import { useDemoState } from '../store'
+import { useCurrentTrip } from '../store'
 import TimelineScreen from './TimelineScreen'
 import styles from './AddVoucherScreen.module.css'
 
@@ -23,7 +22,7 @@ const OPTIONS: Option[] = [
 
 /** Figma 18:74 「바우처 추가」 — 여행(타임라인) 안에서 여는 바텀시트. 추가한 바우처는 이 여행에 들어감 */
 export default function AddVoucherScreen({ go, back }: ScreenProps) {
-  const trip = TRIP_BY_ID[useDemoState().tripId]
+  const trip = useCurrentTrip()
   const sheet = (
     <>
       <button type="button" className={styles.dim} aria-label="닫기" onClick={back} />

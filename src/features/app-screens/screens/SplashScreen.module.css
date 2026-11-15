@@ -1,8 +1,8 @@
 /*
- * 타임라인 (총 ~3.4s, 이후 홈으로 자동 이동)
- * 0.20 ~ 1.30s  티켓 4장이 0.22s 간격으로 지갑에 떨어짐
- * 1.30 ~ 1.60s  지갑이 살짝 눌렸다 튀어오름
- * 1.70 ~ 2.30s  브랜드·문구 등장
+ * 타임라인 (총 ~1.8s, 이후 홈으로 자동 이동)
+ * 0.05 ~ 0.75s  티켓 4장이 0.1s 간격으로 지갑에 떨어짐
+ * 0.72 ~ 0.97s  지갑이 살짝 눌렸다 튀어오름
+ * 0.80 ~ 1.20s  브랜드·문구 등장
  */
 
 .skip {
@@ -32,7 +32,7 @@
   width: 132px;
   height: 104px;
   margin-left: -66px;
-  animation: squash 0.35s cubic-bezier(0.3, 1.6, 0.5, 1) 1.3s both;
+  animation: squash 0.25s cubic-bezier(0.3, 1.6, 0.5, 1) 0.72s both;
   transform-origin: 50% 100%;
 }
 
@@ -89,7 +89,7 @@
   margin-left: -39px;
   border-radius: 8px;
   opacity: 0;
-  animation: drop 0.55s cubic-bezier(0.25, 0.9, 0.3, 1.15) both;
+  animation: drop 0.4s cubic-bezier(0.25, 0.9, 0.3, 1.15) both;
   -webkit-mask:
     radial-gradient(circle 6px at left center, #0000 98%, #000) left / 51% 100% no-repeat,
     radial-gradient(circle 6px at right center, #0000 98%, #000) right / 51% 100% no-repeat;
@@ -114,10 +114,10 @@
 .paper::after { border-color: var(--line); }
 
 /* 각 티켓의 최종 위치(살짝 삐져나온 각도)와 떨어지는 순서 */
-.t0 { --x: -18px; --y: 2px;  --r: -10deg; animation-delay: 0.2s; }
-.t1 { --x: 16px;  --y: 6px;  --r: 8deg;   animation-delay: 0.42s; }
-.t2 { --x: -6px;  --y: 12px; --r: -3deg;  animation-delay: 0.64s; }
-.t3 { --x: 6px;   --y: 18px; --r: 4deg;   animation-delay: 0.86s; }
+.t0 { --x: -18px; --y: 2px;  --r: -10deg; animation-delay: 0.05s; }
+.t1 { --x: 16px;  --y: 6px;  --r: 8deg;   animation-delay: 0.15s; }
+.t2 { --x: -6px;  --y: 12px; --r: -3deg;  animation-delay: 0.25s; }
+.t3 { --x: 6px;   --y: 18px; --r: 4deg;   animation-delay: 0.35s; }
 
 @keyframes drop {
   0% {
@@ -155,7 +155,7 @@
   font-size: 30px;
   font-weight: 800;
   letter-spacing: -0.5px;
-  animation: rise 0.6s ease 1.7s both;
+  animation: rise 0.4s ease 0.8s both;
 }
 
 .headline {
@@ -163,7 +163,7 @@
   font-size: 17px;
   line-height: 26px;
   color: rgb(255 255 255 / 0.75);
-  animation: rise 0.6s ease 1.9s both;
+  animation: rise 0.4s ease 0.9s both;
 }
 
 @keyframes rise {

@@ -80,18 +80,24 @@
   100% { opacity: 0; transform: translate(-50%, 0); }
 }
 
-/* 여행사가 보낸 일정 표시 (딥 틸 배지) */
-.agencyBadge {
-  display: inline-flex;
-  align-items: center;
-  height: 18px;
-  padding: 0 6px;
-  border-radius: 6px;
+/* 여행사가 보낸 일정 표시: 아이콘 박스 오른쪽 위 작은 체크 점 */
+.iconBoxMarked {
+  position: relative;
+}
+
+.agencyMark {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
   background: var(--deep);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1;
-  vertical-align: 1px;
-  flex: none;
+  box-shadow: 0 0 0 2px #fff;
+}
+
+.agencyMark svg {
+  display: block;
 }

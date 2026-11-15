@@ -5,8 +5,7 @@ import Screen from '../parts/Screen'
 import { IconArrowRight, IconBack } from '../parts/icons'
 import shared from '../parts/shared.module.css'
 import { useToast } from '../parts/useToast'
-import { TRIP_BY_ID } from '../mock'
-import { getDemoState, setDemoState, useDemoState } from '../store'
+import { getDemoState, setDemoState, useCurrentTrip } from '../store'
 import type { ScreenProps } from '../types'
 import styles from './ReviewScreen.module.css'
 
@@ -15,7 +14,7 @@ export default function ReviewScreen({ go, back }: ScreenProps) {
   // 입장 시간 칸을 누르면 원본 값으로 바로 고쳐짐
   const [fixed, setFixed] = useState(false)
   const [toast, showToast] = useToast()
-  const trip = TRIP_BY_ID[useDemoState().tripId]
+  const trip = useCurrentTrip()
   const voucher = trip.sample
   const samplePlan = trip.plans.find((p) => p.sample)
 

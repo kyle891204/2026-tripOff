@@ -43,13 +43,23 @@
 /* ---------- 날짜 탭 (83×64, r20, 간격 7) ---------- */
 .days {
   position: absolute;
-  left: 20px;
+  left: 0;
+  right: 0;
   top: 128px;
   display: flex;
   gap: 7px;
+  padding: 0 20px;
+  /* 4일 넘는 여행은 좌우로 */
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.days::-webkit-scrollbar {
+  display: none;
 }
 
 .day {
+  flex: none;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -153,11 +163,6 @@
   border-color: var(--coral);
 }
 
-.dotAgency {
-  border-color: var(--deep);
-  background: var(--deep);
-}
-
 .dotGray {
   position: absolute;
   left: 63px;
@@ -184,11 +189,6 @@
 
 .cardConflict {
   box-shadow: inset 0 0 0 1.4px var(--coral);
-}
-
-/* 여행사가 보낸 일정: 왼쪽 딥 틸 띠 */
-.cardAgency {
-  box-shadow: inset 4px 0 0 var(--deep);
 }
 
 .text {
@@ -267,14 +267,4 @@
   border-radius: 16px;
   font-size: 14px;
   color: var(--ink-sub);
-}
-
-.legend {
-  position: absolute;
-  left: 86px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--ink-muted);
 }

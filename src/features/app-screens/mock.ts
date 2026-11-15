@@ -72,7 +72,7 @@ export interface SampleVoucher {
 }
 
 export interface Trip {
-  id: 'osaka' | 'jeju'
+  id: string
   city: string
   period: string
   /** 카드 상단 월 표기 (예: 6.12 금) */
@@ -83,6 +83,8 @@ export interface Trip {
   days: TripDay[]
   plans: Plan[]
   sample: SampleVoucher
+  /** 함께 가는 사람 (새로 만든 여행은 나 혼자) */
+  members: Member[]
 }
 
 export const TRIPS: Trip[] = [
@@ -93,6 +95,7 @@ export const TRIPS: Trip[] = [
     month: 6,
     dday: 'D-5',
     tone: 'deep',
+    members: MEMBERS,
     days: [
       { dow: '금', date: 12 },
       { dow: '토', date: 13 },
@@ -132,6 +135,7 @@ export const TRIPS: Trip[] = [
     month: 6,
     dday: 'D-19',
     tone: 'teal',
+    members: MEMBERS,
     days: [
       { dow: '금', date: 26 },
       { dow: '토', date: 27 },
@@ -165,7 +169,64 @@ export const TRIPS: Trip[] = [
   },
 ]
 
-export const TRIP_BY_ID = Object.fromEntries(TRIPS.map((t) => [t.id, t])) as Record<Trip['id'], Trip>
+/* ---------------------------- 새 여행 만들기 ---------------------------- */
+
+/** 시연 기준 오늘 (오사카 D-5 → 6월 7일) */
+export const DEMO_TODAY = '2026-06-07'
+
+const DOW = ['일', '월', '화', '수', '목', '금', '토']
+const DAY_MS = 86_400_000
+
+/** 'YYYY-MM-DD' → 현지 자정 Date (시간대 영향 없이) */
+function parseDate(iso: string) {
+  const [y, m, d] = iso.split('-').map(Number)
+  return new Date(y, m - 1, d)
+}
+
+const fmt = (d: Date) => `${d.getMonth() + 1}.${d.getDate()} ${DOW[d.getDay()]}`
+
+/** 새 여행에 붙는 「바우처 추가」 시연 샘플 */
+function genericSample(city: string, first: Date): SampleVoucher {
+  return {
+    provider: 'Klook',
+    title: `${city} 시티 투어`,
+    file: `${city}_시티투어.pdf`,
+    date: fmt(first),
+    wrongTime: '02:00',
+    time: '10:00',
+    code: 'KLK-DEMO-NEW',
+    people: '1명',
+    qrValue: `TRIPOFF-DEMO-${first.getTime()}`,
+  }
+}
+
+/** 입력한 도시·날짜로 빈 여행 만들기 (일정은 바우처를 추가하며 채움) */
+export function makeTrip(city: string, startIso: string, endIso: string, order: number): Trip {
+  const start = parseDate(startIso)
+  const end = parseDate(endIso < startIso ? startIso : endIso)
+  const count = Math.min(14, Math.round((end.getTime() - start.getTime()) / DAY_MS) + 1)
+  const days = Array.from({ length: count }, (_, i) => {
+    const d = new Date(start.getTime() + i * DAY_MS)
+    return { dow: DOW[d.getDay()], date: d.getDate() }
+  })
+  const dday = Math.round((start.getTime() - parseDate(DEMO_TODAY).getTime()) / DAY_MS)
+  const sample = genericSample(city, start)
+  return {
+    id: `trip-${start.getTime()}-${order}`,
+    city,
+    period: `${fmt(start)} ~ ${fmt(end)}`,
+    month: start.getMonth() + 1,
+    dday: dday > 0 ? `D-${dday}` : dday === 0 ? 'D-DAY' : '여행 중',
+    tone: order % 2 === 0 ? 'deep' : 'teal',
+    days,
+    members: [MEMBERS[0]],
+    plans: [
+      // 저장 전엔 숨어 있다가 「바우처 추가」 시연으로 저장하면 첫날에 나타남
+      { id: `${start.getTime()}-s`, day: 0, time: sample.time, title: sample.title, icon: 'ticket', source: { kind: 'self', via: 'Klook' }, note: '내 QR', sample: 'after-save' },
+    ],
+    sample,
+  }
+}
 
 /** 「여행 중」 화면·티켓·잠금 위젯에서 쓰는 다음 입장 (오사카 USJ, 내 티켓 1매) */
 export const NEXT_ENTRY = {
@@ -176,9 +237,9 @@ export const NEXT_ENTRY = {
   qrValue: TRIPS[0].sample.qrValue,
 }
 
-/** 출처 한 줄 표기: 「제주로드트립 발송 · 집결 …」 / 「Klook · 내 QR」 */
+/** 출처 한 줄 표기: 「제주로드트립 · 집결 …」 / 「Klook · 내 QR」 */
 export function sourceLine(p: Plan) {
-  const head = p.source.kind === 'agency' ? `${p.source.name} 발송` : p.source.via
+  const head = p.source.kind === 'agency' ? p.source.name : p.source.via
   return p.note ? `${head} · ${p.note}` : head
 }
 
