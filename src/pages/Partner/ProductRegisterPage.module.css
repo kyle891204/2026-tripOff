@@ -259,3 +259,66 @@
   font-size: 13px;
   font-weight: 500;
 }
+
+/* 시연용: 섹션별 예시 데이터 채우기 버튼 */
+.demoFab {
+  position: fixed;
+  right: 40px;
+  bottom: 32px;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 56px;
+  padding: 0 10px 0 22px;
+  border: 0;
+  border-radius: 28px;
+  background: var(--p-text);
+  color: #fff;
+  box-shadow: 0 10px 30px rgba(22, 24, 29, 0.25);
+  transition: transform 0.15s, background-color 0.15s;
+}
+.demoFab:hover {
+  transform: translateY(-2px);
+}
+.demoFabDone {
+  background: var(--p-primary);
+}
+.demoFabText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.3;
+}
+.demoFabText small {
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.65;
+}
+.demoFabText strong {
+  font-size: 15px;
+  font-weight: 700;
+}
+.demoFabArrow {
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.14);
+  font-size: 18px;
+}
+.demoDots {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+.demoDots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.3);
+}
+.demoDots span.on {
+  background: #fff;
+}
