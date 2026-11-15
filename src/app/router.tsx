@@ -9,6 +9,9 @@ import DashboardPage from '@/pages/Partner/DashboardPage'
 import ProductListPage from '@/pages/Partner/ProductListPage'
 import ProductRegisterPage from '@/pages/Partner/ProductRegisterPage'
 import VoucherManagementPage from '@/pages/Partner/VoucherManagementPage'
+import ReservationsPage from '@/pages/Partner/ReservationsPage'
+import SettlementPage from '@/pages/Partner/SettlementPage'
+import CompanySettingsPage from '@/pages/Partner/CompanySettingsPage'
 import { ROUTES } from '@/lib/routes'
 
 export const router = createBrowserRouter([
@@ -20,6 +23,9 @@ export const router = createBrowserRouter([
       { path: ROUTES.partnerProducts, element: <ProductListPage /> },
       { path: ROUTES.partnerProductNew, element: <ProductRegisterPage /> },
       { path: ROUTES.partnerVouchers, element: <VoucherManagementPage /> },
+      { path: ROUTES.partnerReservations, element: <ReservationsPage /> },
+      { path: ROUTES.partnerSettlement, element: <SettlementPage /> },
+      { path: ROUTES.partnerSettings, element: <CompanySettingsPage /> },
     ],
   },
   { path: ROUTES.partner, element: <Navigate to={ROUTES.partnerDashboard} replace /> },

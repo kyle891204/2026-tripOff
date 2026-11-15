@@ -1,0 +1,151 @@
+.hero {
+  display: flex;
+  align-items: stretch;
+  gap: 24px;
+  padding: 28px;
+  background: var(--p-voucher-head);
+  border: 0;
+  color: #fff;
+}
+.heroMain {
+  flex: 1;
+  min-width: 0;
+}
+.heroLabel {
+  font-size: 14px;
+  color: #c3cce0;
+}
+.heroValue {
+  margin-top: 8px;
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -1px;
+  line-height: 1.1;
+}
+.heroSchedule {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #dce2ee;
+}
+.breakdown {
+  width: 300px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-left: 24px;
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+}
+.breakdownRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #dce2ee;
+}
+.breakdownRow strong {
+  color: #fff;
+  font-weight: 500;
+}
+.breakdownTotal {
+  margin-top: 6px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 15px;
+}
+.breakdownTotal strong {
+  font-size: 18px;
+  font-weight: 700;
+}
+.minus {
+  color: #f6b8ac !important;
+}
+
+.panel {
+  overflow: hidden;
+}
+.panelHead {
+  padding: 20px 20px 4px;
+}
+.panelHead h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+}
+.panelHead p {
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--p-text-sub);
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.table th {
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--p-divider);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--p-text-sub);
+  text-align: right;
+}
+.table th:first-child {
+  text-align: left;
+  padding-left: 20px;
+}
+.table th:last-child,
+.table td:last-child {
+  padding-right: 20px;
+}
+.table td {
+  padding: 14px 8px;
+  border-top: 1px solid var(--p-divider);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.table td:first-child {
+  text-align: left;
+  padding-left: 20px;
+  font-weight: 500;
+}
+.table tbody tr:first-child td {
+  border-top: 0;
+}
+.sub {
+  display: block;
+  font-size: 12px;
+  color: var(--p-text-sub);
+  font-weight: 400;
+}
+.payout {
+  font-weight: 700;
+}
+.foot td {
+  border-top: 2px solid var(--p-border);
+  font-weight: 700;
+  background: var(--p-surface-subtle);
+}
+.statusPaid,
+.statusScheduled {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.statusPaid {
+  background: #e4f4ea;
+  color: #1a633a;
+}
+.statusScheduled {
+  background: #fff1e0;
+  color: #8a4300;
+}
+.note {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--p-text-sub);
+}

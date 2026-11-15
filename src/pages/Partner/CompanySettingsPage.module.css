@@ -1,0 +1,134 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 24px;
+  align-items: start;
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+.toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  border-top: 1px solid var(--p-divider);
+  cursor: pointer;
+}
+.toggle:first-child {
+  border-top: 0;
+}
+.toggleText {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.5;
+}
+.toggleText strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+}
+.toggleText span {
+  font-size: 12px;
+  color: var(--p-text-sub);
+}
+.switch {
+  flex-shrink: 0;
+  width: 44px;
+  height: 26px;
+  border-radius: 13px;
+  border: 0;
+  background: var(--p-border-strong);
+  position: relative;
+  transition: background-color 0.15s;
+}
+.switch[aria-checked='true'] {
+  background: var(--p-primary);
+}
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  background: #fff;
+  transition: transform 0.15s;
+}
+.switch[aria-checked='true']::after {
+  transform: translateX(18px);
+}
+
+.side {
+  position: sticky;
+  top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+}
+.sideTitle {
+  font-size: 14px;
+  font-weight: 700;
+}
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: var(--p-primary-soft);
+  color: var(--p-primary-strong);
+  font-size: 20px;
+  font-weight: 700;
+}
+.profileName {
+  font-size: 16px;
+  font-weight: 700;
+}
+.profileSub {
+  font-size: 13px;
+  color: var(--p-text-sub);
+}
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--p-divider);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.meta > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.meta dt {
+  color: var(--p-text-sub);
+}
+.meta dd {
+  margin: 0;
+  font-weight: 500;
+  text-align: right;
+}
+.saveBar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}

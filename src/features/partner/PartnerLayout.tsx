@@ -11,9 +11,9 @@ const MENU: Array<{ label: string; to?: string }> = [
   { label: '대시보드', to: ROUTES.partnerDashboard },
   { label: '상품 등록·관리', to: ROUTES.partnerProducts },
   { label: '바우처 관리', to: ROUTES.partnerVouchers },
-  { label: '예약 현황' },
-  { label: '정산' },
-  { label: '업체 설정' },
+  { label: '예약 현황', to: ROUTES.partnerReservations },
+  { label: '정산', to: ROUTES.partnerSettlement },
+  { label: '업체 설정', to: ROUTES.partnerSettings },
 ]
 
 /** 파트너센터(여행사 관리자) 전용 레이아웃. 사이트 Header/Footer 없이 사이드바만 쓴다. */

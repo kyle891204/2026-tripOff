@@ -9,38 +9,15 @@ import {
   useVoucherStore,
 } from '@/features/partner'
 import { PARTNER_COMPANY_NAME, PARTNER_DEMO_TODAY, type Voucher } from '@/data/partnerVouchers'
-import type { PartnerProduct } from '@/data/partnerProducts'
+import { FEE_RATE, WEEKDAY, parseParty, priceOf, won } from '@/features/partner/calc'
 import { ROUTES } from '@/lib/routes'
 import { cn } from '@/lib/cn'
 import s from './DashboardPage.module.css'
-
-const WEEKDAY = ['일', '월', '화', '수', '목', '금', '토']
-/** 정산 예상액 계산에 쓰는 플랫폼 수수료 (시연용 가정) */
-const FEE_RATE = 0.1
-
-function parseParty(party: string) {
-  const adults = Number(/성인\s*(\d+)/.exec(party)?.[1] ?? 0)
-  const children = Number(/아동\s*(\d+)/.exec(party)?.[1] ?? 0)
-  return { adults, children, total: adults + children }
-}
 
 /** 출발 시각: 옵션명에 있으면 그 시각, 없으면 집결 시각 (예: '오전 출발 09:00' → '09:00') */
 function timeOf(v: Voucher) {
   const pick = (text: string) => /(\d{1,2}:\d{2})/.exec(text)?.[1]
   return pick(v.option) ?? pick(v.meeting) ?? '종일'
-}
-
-function priceOf(v: Voucher, products: PartnerProduct[]) {
-  const option = products.find((x) => x.name === v.product)?.options.find((o) => o.name === v.option)
-  if (!option) return 0
-  const { adults, children } = parseParty(v.party)
-  const adult = Number(option.adult) || 0
-  const child = Number(option.child) || adult
-  return adult * adults + child * children
-}
-
-function won(n: number) {
-  return `₩${Math.round(n).toLocaleString('ko-KR')}`
 }
 
 export default function DashboardPage() {

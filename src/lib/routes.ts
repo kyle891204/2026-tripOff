@@ -10,4 +10,7 @@ export const ROUTES = {
   partnerProducts: '/partners/products',
   partnerProductNew: '/partners/products/new',
   partnerVouchers: '/partners/vouchers',
+  partnerReservations: '/partners/reservations',
+  partnerSettlement: '/partners/settlement',
+  partnerSettings: '/partners/settings',
 } as const
