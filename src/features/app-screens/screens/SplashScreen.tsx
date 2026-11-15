@@ -23,10 +23,8 @@ export default function SplashScreen({ go }: ScreenProps) {
   }, [])
 
   return (
-    <Screen bg="var(--deep)" dark label="스플래시">
+    <Screen bg="#F8F7F3" label="스플래시">
       <button type="button" className={styles.skip} aria-label="건너뛰기" onClick={() => go('home')}>
-        <span className={styles.blob} aria-hidden />
-
         <span className={styles.wallet} aria-hidden>
           <svg viewBox="347 167 385 387" width="132" height="133" focusable="false">
             <defs>

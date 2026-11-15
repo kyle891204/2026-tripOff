@@ -6,17 +6,6 @@
   cursor: pointer;
 }
 
-.blob {
-  position: absolute;
-  left: 140px;
-  top: -120px;
-  width: 420px;
-  height: 420px;
-  border-radius: 50%;
-  background: var(--teal);
-  opacity: 0.22;
-}
-
 /* 새 심볼의 티켓이 포켓 안으로 내려앉는다. */
 .wallet {
   position: absolute;
@@ -56,7 +45,7 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  color: #fff;
+  color: #202B2A;
 }
 
 .brand {
@@ -70,7 +59,7 @@
   margin-top: 14px;
   font-size: 17px;
   line-height: 26px;
-  color: rgb(255 255 255 / 0.75);
+  color: #616C68;
   animation: rise 0.3s ease 0.6s both;
 }
 
