@@ -47,6 +47,57 @@ export default function HomeScreen({ go }: ScreenProps) {
 
   const goSlide = (i: number) => trackRef.current?.scrollTo({ left: i * SLIDE, behavior: 'smooth' })
 
+  /**
+   * 마우스로 끌기 (터치는 브라우저 기본 스와이프).
+   * 처음 움직인 방향으로 정함: 가로 → 여행 넘기기, 세로(카드 위) → 티켓 넘기기
+   */
+  const drag = useRef<{ x: number; y: number; left: number; top: number; card: HTMLElement | null; axis?: 'x' | 'y'; id: number } | null>(null)
+  const justDragged = useRef(false)
+  const onDragStart = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== 'mouse' || e.button !== 0) return
+    const card = (e.target as HTMLElement).closest<HTMLElement>('[data-card-scroll]')
+    drag.current = { x: e.clientX, y: e.clientY, left: e.currentTarget.scrollLeft, top: card?.scrollTop ?? 0, card, id: e.pointerId }
+  }
+  const onDragMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const d = drag.current
+    if (!d) return
+    const t = e.currentTarget
+    // 폰 화면이 축소 표시되므로 화면 px → 앱 px
+    const k = t.offsetWidth / t.getBoundingClientRect().width
+    const dx = (e.clientX - d.x) * k
+    const dy = (e.clientY - d.y) * k
+    if (!d.axis) {
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 6) return
+      d.axis = Math.abs(dy) > Math.abs(dx) && d.card ? 'y' : 'x'
+      t.setPointerCapture(d.id)
+      ;(d.axis === 'x' ? t : d.card!).classList.add(styles.dragging)
+    }
+    if (d.axis === 'x') t.scrollLeft = d.left - dx
+    else d.card!.scrollTop = d.top - dy
+  }
+  const onDragEnd = (e: React.PointerEvent<HTMLDivElement>) => {
+    const d = drag.current
+    drag.current = null
+    if (!d?.axis) return
+    // 끌고 난 뒤 손을 뗄 때 카드가 눌린 것으로 처리되지 않게
+    justDragged.current = true
+    window.setTimeout(() => { justDragged.current = false }, 0)
+    if (d.axis === 'y') {
+      const card = d.card!
+      card.classList.remove(styles.dragging)
+      const moved = card.scrollTop - d.top
+      const from = Math.round(d.top / STEP)
+      card.scrollTo({ top: Math.max(0, from + (moved > 20 ? 1 : moved < -20 ? -1 : 0)) * STEP, behavior: 'smooth' })
+      return
+    }
+    const t = e.currentTarget
+    t.classList.remove(styles.dragging)
+    const moved = t.scrollLeft - d.left
+    const from = Math.round(d.left / SLIDE)
+    const to = Math.max(0, Math.min(trips.length, from + (moved > 40 ? 1 : moved < -40 ? -1 : 0)))
+    goSlide(to)
+  }
+
   return (
     <Screen bg="var(--mist)" label="홈">
       <header className={styles.header}>
@@ -68,6 +119,11 @@ export default function HomeScreen({ go }: ScreenProps) {
         ref={trackRef}
         className={styles.track}
         onScroll={(e) => setSlide(Math.round(e.currentTarget.scrollLeft / SLIDE))}
+        onPointerDown={onDragStart}
+        onPointerMove={onDragMove}
+        onPointerUp={onDragEnd}
+        onPointerCancel={onDragEnd}
+        onClickCapture={(e) => { if (justDragged.current) { e.stopPropagation(); e.preventDefault() } }}
         aria-label="예정된 여행"
       >
         {trips.map((trip) => (
@@ -164,7 +220,7 @@ function TripCard({ trip, plans, dayNow, onOpen, onPlan, onMembers }: CardProps)
 
   return (
     <div className={cn(styles.slide, teal && styles.slideTeal)}>
-      <div className={styles.cardScroll} onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}>
+      <div className={styles.cardScroll} data-card-scroll onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}>
         <div className={styles.cardInner} style={{ height: 228 + Math.max(0, plans.length - 1) * STEP }}>
           {plans.map((p, k) => (
             <span key={p.id} className={styles.snap} style={{ top: k * STEP }} aria-hidden />

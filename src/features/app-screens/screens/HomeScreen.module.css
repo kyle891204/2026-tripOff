@@ -35,6 +35,13 @@
   scrollbar-width: none;
 }
 
+/* 마우스로 끄는 동안엔 스냅을 풀어 손을 따라오게 */
+.dragging {
+  scroll-snap-type: none;
+  cursor: grabbing;
+  user-select: none;
+}
+
 .track::-webkit-scrollbar,
 .cardScroll::-webkit-scrollbar {
   display: none;

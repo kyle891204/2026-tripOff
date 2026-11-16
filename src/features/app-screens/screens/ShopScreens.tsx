@@ -15,8 +15,9 @@ import s from './ShopScreens.module.css'
 
 function Page({ title, back, children, tabGo, action }: { title: string; back: () => void; children: ReactNode; tabGo?: ScreenProps['go']; action?: ReactNode }) {
   return <Screen bg="var(--mist)" label={title}>
-    <header className={s.header}>{tabGo ? <span /> : <button aria-label="뒤로" onClick={back}><IconBack /></button>}<h1>{title}</h1>{action ?? <span />}</header>
-    <div className={s.body} style={tabGo ? { bottom: 84 } : undefined}>{children}</div>
+    {/* 탭 첫 화면은 제목 줄 없이 바로 검색부터 */}
+    {!tabGo && <header className={s.header}><button aria-label="뒤로" onClick={back}><IconBack /></button><h1>{title}</h1>{action ?? <span />}</header>}
+    <div className={s.body} style={tabGo ? { top: 80, bottom: 84 } : undefined}>{children}</div>
     {tabGo && <TabBar active="shop" go={tabGo} />}
   </Screen>
 }
