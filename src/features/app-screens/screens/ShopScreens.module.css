@@ -40,3 +40,17 @@
 .photoGallery button { flex:none; width:64px; height:56px; border-radius:10px; overflow:hidden; cursor:pointer; }
 .photoGallery button[aria-pressed="true"] { outline:2px solid var(--teal); outline-offset:1px; }
 .galleryPhoto { display:block; width:100%; height:100%; object-fit:cover; }
+
+/* 즐겨찾기 */
+.productWrap { position: relative; }
+.heart { position: absolute; top: 8px; right: 8px; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: rgb(255 255 255 / 0.92) !important; color: #e2554b !important; box-shadow: 0 1px 4px rgb(19 40 44 / 0.12); cursor: pointer; }
+.heart[aria-pressed='false'] { color: #8a9c9e !important; }
+.heart:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.headerHeart { width: 36px; height: 36px; display: grid; place-items: center; padding: 0 !important; color: #8a9c9e; }
+.headerHeart[aria-pressed='true'] { color: #e2554b; }
+.more { font-size: 13px !important; color: #46605f; cursor: pointer; padding: 4px 0 !important; }
+.favStrip { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; margin: 0 -20px; padding: 0 20px 4px; }
+.favStrip button { flex: none; width: 132px; display: flex; flex-direction: column; gap: 4px; text-align: left !important; cursor: pointer; }
+.favPhoto { width: 132px; height: 96px; border-radius: 16px; object-fit: cover; display: block; margin-bottom: 4px; }
+.favStrip strong { font-size: 13px; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.favStrip span { font-size: 11px; color: #657571; }

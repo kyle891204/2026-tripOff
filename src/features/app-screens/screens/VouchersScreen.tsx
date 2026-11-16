@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { cn } from '@/lib/cn'
 import Avatar from '../parts/Avatar'
+import LiveBadge from '../parts/LiveBadge'
 import PlanIcon from '../parts/PlanIcon'
 import Screen from '../parts/Screen'
 import TabBar from '../parts/TabBar'
@@ -8,7 +9,7 @@ import { IconChevronRight } from '../parts/icons'
 import shared from '../parts/shared.module.css'
 import { useToast } from '../parts/useToast'
 import type { Plan, Trip } from '../mock'
-import { allTrips, companionVouchers, getDemoState, hasVoucher, setDemoState, tripPlans, useDemoState } from '../store'
+import { allTrips, companionVouchers, getDemoState, hasVoucher, planPhase, setDemoState, tripPlans, useDemoState, type PlanPhase } from '../store'
 import type { ScreenProps } from '../types'
 import styles from './VouchersScreen.module.css'
 
@@ -36,6 +37,7 @@ export default function VouchersScreen({ go, toast: initialToast }: ScreenProps)
   const mine: Item[] = shown.flatMap((trip) => tripPlans(trip, demo).map((plan) => ({ trip, plan })))
   const theirs: Item[] = shown.flatMap((trip) => companionVouchers(trip, demo).map((plan) => ({ trip, plan })))
   const items = seg === 'mine' ? mine : theirs
+  const live = items.filter(({ trip, plan }) => planPhase(plan, trip, demo) === 'live')
 
   // 날짜별로 묶기 (여행 순서 → 날짜 순서 유지)
   const groups: { key: string; trip: Trip; day: number; items: Item[] }[] = []
@@ -85,6 +87,21 @@ export default function VouchersScreen({ go, toast: initialToast }: ScreenProps)
         </div>
 
         <div className={styles.body}>
+          {live.length > 0 && (
+            <section className={styles.now}>
+              <h2 className={styles.date}><strong>지금 진행 중</strong></h2>
+              {live.map(({ trip, plan }) => (
+                <button key={plan.id} type="button" className={cn(styles.nowCard, shared.tappable)} onClick={() => openPlan(trip, plan)}>
+                  <PlanIcon kind={plan.icon} agency={plan.source.kind === 'agency' ? plan.source.name : undefined} />
+                  <span className={styles.nowText}>
+                    <strong>{plan.title}</strong>
+                    <span>{plan.time} 시작 · {plan.location ?? trip.name}</span>
+                  </span>
+                  <LiveBadge />
+                </button>
+              ))}
+            </section>
+          )}
           {groups.map((g) => {
             const d = g.trip.days[g.day]
             return (
@@ -95,7 +112,7 @@ export default function VouchersScreen({ go, toast: initialToast }: ScreenProps)
                 </h2>
                 <ul className={styles.card}>
                   {g.items.map(({ trip, plan }) => (
-                    <PlanRow key={plan.id} trip={trip} plan={plan} missing={!plan.owner && !hasVoucher(plan, demo)} onOpen={() => openPlan(trip, plan)} />
+                    <PlanRow key={plan.id} trip={trip} plan={plan} phase={planPhase(plan, trip, demo)} missing={!plan.owner && !hasVoucher(plan, demo)} onOpen={() => openPlan(trip, plan)} />
                   ))}
                 </ul>
               </section>
@@ -121,16 +138,16 @@ export default function VouchersScreen({ go, toast: initialToast }: ScreenProps)
   )
 }
 
-function PlanRow({ trip, plan, missing, onOpen }: { trip: Trip; plan: Plan; missing: boolean; onOpen: () => void }) {
+function PlanRow({ trip, plan, phase, missing, onOpen }: { trip: Trip; plan: Plan; phase: PlanPhase; missing: boolean; onOpen: () => void }) {
   const member = plan.owner ? trip.members.find((m) => m.name === plan.owner) : undefined
   return (
     <li>
-      <button type="button" className={styles.row} onClick={onOpen}>
-        <span className={styles.time}>{plan.time}</span>
+      <button type="button" className={cn(styles.row, phase === 'past' && styles.rowPast)} onClick={onOpen}>
+        <span className={cn(styles.time, phase === 'live' && styles.timeLive)}>{plan.time}</span>
         <PlanIcon kind={plan.icon} agency={plan.source.kind === 'agency' ? plan.source.name : undefined} />
         <span className={styles.rowText}>
           <strong>{plan.title}</strong>
-          {missing ? <span className={styles.missing}>바우처 등록 필요</span> : <span>{plan.location ?? (plan.source.kind === 'agency' ? plan.source.name : plan.source.via)}</span>}
+          {phase === 'live' ? <span className={styles.liveLine}><LiveBadge /></span> : missing ? <span className={styles.missing}>바우처 등록 필요</span> : <span>{plan.location ?? (plan.source.kind === 'agency' ? plan.source.name : plan.source.via)}</span>}
         </span>
         {member ? (
           <span className={styles.owner}>

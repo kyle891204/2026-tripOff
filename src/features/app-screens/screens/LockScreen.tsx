@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { cn } from '@/lib/cn'
 import QrCode from '../parts/QrCode'
+import { SecureQr } from '../parts/Auth'
 import Screen from '../parts/Screen'
 import { IconAppLogo, IconCamera, IconFlash } from '../parts/icons'
 import shared from '../parts/shared.module.css'
 import { useToast } from '../parts/useToast'
 import { voucherOf } from '../mock'
-import { nextStoredTicket, setDemoState, useCurrentTrip, useDemoState } from '../store'
+import { getDemoState, needsAuth, nextStoredTicket, setDemoState, useCurrentTrip, useDemoState } from '../store'
 import type { ScreenProps } from '../types'
 import styles from './LockScreen.module.css'
 
@@ -46,7 +47,7 @@ export default function LockScreen({ go }: ScreenProps) {
           <span />
         </span>
         <span className={styles.qr}>
-          {voucher && <QrCode value={voucher.qrValue} size={76} />}
+          {voucher && <SecureQr size={76} passive><QrCode value={voucher.qrValue} size={76} /></SecureQr>}
         </span>
       </button>
 
@@ -63,7 +64,7 @@ export default function LockScreen({ go }: ScreenProps) {
         type="button"
         className={cn(styles.round, styles.right, shared.tappable)}
         aria-label="카메라"
-        onClick={() => showToast('위젯을 누르면 잠금 해제 없이 QR 이 열려요')}
+        onClick={() => showToast(needsAuth('qr', getDemoState()) ? '위젯을 누르면 본인 확인 후 QR 이 열려요' : '위젯을 누르면 잠금 해제 없이 QR 이 열려요')}
       >
         <IconCamera />
       </button>

@@ -14,7 +14,7 @@ interface Props {
 /** 393×852 앱 화면 캔버스 (iPhone 15 기준, Figma 프레임 크기) */
 export default function Screen({ bg, children, offline, dark, label }: Props) {
   return (
-    <div className={styles.screen} style={{ background: bg }} aria-label={label}>
+    <div className={styles.screen} style={{ background: bg }} aria-label={label} data-app-screen>
       <StatusBar offline={offline} light={dark} />
       {children}
       <HomeIndicator light={dark} />

@@ -12,7 +12,7 @@ const TABS: { id: TabId; label: string; icon: string }[] = [
   { id: 'profile', label: '마이페이지', icon: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8m-7.5 9a7.5 7.5 0 0 1 15 0' },
 ]
 
-/** 하단 탭 바 (홈 · 상점 · 일정 · 마이페이지). 탭 화면 사이 이동은 방문 기록에 남기지 않음 */
+/** 하단 탭 바 (홈 · 여행 발견 · 일정 · 마이페이지). 탭 화면 사이 이동은 방문 기록에 남기지 않음 */
 export default function TabBar({ active, go, inside }: {
   active: TabId
   go: ScreenProps['go']
@@ -24,6 +24,7 @@ export default function TabBar({ active, go, inside }: {
     if (id === 'shop') setDemoState({ shopCountry: undefined, shopDestination: undefined })
     go(id as ScreenId, { replace: true })
   }
+
   return (
     <nav className={styles.bar} aria-label="주요 메뉴">
       {TABS.map((t) => (
@@ -34,7 +35,7 @@ export default function TabBar({ active, go, inside }: {
           aria-current={t.id === active && !inside ? 'page' : undefined}
           onClick={() => open(t.id)}
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d={t.icon} />
           </svg>
           <span>{t.label}</span>

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
-import { allTrips, getDemoState, setDemoState } from '@/features/app-screens/store'
+import { allTrips, getDemoState, setDemoState, useDemoState } from '@/features/app-screens/store'
 import { FloatingBack, SCREENS, SCREEN_BY_ID, resetDemoState, type GoOptions, type ScreenId } from '@/features/app-screens'
 import { cn } from '@/lib/cn'
 import { ROUTES } from '@/lib/routes'
@@ -19,11 +19,21 @@ interface Nav {
 
 const START: ScreenId = 'splash'
 
+/** 「시연 시각」 — 이 시각에 진행 중인 일정이 앱 곳곳에 「진행 중」으로 표시됨 (오사카 여행 기준) */
+const DEMO_TIMES: { value: string; label: string; day?: number }[] = [
+  { value: '', label: '여행 전 · 6.7 일 (D-5)' },
+  { value: '2026-06-12T10:00', label: '6.12 금 10:00 · 간사이행 비행 중', day: 0 },
+  { value: '2026-06-12T15:00', label: '6.12 금 15:00 · 난바행 셔틀', day: 0 },
+  { value: '2026-06-12T18:50', label: '6.12 금 18:50 · 리버 크루즈', day: 0 },
+  { value: '2026-06-13T13:30', label: '6.13 토 13:30 · 호즈강 뱃놀이', day: 1 },
+  { value: '2026-06-14T11:30', label: '6.14 일 11:30 · 가이유칸 수족관', day: 2 },
+]
+
 const DEMO_STEPS: { title: string; description: string; entry: ScreenId; screens: ScreenId[] }[] = [
-  { title: '여행 확인', description: '여러 곳에서 예약한 일정을 하나의 여행에서 확인해요.', entry: 'home', screens: ['splash', 'home', 'add-trip', 'timeline', 'plan', 'profile', 'notifications'] },
+  { title: '여행 확인', description: '여러 곳에서 예약한 일정을 하나의 여행에서 확인해요.', entry: 'home', screens: ['splash', 'app-lock', 'home', 'add-trip', 'timeline', 'plan', 'profile', 'settings', 'notifications', 'push-settings', 'past-trips', 'orders', 'order-detail'] },
   { title: '바우처 등록', description: '샘플을 선택하고 예약 정보를 확인한 뒤, 한 번에 여행에 저장해요.', entry: 'voucher-import', screens: ['vouchers', 'add-voucher', 'voucher-import', 'review', 'voucher-original'] },
   { title: '현장에서 사용', description: '다가오는 일정을 확인하고, 저장한 내 QR을 크게 열어요.', entry: 'trip-home', screens: ['trip-home', 'ticket', 'lock'] },
-  { title: '상점 둘러보기', description: '상품 선택부터 시연 결제, 일정 저장까지 확인해요.', entry: 'shop', screens: ['shop', 'shop-product', 'shop-checkout'] },
+  { title: '상점 둘러보기', description: '상품 선택부터 시연 결제, 일정 저장까지 확인해요.', entry: 'shop', screens: ['shop', 'shop-product', 'shop-checkout', 'favorites'] },
   { title: '동행 관리', description: '동행을 초대하고 함께하는 일정과 정산 내역을 확인해요.', entry: 'companions', screens: ['companions', 'invite'] },
 ]
 
@@ -74,6 +84,7 @@ export default function DemoPlayer() {
     setNav((n) => ({ current: START, history: [], nonce: n.nonce + 1 }))
   }
 
+  const demoNow = useDemoState().demoNow ?? ''
   const meta = SCREEN_BY_ID[nav.current]
   const { Component } = meta
   const index = DEMO_STEPS.findIndex(step => step.screens.includes(nav.current))
@@ -112,6 +123,17 @@ export default function DemoPlayer() {
             </li>
           ))}
         </ol>
+
+        <label className={styles.clock}>
+          <span>시연 시각</span>
+          <select value={demoNow} onChange={(e) => {
+            const t = DEMO_TIMES.find((x) => x.value === e.target.value)
+            // 고른 시각의 날짜로 타임라인도 맞춤
+            setDemoState({ demoNow: t?.value || undefined, ...(t?.day !== undefined ? { tripId: 'osaka', dayIndex: t.day } : {}) })
+          }}>
+            {DEMO_TIMES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+          </select>
+        </label>
 
         <div className={styles.current} aria-live="polite"><span>지금 화면 · {meta.title}</span><p>{meta.caption}</p></div>
 

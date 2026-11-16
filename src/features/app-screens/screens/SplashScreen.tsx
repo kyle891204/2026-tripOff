@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, type CSSProperties } from 'react'
 import Screen from '../parts/Screen'
+import { needsAuth } from '../store'
 import type { ScreenProps } from '../types'
 import styles from './SplashScreen.module.css'
 
@@ -18,13 +19,13 @@ export default function SplashScreen({ go }: ScreenProps) {
 
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const t = window.setTimeout(() => goRef.current('home'), reduced ? AUTO_NEXT_REDUCED_MS : AUTO_NEXT_MS)
+    const t = window.setTimeout(() => goRef.current(needsAuth('launch') ? 'app-lock' : 'home'), reduced ? AUTO_NEXT_REDUCED_MS : AUTO_NEXT_MS)
     return () => window.clearTimeout(t)
   }, [])
 
   return (
     <Screen bg="#F5F7F7" label="스플래시">
-      <button type="button" className={styles.skip} aria-label="건너뛰기" onClick={() => go('home')}>
+      <button type="button" className={styles.skip} aria-label="건너뛰기" onClick={() => go(needsAuth('launch') ? 'app-lock' : 'home')}>
         <span className={styles.wallet} aria-hidden>
           <svg viewBox="347 167 385 387" width="132" height="133" focusable="false">
             <defs>

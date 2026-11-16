@@ -95,8 +95,8 @@
   right: -4px;
   display: grid;
   place-items: center;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: var(--deep);
   box-shadow: 0 0 0 2px #fff;
@@ -104,4 +104,28 @@
 
 .agencyMark svg {
   display: block;
+}
+
+/* 「진행 중」 배지 (LiveBadge) */
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  padding: 2px 7px 2px 6px;
+  border-radius: 6px;
+  background: var(--teal);
+  color: #fff;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 14px;
+  white-space: nowrap;
+}
+
+.live > span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
 }

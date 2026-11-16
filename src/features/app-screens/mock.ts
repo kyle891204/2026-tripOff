@@ -195,6 +195,62 @@ export const TRIPS: Trip[] = [
   },
 ]
 
+/* ---------------------------- 지난 여행 (마이페이지) ---------------------------- */
+
+const pastSample = (title: string, date: string): SampleVoucher => ({
+  provider: 'Klook', title, file: title + '_바우처.pdf', date, wrongTime: '', time: '10:00', code: 'KLK-PAST', people: '2명', qrValue: 'TRIPOFF-PAST-' + title,
+})
+
+export const PAST_TRIPS: Trip[] = [
+  {
+    id: 'fukuoka',
+    name: '후쿠오카',
+    startIso: '2026-03-20',
+    endIso: '2026-03-22',
+    period: '3.20 금 ~ 3.22 일',
+    month: 3,
+    dday: '지난 여행',
+    tone: 'teal',
+    members: MEMBERS.filter((m) => !m.pending),
+    days: [
+      { dow: '금', date: 20 },
+      { dow: '토', date: 21 },
+      { dow: '일', date: 22 },
+    ],
+    plans: [
+      { id: 'f1', day: 0, time: '10:05', title: '인천 → 후쿠오카', icon: 'plane', source: { kind: 'self', via: '항공사 직접 예약' } },
+      { id: 'f2', day: 0, time: '15:00', title: '나카스 리버사이드 호텔', icon: 'bed', source: { kind: 'self', via: '숙소 예약 메일' } },
+      { id: 'f3', day: 1, time: '09:00', title: '유후인 · 벳푸 버스 투어', icon: 'bus', source: { kind: 'agency', name: '규슈 트래블' }, location: '하카타역 치쿠시 출구' },
+      { id: 'f4', day: 2, time: '19:30', title: '후쿠오카 → 인천', icon: 'plane', source: { kind: 'self', via: '항공사 직접 예약' } },
+    ],
+    sample: pastSample('유후인 버스 투어', '3.21 토'),
+  },
+  {
+    id: 'danang',
+    name: '다낭',
+    startIso: '2025-12-24',
+    endIso: '2025-12-27',
+    period: '12.24 수 ~ 12.27 토',
+    month: 12,
+    dday: '지난 여행',
+    tone: 'deep',
+    members: MEMBERS.filter((m) => m.me),
+    days: [
+      { dow: '수', date: 24 },
+      { dow: '목', date: 25 },
+      { dow: '금', date: 26 },
+      { dow: '토', date: 27 },
+    ],
+    plans: [
+      { id: 'd1', day: 0, time: '19:20', title: '인천 → 다낭', icon: 'plane', source: { kind: 'self', via: '항공사 직접 예약' } },
+      { id: 'd2', day: 1, time: '08:00', title: '바나힐 골든브릿지 투어', icon: 'ticket', source: { kind: 'agency', name: '다낭 데이투어' }, location: '호텔 로비 픽업' },
+      { id: 'd3', day: 2, time: '16:00', title: '호이안 야경 · 소원배', icon: 'ship', source: { kind: 'self', via: 'KKday' } },
+      { id: 'd4', day: 3, time: '23:10', title: '다낭 → 인천', icon: 'plane', source: { kind: 'self', via: '항공사 직접 예약' } },
+    ],
+    sample: pastSample('바나힐 투어', '12.25 목'),
+  },
+]
+
 /* ---------------------------- 새 여행 만들기 ---------------------------- */
 
 /** 시연 기준 오늘 (오사카 D-5 → 6월 7일) */

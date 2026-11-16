@@ -1,13 +1,20 @@
 import { openDemoNotification, useDemoNotifications } from '@/data/demoNotifications'
 import { Page } from './ExtraDemoScreens'
+import { IconChevronRight } from '../parts/icons'
+import { DEFAULT_PUSH, useDemoState } from '../store'
 import type { ScreenProps } from '../types'
 import styles from './NotificationsScreen.module.css'
 
 export default function NotificationsScreen({ go, back, toast }: ScreenProps) {
   const rows = useDemoNotifications()
   const unread = rows.filter(row => !row.read).length
+  const push = useDemoState().push ?? DEFAULT_PUSH
   return <Page back={back} title="알림함" subtitle="여행에 필요한 소식을 한곳에서 확인해요.">
     <div className={styles.summary}><span>받은 알림</span><strong>{rows.length}<small>개</small></strong><span className={styles.count}>읽지 않음 {unread}</span></div>
+    <button type="button" className={styles.pushLink} onClick={() => go('push-settings')}>
+      <span><strong>푸시 알림 설정</strong><small>{(push.enabled ? '켜짐' : '꺼짐')} · 받을 알림 고르기</small></span>
+      <IconChevronRight />
+    </button>
     {toast && <p role="status" className={styles.hint}>{toast}</p>}
     {rows.length ? <ul className={styles.list}>
       {rows.map(row => <li key={row.id}><button type="button" className={`${styles.row} ${!row.read ? styles.fresh : ''}`} onClick={() => openDemoNotification(row, go)}>

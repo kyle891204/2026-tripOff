@@ -2,13 +2,14 @@ import { useRef, useState, type CSSProperties } from 'react'
 import { cn } from '@/lib/cn'
 import { useDemoNotifications } from '@/data/demoNotifications'
 import Avatar from '../parts/Avatar'
+import LiveBadge from '../parts/LiveBadge'
 import PlanIcon from '../parts/PlanIcon'
 import Screen from '../parts/Screen'
 import TabBar from '../parts/TabBar'
 import homeLogo from '@/assets/icons/ic-home-logo.svg'
 import shared from '../parts/shared.module.css'
 import { ME, dateAt, type Plan, type PlanIcon as Kind, type Trip } from '../mock'
-import { allTrips, setDemoState, tripPlans, useDemoState } from '../store'
+import { allTrips, planPhase, setDemoState, tripDayNow, tripPlans, useDemoState } from '../store'
 import type { ScreenProps } from '../types'
 import styles from './HomeScreen.module.css'
 
@@ -32,7 +33,8 @@ export default function HomeScreen({ go }: ScreenProps) {
   const [slide, setSlide] = useState(0)
   const trackRef = useRef<HTMLDivElement>(null)
   const upcomingTrip = trips[slide]
-  const upcoming = upcomingTrip ? tripPlans(upcomingTrip, demo).slice(0, 3) : []
+  // 시연 시각 기준 이미 끝난 일정은 빼고, 진행 중 → 예정 순으로 3개
+  const upcoming = upcomingTrip ? tripPlans(upcomingTrip, demo).filter((p) => planPhase(p, upcomingTrip, demo) !== 'past').slice(0, 3) : []
   const openPlan = (trip: Trip, plan: Plan) => {
     setDemoState({ tripId: trip.id, dayIndex: plan.day, planId: plan.id, voucherTarget: undefined, draft: undefined })
     go('plan')
@@ -73,6 +75,7 @@ export default function HomeScreen({ go }: ScreenProps) {
             key={trip.id}
             trip={trip}
             plans={tripPlans(trip, demo)}
+            dayNow={tripDayNow(trip, demo)}
             onOpen={(day) => openTrip(trip, day)}
             onPlan={(plan) => openPlan(trip, plan)}
             onMembers={() => {
@@ -116,19 +119,22 @@ export default function HomeScreen({ go }: ScreenProps) {
 
       <h2 className={styles.section}>다가오는 일정</h2>
       <ul className={styles.list}>
-        {upcoming.map((item) => (
+        {upcoming.map((item) => {
+          const live = planPhase(item, upcomingTrip, demo) === 'live'
+          return (
           <li key={item.id}>
-            <button type="button" className={cn(styles.row, shared.tappable)} onClick={() => openPlan(upcomingTrip, item)}>
+            <button type="button" className={cn(styles.row, live && styles.rowLive, shared.tappable)} onClick={() => openPlan(upcomingTrip, item)}>
               <PlanIcon kind={item.icon} agency={item.source.kind === 'agency' ? item.source.name : undefined} />
               <span className={styles.rowText}>
                 <strong>{item.title}</strong>
                 <span>{dateAt(upcomingTrip, item.day).slice(5).replace('-', '.')} {item.time}</span>
               </span>
-              <span className={styles.kind}>{KIND_LABEL[item.icon]}</span>
+              {live ? <LiveBadge /> : <span className={styles.kind}>{KIND_LABEL[item.icon]}</span>}
             </button>
           </li>
-        ))}
-        {upcoming.length === 0 && <li className={styles.emptyUpcoming}>등록된 일정이 없어요. 여행에 바우처를 추가해 보세요.</li>}
+          )
+        })}
+        {upcoming.length === 0 && <li className={styles.emptyUpcoming}>{demo.demoNow && upcomingTrip && tripPlans(upcomingTrip, demo).length ? '이 여행의 일정이 모두 끝났어요.' : '등록된 일정이 없어요. 여행에 바우처를 추가해 보세요.'}</li>}
       </ul>
 
       <TabBar active="home" go={go} />
@@ -140,6 +146,8 @@ export default function HomeScreen({ go }: ScreenProps) {
 
 interface CardProps {
   trip: Trip
+  /** 시연 시각이 여행 중이면 며칠째 */
+  dayNow?: number
   plans: Plan[]
   onOpen: (day: number) => void
   onPlan: (plan: Plan) => void
@@ -147,7 +155,7 @@ interface CardProps {
 }
 
 /** 여행 카드. 카드 자체가 세로 스크롤 영역이고, 스크롤 양만큼 티켓이 넘어간다 */
-function TripCard({ trip, plans, onOpen, onPlan, onMembers }: CardProps) {
+function TripCard({ trip, plans, dayNow, onOpen, onPlan, onMembers }: CardProps) {
   const [scrollTop, setScrollTop] = useState(0)
   const empty = plans.length === 0
   const progress = empty ? 0 : Math.min(plans.length - 1, Math.max(0, scrollTop / STEP))
@@ -179,7 +187,7 @@ function TripCard({ trip, plans, onOpen, onPlan, onMembers }: CardProps) {
               )}
               {!empty && <button type="button" className={styles.ticketAction} aria-label={`${plans[index].title} 일정 상세 보기`} onClick={() => onPlan(plans[index])} />}
             </span>
-            <span className={styles.dday}>{trip.dday}</span>
+            <span className={styles.dday}>{dayNow ? `여행 중 · ${dayNow}일차` : trip.dday}</span>
             <span data-trip-info className={cn(styles.city, trip.name.length > 5 && styles.cityLong, trip.name.length > 9 && styles.cityXLong)}>{trip.name}</span>
             <span data-trip-info className={styles.period}>{trip.period}</span>
             {!empty && (
@@ -242,7 +250,11 @@ function TicketCard({ plan, trip, offset, index }: { plan: Plan; trip: Trip; off
   return (
     <span aria-hidden className={styles.ticket} style={{ ...style, zIndex: 100 - index, ['--stub' as string]: stubColor(plan) }}>
       <span className={styles.tWhen}>
-        {plan.source.kind === 'agency' && <span className={styles.tAgency} aria-label="여행사 일정" />}
+        {plan.source.kind === 'agency' && (
+          <svg className={styles.tAgency} width="10" height="10" viewBox="0 0 24 24" aria-label="여행사 상품" role="img">
+            <path d="M4.5 8.5h15l-1.1 10.6a2 2 0 0 1-2 1.9H7.6a2 2 0 0 1-2-1.9zM8.5 8.5V7a3.5 3.5 0 0 1 7 0v1.5" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )}
         {trip.month}.{day.date} {plan.time}
       </span>
       <span className={styles.tTitle}>{plan.title}</span>

@@ -1,0 +1,43 @@
+/* ---------- 잠금 해제 시트 ---------- */
+.dim { position: absolute; inset: 0; z-index: 20; background: var(--dim); animation: fade 0.2s ease; border: 0; }
+.sheet { position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 21; display: flex; flex-direction: column; align-items: center; padding: 0 20px 20px; border-radius: 36px; background: #fff; color: var(--ink); animation: up 0.28s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.handle { display: block; width: 41px; height: 5px; margin: 12px auto 0; border-radius: 999px; background: var(--line); }
+.title { margin-top: 18px !important; font-size: 21px; font-weight: 700; }
+.desc { margin-top: 6px !important; color: #607779; font-size: 13px; text-align: center; line-height: 1.6; }
+.cancel { margin-top: 4px; padding: 10px 20px; color: #607779 !important; font-size: 14px; font-weight: 600; cursor: pointer; }
+
+.panel { display: flex; flex-direction: column; align-items: center; width: 100%; margin-top: 18px; }
+.error { min-height: 20px; margin-top: 10px !important; color: #b6402a; font-size: 13px; text-align: center; }
+
+/* ---------- PIN ---------- */
+.pin { display: flex; flex-direction: column; align-items: center; gap: 22px; }
+.dots { display: flex; gap: 16px; }
+.dots span { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #b9cbc8; box-sizing: border-box; transition: background-color 0.15s ease, border-color 0.15s ease; }
+.dots .dotOn { background: var(--deep); border-color: var(--deep); }
+.keys { display: grid; grid-template-columns: repeat(3, 72px); gap: 10px 22px; }
+.keys button { height: 56px; border-radius: 50%; font-size: 24px !important; font-weight: 500; text-align: center !important; color: var(--ink); cursor: pointer; transition: background-color 0.15s ease; }
+.keys button:hover { background: var(--mist); }
+.keys button:active { background: #e3ecea; }
+.keys button:focus-visible { outline: 2px solid var(--teal); }
+
+/* ---------- 패턴 ---------- */
+.pattern { position: relative; touch-action: none; cursor: pointer; user-select: none; }
+.pattern svg { display: block; }
+
+/* ---------- 지문 ---------- */
+.finger { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 8px 0; }
+.sensor { display: grid; place-items: center; width: 88px; height: 88px; border-radius: 50%; background: var(--teal-soft) !important; color: var(--deep) !important; cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease; }
+.sensor.scanning { background: var(--deep) !important; color: #fff !important; }
+.sensor:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
+.hint { color: #46605f; font-size: 14px; font-weight: 600; }
+
+/* ---------- QR 가림막 ---------- */
+.cover { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border-radius: 16px; background: repeating-linear-gradient(45deg, #eef3f2 0 8px, #e6eeec 8px 16px); color: var(--deep); text-align: center !important; }
+button.cover { cursor: pointer; }
+button.cover:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.cover strong { font-size: 16px; }
+.cover span { font-size: 12px; color: #46605f; }
+.coverSmall { border-radius: 10px; }
+
+@keyframes fade { from { opacity: 0; } }
+@keyframes up { from { transform: translateY(40px); opacity: 0; } }

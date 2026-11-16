@@ -8,13 +8,14 @@ import TabBar from '../parts/TabBar'
 import { destinationOf, loadShopProducts, useShopProducts } from '../shopCatalog'
 import { IconBack } from '../parts/icons'
 import { dateAt, type Plan } from '../mock'
-import { allTrips, getDemoState, setDemoState, useCurrentTrip, useDemoState } from '../store'
+import { allTrips, getDemoState, setDemoState, toggleFavorite, useCurrentTrip, useDemoState } from '../store'
+import { HeartIcon } from './MyPageScreens'
 import type { ScreenProps } from '../types'
 import s from './ShopScreens.module.css'
 
-function Page({ title, back, children, tabGo }: { title: string; back: () => void; children: ReactNode; tabGo?: ScreenProps['go'] }) {
+function Page({ title, back, children, tabGo, action }: { title: string; back: () => void; children: ReactNode; tabGo?: ScreenProps['go']; action?: ReactNode }) {
   return <Screen bg="var(--mist)" label={title}>
-    <header className={s.header}>{tabGo ? <span /> : <button aria-label="뒤로" onClick={back}><IconBack /></button>}<h1>{title}</h1><span /></header>
+    <header className={s.header}>{tabGo ? <span /> : <button aria-label="뒤로" onClick={back}><IconBack /></button>}<h1>{title}</h1>{action ?? <span />}</header>
     <div className={s.body} style={tabGo ? { bottom: 84 } : undefined}>{children}</div>
     {tabGo && <TabBar active="shop" go={tabGo} />}
   </Screen>
@@ -26,7 +27,7 @@ function bookable(option: PartnerProduct['options'][number]) {
 
 function remaining(product: PartnerProduct, optionIndex: number, date: string) {
   const used = (getDemoState().shopOrders ?? []).filter(order =>
-    order.productId === product.id && order.optionIndex === optionIndex && order.date === date
+    !getDemoState().orderChanges?.[order.id] && order.productId === product.id && order.optionIndex === optionIndex && order.date === date
   ).reduce((sum, order) => sum + order.count, 0)
   return Math.max(0, Number(product.options[optionIndex]?.stock ?? 0) - used)
 }
@@ -38,7 +39,7 @@ const PROMOS = SHOP_COUNTRIES.map(country => ({
 }))
 
 
-function ShopPhoto({ src, alt, className }: { src: string; alt: string; className: string }) {
+export function ShopPhoto({ src, alt, className }: { src: string; alt: string; className: string }) {
   const [local, setLocal] = useState<{ source: string; url: string }>()
   const [failedSource, setFailedSource] = useState('')
   const stored = src.startsWith('indexeddb:')
@@ -90,6 +91,7 @@ export function ShopScreen({ go, back }: ScreenProps) {
     setQuery('')
     setDemoState({ shopCountry: name, shopDestination: undefined })
   }
+  const favorites = (state.favorites ?? []).map(id => products.find(p => p.id === id)).filter(p => !!p)
   const banner = PROMOS[slide]
   const bannerPrices = products.filter(product => product.destination === banner.destination)
     .flatMap(product => product.options.filter(bookable).map(option => Number(option.adult)))
@@ -113,6 +115,12 @@ export function ShopScreen({ go, back }: ScreenProps) {
           <button aria-label={paused ? '특가 자동 넘김 재생' : '특가 자동 넘김 일시정지'} onClick={() => setPaused(!paused)}>{paused ? '▶' : 'Ⅱ'}</button>
         </div>
       </section>
+      {!normalized && favorites.length > 0 && <>
+        <div className={s.section}><h2>즐겨찾기</h2><button type="button" className={s.more} onClick={() => go('favorites')}>전체 보기 {favorites.length}</button></div>
+        <div className={s.favStrip}>{favorites.map(product => <button type="button" key={product.id} onClick={() => { setDemoState({ shopProductId: product.id, shopBooking: undefined }); go('shop-product') }}>
+          <ShopPhoto src={product.image} alt="" className={s.favPhoto} /><strong>{product.name}</strong><span>{product.destination}</span>
+        </button>)}</div>
+      </>}
       <div className={s.section}><h2>{normalized ? '검색 결과' : '어느 나라로 떠나세요?'}</h2></div>
       <div className={s.destinations}>{visibleCountries.map(name => {
         const items = products.filter(product => product.country === name)
@@ -132,7 +140,8 @@ export function ShopScreen({ go, back }: ScreenProps) {
       <div className={s.section}><h2>{destination ?? country} 추천 상품</h2><span>{visible.length}개</span></div>
       {visible.map(product => {
         const options = product.options.filter(bookable)
-        return <button className={s.product} key={product.id} disabled={!options.length} onClick={() => {
+        const fav = (state.favorites ?? []).includes(product.id)
+        return <div className={s.productWrap} key={product.id}><button className={s.product} disabled={!options.length} onClick={() => {
           setDemoState({ shopProductId: product.id, shopBooking: undefined })
           go('shop-product')
         }}>
@@ -140,6 +149,7 @@ export function ShopScreen({ go, back }: ScreenProps) {
           <div className={s.productCopy}><small>{product.seller} · {product.region}</small><h3>{product.name}</h3>
             <p>{product.duration}</p><strong>{options.length ? won(Math.min(...options.map(o => Number(o.adult)))) + '부터' : '매진'}</strong></div>
         </button>
+        <button type="button" className={s.heart} aria-pressed={fav} aria-label={product.name + (fav ? ' 즐겨찾기 해제' : ' 즐겨찾기')} onClick={() => toggleFavorite(product.id)}><HeartIcon on={fav} /></button></div>
       })}
       {!visible.length && <p className={s.notice}>조건에 맞는 상품이 없어요. 검색어를 바꿔 주세요.</p>}
     </>}
@@ -176,7 +186,8 @@ export function ShopProductScreen({ go, back }: ScreenProps) {
     } })
     go('shop-checkout')
   }
-  return <Page title="상품 상세" back={back}>
+  const fav = (state.favorites ?? []).includes(product.id)
+  return <Page title="상품 상세" back={back} action={<button type="button" className={s.headerHeart} aria-pressed={fav} aria-label={fav ? '즐겨찾기 해제' : '즐겨찾기'} onClick={() => toggleFavorite(product.id)}><HeartIcon on={fav} /></button>}>
     <ShopPhoto src={selectedPhoto} alt={product.name + ' 상품 사진'} className={s.detailPhoto} />
     {photos.length > 1 && <div className={s.photoGallery} aria-label="상품 사진 선택">
       {photos.map((photo, index) => <button type="button" key={photo} aria-label={`상품 사진 ${index + 1}`} aria-pressed={index === photoIndex} onClick={() => setPhotoIndex(index)}>
@@ -236,7 +247,7 @@ export function ShopCheckoutScreen({ go, back }: ScreenProps) {
       code: 'TO-' + booking.id.slice(0, 8).toUpperCase(), qrValue: 'tripoff-demo:' + booking.id,
     }
     setDemoState({
-      shopOrders: [...(latest.shopOrders ?? []), booking],
+      shopOrders: [...(latest.shopOrders ?? []), { ...booking, paidAt: new Date().toISOString().slice(0, 16) }],
       addedPlans: { ...latest.addedPlans, [trip.id]: [...(latest.addedPlans[trip.id] ?? []), plan] },
       tripId: trip.id, dayIndex: day, planId: plan.id,
     })

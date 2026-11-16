@@ -185,3 +185,9 @@
   .nav { margin-top:12px; }.nav button { height:40px; }
   .details { margin-top:8px; }.restart { margin-top:4px; height:32px; }.hint { margin-top:4px; font-size:12px; }
 }
+
+/* 시연 시각 선택 */
+.clock { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding: 10px 12px 10px 16px; border: 1px solid var(--line); border-radius: 14px; background: white; }
+.clock > span { flex: none; font-size: 12px; font-weight: 700; color: var(--teal); }
+.clock select { flex: 1; min-width: 0; height: 34px; padding: 0 8px; border: 1px solid var(--line); border-radius: 10px; background: var(--mist); color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }
+.clock select:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }

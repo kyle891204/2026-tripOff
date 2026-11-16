@@ -3,6 +3,7 @@ import Screen from '../parts/Screen'
 import TabBar from '../parts/TabBar'
 import Avatar from '../parts/Avatar'
 import QrCode from '../parts/QrCode'
+import { SecureQr } from '../parts/Auth'
 import { IconBack, IconFile, IconTicketCoral, IconChevronRight } from '../parts/icons'
 import shared from '../parts/shared.module.css'
 import { ME, NEXT_ENTRY, voucherOf } from '../mock'
@@ -92,7 +93,7 @@ export function VoucherOriginalScreen({ back }: ScreenProps) {
     </div> : <div className={styles.ticket}>
       <div className={styles.ticketHeader}><span className={styles.eyebrow}>TRAVEL VOUCHER</span><span className={styles.badge}>시연용 샘플</span><h2>{data.title}</h2></div>
       <dl className={styles.details}><div><dt>이용 일시</dt><dd>{data.date} · {data.time}</dd></div><div><dt>예약 번호</dt><dd>{data.code}</dd></div></dl>
-      {data.qrValue && <div className={styles.qr}><QrCode value={data.qrValue} size={148} /><p>입장 시 QR을 보여 주세요</p></div>}
+      {data.qrValue && <div className={styles.qr}><SecureQr size={148}><QrCode value={data.qrValue} size={148} /></SecureQr><p>입장 시 QR을 보여 주세요</p></div>}
     </div>}
   </Page>
 }
@@ -103,9 +104,14 @@ export function ProfileScreen({ go, back }: ScreenProps) {
       <Avatar label={ME.label} name={ME.name} tone="coral" size={72} fontSize={28} />
       <h2>{ME.name}<span>님</span></h2><p>가볍게 떠나는 여행자</p><span className={styles.badge}>시연 계정</span>
     </div>
-    <div className={styles.menu}><button onClick={() => go('home', { replace: true })}><span>내 여행</span><IconChevronRight /></button><button onClick={() => go('vouchers', { replace: true })}><span>내 일정</span><IconChevronRight /></button><button onClick={() => go('invite')}><span>동행 초대</span><IconChevronRight /></button><button onClick={() => go('notifications')}><span>알림함</span><IconChevronRight /></button></div>
+    <div className={styles.menu} aria-label="내 활동">
+      <button type="button" onClick={() => go('orders')}><span>구매 내역</span><IconChevronRight /></button>
+      <button type="button" onClick={() => go('past-trips')}><span>지난 여행</span><IconChevronRight /></button>
+      <button type="button" onClick={() => go('favorites')}><span>즐겨찾기</span><IconChevronRight /></button>
+      <button type="button" onClick={() => go('notifications')}><span>알림함</span><IconChevronRight /></button>
+    </div>
     <div className={styles.menu} aria-label="계정 및 지원">
-      <button type="button" title="시연용 버튼"><span>설정</span><IconChevronRight /></button>
+      <button type="button" onClick={() => go('settings')}><span>보안 설정</span><IconChevronRight /></button>
       <button type="button" title="시연용 버튼"><span>도움말 · 문의</span><IconChevronRight /></button>
       <button type="button" className={styles.logout} title="시연용 버튼 · 실제로 로그아웃되지 않아요"><span>로그아웃</span><IconChevronRight /></button>
     </div>

@@ -14,6 +14,8 @@ import TicketScreen from './screens/TicketScreen'
 import TimelineScreen from './screens/TimelineScreen'
 import TripHomeScreen from './screens/TripHomeScreen'
 import VouchersScreen from './screens/VouchersScreen'
+import SecurityScreen, { AppLockScreen } from './screens/SecurityScreen'
+import { FavoritesScreen, OrderDetailScreen, OrdersScreen, PastTripsScreen, PushSettingsScreen } from './screens/MyPageScreens'
 import type { ScreenId, ScreenProps } from './types'
 
 export interface ScreenMeta {
@@ -37,7 +39,7 @@ export const SCREENS: ScreenMeta[] = [
   { id: 'splash', title: '스플래시', caption: '티켓이 지갑에 쏙 — 예약은 따로, 관리는 한곳에서', source: 'temp', Component: SplashScreen },
   { id: 'home', title: '내 여행', caption: '예정된 여행을 좌우로 넘기고, 카드 위에서 스크롤하면 티켓이 넘어가며 일정을 훑어봐요', source: 'hifi', figmaNode: '17:75', Component: HomeScreen },
   { id: 'add-trip', title: '여행 추가', caption: '어디로·언제만 정하면 빈 여행이 생기고, 바로 바우처를 모을 수 있어요', source: 'temp', Component: AddTripScreen },
-  { id: 'timeline', title: '여행 타임라인', caption: '여행사에서 상품을 사면 일정(바우처 포함)이 자동으로 들어와요. 여행사 일정은 작은 체크로 구분', source: 'hifi', figmaNode: '18:232', Component: TimelineScreen },
+  { id: 'timeline', title: '여행 타임라인', caption: '여행사에서 상품을 사면 일정(바우처 포함)이 자동으로 들어와요. 여행사 상품은 작은 쇼핑백 배지로 구분', source: 'hifi', figmaNode: '18:232', Component: TimelineScreen },
   { id: 'plan', title: '일정 상세 · 바우처', caption: '모든 일정의 바우처를 보고 고칠 수 있어요. 여행사가 바우처 없이 보낸 일정은 직접 등록, 문제가 있으면 문의', source: 'temp', Component: PlanDetailScreen },
   { id: 'vouchers', title: '일정', caption: '모든 여행의 일정을 날짜별로 한곳에서. 내 일정도, 대신 받은 일행 일정도 여기서 추가해요', source: 'temp', Component: VouchersScreen },
   { id: 'add-voucher', title: '바우처 추가', caption: '여행 안에서 추가 — PDF·메일·캡처 어디서 받은 바우처든 이 여행에 들어가요', source: 'hifi', figmaNode: '18:74', Component: AddVoucherScreen },
@@ -47,7 +49,14 @@ export const SCREENS: ScreenMeta[] = [
   { id: 'companions', title: '동행 · 정산', caption: '여행 단위로 동행을 초대하고 1인당 비용까지. 티켓은 각자 자기 것만', source: 'hifi', figmaNode: '18:410', Component: CompanionsScreen },
   { id: 'voucher-import', title: '원본 파일 선택', caption: '파일을 첨부하거나 준비된 샘플을 골라요', source: 'temp', Component: VoucherImportScreen },
   { id: 'voucher-original', title: '원본 바우처', caption: '첨부한 파일이나 시연용 원본을 확인해요', source: 'temp', Component: VoucherOriginalScreen },
-  { id: 'profile', title: '마이페이지', caption: '시연 계정과 내 여행·바우처 메뉴를 확인해요', source: 'temp', Component: ProfileScreen },
+  { id: 'profile', title: '마이페이지', caption: '구매 내역 · 지난 여행 · 즐겨찾기 · 알림함과 보안 설정을 한곳에서', source: 'temp', Component: ProfileScreen },
+  { id: 'settings', title: '보안 설정', caption: '지문 · 패턴 · PIN 중 잠금 방식을 고르고, 앱 실행 시 · QR 열 때 잠글지 정해요', source: 'temp', Component: SecurityScreen },
+  { id: 'app-lock', title: '앱 잠금', caption: '앱 실행 시 잠금을 켜면 스플래시 다음에 본인 확인을 해요', source: 'temp', Component: AppLockScreen },
+  { id: 'orders', title: '구매 내역', caption: '여행 발견에서 결제한 상품과 상태(결제 완료 · 이용 완료 · 취소 · 환불 요청)를 봐요', source: 'temp', Component: OrdersScreen },
+  { id: 'order-detail', title: '구매 상세', caption: '이용일 전날까지는 바로 결제 취소, 그 뒤엔 여행사에 환불 요청', source: 'temp', Component: OrderDetailScreen },
+  { id: 'past-trips', title: '지난 여행', caption: '다녀온 여행의 일정과 바우처를 다시 열어 봐요', source: 'temp', Component: PastTripsScreen },
+  { id: 'favorites', title: '즐겨찾기', caption: '여행 발견에서 하트를 누른 상품을 모아 봐요', source: 'temp', Component: FavoritesScreen },
+  { id: 'push-settings', title: '푸시 알림 설정', caption: '기기 알림 권한과 받을 알림 종류를 골라요', source: 'temp', Component: PushSettingsScreen },
   { id: 'invite', title: '동행 초대', caption: '같은 브라우저에서 열 수 있는 초대 링크', source: 'temp', Component: InviteScreen },
   { id: 'shop', title: '여행 상점', caption: '여행사가 등록한 상품을 둘러봐요', source: 'temp', Component: ShopScreen },
   { id: 'shop-product', title: '상품 상세', caption: '이용일과 옵션을 선택해요', source: 'temp', Component: ShopProductScreen },

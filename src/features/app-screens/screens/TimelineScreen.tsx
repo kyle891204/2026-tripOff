@@ -1,13 +1,14 @@
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/cn'
 import Avatar from '../parts/Avatar'
+import LiveBadge from '../parts/LiveBadge'
 import PlanIcon from '../parts/PlanIcon'
 import Screen from '../parts/Screen'
 import TabBar from '../parts/TabBar'
 import shared from '../parts/shared.module.css'
 import { useToast } from '../parts/useToast'
 import { sourceLine, type Plan } from '../mock'
-import { hasVoucher, setDemoState, tripPlans, useCurrentTrip, useDemoState } from '../store'
+import { hasVoucher, planPhase, setDemoState, tripPlans, useCurrentTrip, useDemoState } from '../store'
 import type { ScreenProps } from '../types'
 import styles from './TimelineScreen.module.css'
 
@@ -96,6 +97,7 @@ export default function TimelineScreen({ go, toast: initialToast, overlay }: Pro
           {cards.map(({ plan, top, warnTop }) => {
             const agencyName = plan.source.kind === 'agency' ? plan.source.name : undefined
             const justAdded = plan.sample && saved[trip.id]
+            const phase = planPhase(plan, trip, demo)
             return (
               <div key={plan.id}>
                 <div className={styles.item} style={{ top }}>
@@ -103,13 +105,14 @@ export default function TimelineScreen({ go, toast: initialToast, overlay }: Pro
                   <span className={cn(styles.dot, plan.conflict && styles.dotCoral)} aria-hidden />
                   <button
                     type="button"
-                    className={cn(styles.card, plan.conflict && styles.cardConflict, shared.tappable)}
+                    className={cn(styles.card, plan.conflict && styles.cardConflict, phase === 'live' && styles.cardLive, phase === 'past' && styles.cardPast, shared.tappable)}
                     onClick={() => open(plan)}
                   >
                     <PlanIcon kind={plan.icon} coral={plan.conflict} agency={agencyName} />
                     <span className={styles.text}>
                       <strong>{plan.title}</strong>
                       <span className={styles.sub}>
+                        {phase === 'live' && <LiveBadge />}
                         {justAdded && <em className={styles.justAdded}>방금 추가</em>}
                         {!hasVoucher(plan, demo) && <em className={styles.noVoucher}>바우처 없음</em>}
                         <span className={styles.subText}>{sourceLine(plan)}</span>

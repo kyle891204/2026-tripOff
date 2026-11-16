@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { cn } from '@/lib/cn'
 import QrCode from '../parts/QrCode'
+import { SecureQr } from '../parts/Auth'
 import Screen from '../parts/Screen'
 import { IconClose, IconSun } from '../parts/icons'
 import shared from '../parts/shared.module.css'
@@ -48,7 +49,9 @@ export default function TicketScreen({ go, back }: ScreenProps) {
       </p>
 
       <div className={styles.qrBox}>
-        <QrCode key={page} value={page ? `${entry.qrValue}-DEMO-${page}` : entry.qrValue} size={261} />
+        <SecureQr size={261}>
+          <QrCode key={page} value={page ? `${entry.qrValue}-DEMO-${page}` : entry.qrValue} size={261} />
+        </SecureQr>
       </div>
 
       {holders.length > 1 ? (

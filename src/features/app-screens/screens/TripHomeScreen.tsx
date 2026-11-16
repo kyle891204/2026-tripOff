@@ -1,5 +1,6 @@
 import { cn } from '@/lib/cn'
 import QrCode from '../parts/QrCode'
+import { SecureQr } from '../parts/Auth'
 import Screen from '../parts/Screen'
 import { IconAirplaneSmall } from '../parts/icons'
 import PlanIcon from '../parts/PlanIcon'
@@ -38,7 +39,7 @@ export default function TripHomeScreen({ go }: ScreenProps) {
           go('ticket')
         }} aria-label="티켓 크게 보기">
         <span className={styles.qrBox}>
-          <QrCode value={entry.qrValue} size={257} />
+          <SecureQr size={257} passive><QrCode value={entry.qrValue} size={257} /></SecureQr>
         </span>
         <span className={styles.notchL} aria-hidden />
         <span className={styles.notchR} aria-hidden />

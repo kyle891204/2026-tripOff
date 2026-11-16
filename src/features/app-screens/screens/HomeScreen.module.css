@@ -334,12 +334,9 @@
 /* 여행사가 보낸 일정 표시: 날짜 앞 작은 점 */
 .tAgency {
   display: inline-block;
-  width: 6px;
-  height: 6px;
-  margin-right: 5px;
-  border-radius: 50%;
-  background: var(--deep);
-  vertical-align: 1px;
+  margin-right: 4px;
+  color: var(--deep);
+  vertical-align: -1px;
 }
 
 /* ---------- 다가오는 일정 (고정) ---------- */
@@ -403,3 +400,9 @@
 .cardAction { position:absolute; inset:0; width:100%; height:100%; border:0; border-radius:inherit; background:transparent; cursor:pointer; }
 .stack .ticketAction { position:absolute; inset:0; z-index:201; border:0; border-radius:10px; background:transparent; pointer-events:auto; cursor:pointer; }
 .cardAction:focus-visible, .ticketAction:focus-visible { outline:2px solid white; outline-offset:-4px; }
+
+.rowLive { background: color-mix(in srgb, var(--teal) 14%, #fff); box-shadow: inset 0 0 0 2px var(--teal); }
+.rowLive .rowText strong { color: var(--deep); }
+
+/* 진행 중 배경 위에서도 아이콘 칸이 보이게 */
+.rowLive [class*='iconBox'] { background: #fff; }

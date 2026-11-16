@@ -24,12 +24,12 @@ export default function PlanIcon({ kind, coral, agency }: Props) {
   )
 }
 
-/** 여행사가 보낸 일정 표시: 작은 체크 점 */
+/** 여행사 상품(여행 발견에서 구매)으로 들어온 일정 표시: 작은 쇼핑백 배지 — 「여행 발견」 탭 아이콘과 같은 모양 */
 export function AgencyMark({ name }: { name: string }) {
   return (
-    <span className={shared.agencyMark} role="img" aria-label={`${name}(여행사)에서 보낸 일정`} title={`${name}에서 보낸 일정`}>
-      <svg width="8" height="8" viewBox="0 0 8 8" aria-hidden>
-        <path d="M1.5 4.2 3.2 5.8 6.5 2.4" fill="none" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <span className={shared.agencyMark} role="img" aria-label={`${name}(여행사) 상품으로 구매한 일정`} title={`${name} 상품`}>
+      <svg width="10" height="10" viewBox="0 0 24 24" aria-hidden>
+        <path d="M4.5 8.5h15l-1.1 10.6a2 2 0 0 1-2 1.9H7.6a2 2 0 0 1-2-1.9zM8.5 8.5V7a3.5 3.5 0 0 1 7 0v1.5" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     </span>
   )

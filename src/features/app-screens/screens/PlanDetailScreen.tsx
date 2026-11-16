@@ -3,6 +3,7 @@ import { cn } from '@/lib/cn'
 import InquiryPanel from '../parts/InquiryPanel'
 import PlanIcon from '../parts/PlanIcon'
 import QrCode from '../parts/QrCode'
+import { SecureQr } from '../parts/Auth'
 import Screen from '../parts/Screen'
 import { IconBack } from '../parts/icons'
 import shared from '../parts/shared.module.css'
@@ -116,7 +117,7 @@ export default function PlanDetailScreen({ go, back, toast: initialToast }: Scre
           <>
             <div className={styles.voucher}>
               <span className={styles.qr}>
-                {voucher.qrValue ? <QrCode value={voucher.qrValue} size={84} /> : <span>QR 없음</span>}
+                {voucher.qrValue ? <SecureQr size={84}><QrCode value={voucher.qrValue} size={84} /></SecureQr> : <span>QR 없음</span>}
               </span>
               <dl className={styles.fields}>
                 <div>
