@@ -110,3 +110,23 @@
   text-decoration: underline;
   text-underline-offset: 2px;
 }
+
+.product {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.thumb {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--p-divider);
+}
+.thumbEmpty {
+  display: grid;
+  place-items: center;
+  font-weight: 600;
+  color: var(--p-text-sub);
+}

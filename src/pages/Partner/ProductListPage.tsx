@@ -1,7 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { PartnerButton as Button, partnerStyles as p, useProductStore, useToast } from '@/features/partner'
 import { CODE_TYPE_LABEL, type PartnerProduct } from '@/data/partnerProducts'
+import { countryImage, countryOf } from '@/data/shopCountries'
 import { ROUTES } from '@/lib/routes'
 import { cn } from '@/lib/cn'
 import s from './ProductListPage.module.css'
@@ -12,6 +13,15 @@ function minPrice(product: PartnerProduct) {
   const prices = product.options.map((o) => Number(o.adult)).filter((n) => n > 0)
   if (!prices.length) return '가격 미정'
   return `${Math.min(...prices).toLocaleString('ko-KR')}원~`
+}
+
+/** 앱 상점과 같은 사진: 상품 사진이 없으면 나라 대표 사진 */
+function Thumb({ product }: { product: PartnerProduct }) {
+  const src = product.image || countryImage(product.country || countryOf(product.region))
+  const [failed, setFailed] = useState(false)
+  return src && !failed
+    ? <img className={s.thumb} src={src} alt="" loading="lazy" onError={() => setFailed(true)} />
+    : <span className={cn(s.thumb, s.thumbEmpty)} aria-hidden="true">{product.name.slice(0, 1)}</span>
 }
 
 function shortDate(iso: string) {
@@ -71,14 +81,19 @@ export default function ProductListPage() {
             {products.map((product) => (
               <tr key={product.id} className={product.id === createdId ? s.new : undefined}>
                 <td>
-                  <span className={s.name}>
-                    {product.name}
-                    {product.id === createdId && <span className={s.newTag}>NEW</span>}
-                  </span>
-                  <span className={s.sub}>
-                    {product.region}
-                    {product.duration && ` · ${product.duration}`}
-                  </span>
+                  <div className={s.product}>
+                    <Thumb product={product} />
+                    <div>
+                      <span className={s.name}>
+                        {product.name}
+                        {product.id === createdId && <span className={s.newTag}>NEW</span>}
+                      </span>
+                      <span className={s.sub}>
+                        {product.region}
+                        {product.duration && ` · ${product.duration}`}
+                      </span>
+                    </div>
+                  </div>
                 </td>
                 <td>{product.category}</td>
                 <td>
