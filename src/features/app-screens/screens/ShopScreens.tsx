@@ -7,8 +7,8 @@ import Screen from '../parts/Screen'
 import TabBar from '../parts/TabBar'
 import { destinationOf, loadShopProducts, useShopProducts } from '../shopCatalog'
 import { IconBack } from '../parts/icons'
-import { dateAt, type Plan } from '../mock'
-import { allTrips, getDemoState, setDemoState, toggleFavorite, useCurrentTrip, useDemoState } from '../store'
+import type { Plan, Trip } from '../mock'
+import { addSoloPlan, allTrips, findTrip, getDemoState, moveSoloToTrip, setDemoState, todayIso, toggleFavorite, tripsOn, useDemoState } from '../store'
 import { HeartIcon } from './MyPageScreens'
 import type { ScreenProps } from '../types'
 import s from './ShopScreens.module.css'
@@ -21,6 +21,9 @@ function Page({ title, back, children, tabGo, action }: { title: string; back: (
     {tabGo && <TabBar active="shop" go={tabGo} />}
   </Screen>
 }
+
+const CATEGORY_ORDER = ['투어·가이드', '미식', '체험·클래스', '자연·액티비티', '야경·포토', '액티비티', '입장권', '교통', '숙박']
+const categoryRank = (name: string) => { const index = CATEGORY_ORDER.indexOf(name); return index < 0 ? CATEGORY_ORDER.length : index }
 
 function bookable(option: PartnerProduct['options'][number]) {
   return Number(option.stock) > 0 && Number(option.adult) > 0
@@ -56,9 +59,16 @@ export function ShopPhoto({ src, alt, className }: { src: string; alt: string; c
     }).catch(() => { if (!disposed) setFailedSource(src) })
     return () => { disposed = true; if (url) URL.revokeObjectURL(url) }
   }, [src, stored])
+  const [loadedSource, setLoadedSource] = useState('')
   const resolved = stored ? (local?.source === src ? local.url : undefined) : src
-  return resolved && failedSource !== src ? <img className={className} src={resolved} alt={alt} loading="lazy" onError={() => setFailedSource(src)} />
-    : <span className={className + ' ' + s.photoFallback}>{alt}</span>
+  const failed = failedSource === src
+  // 저장소에서 꺼내는 중인 사진은 대체 문구 대신 로딩 표시
+  if (!resolved && !failed) return <span className={className + ' ' + s.photoLoading} role="img" aria-label={alt ? alt + ' 불러오는 중' : undefined} aria-hidden={alt ? undefined : true} />
+  if (!resolved || failed) return <span className={className + ' ' + s.photoFallback}>{alt}</span>
+  const loaded = loadedSource === src
+  return <img className={className + ' ' + (loaded ? s.photoLoaded : s.photoLoading)} src={resolved} alt={alt} loading="lazy"
+    ref={img => { if (img?.complete && img.naturalWidth && !loaded) setLoadedSource(src) }}
+    onLoad={() => setLoadedSource(src)} onError={() => setFailedSource(src)} />
 }
 
 export function ShopScreen({ go, back }: ScreenProps) {
@@ -67,6 +77,7 @@ export function ShopScreen({ go, back }: ScreenProps) {
   const [query, setQuery] = useState('')
   const [slide, setSlide] = useState(0)
   const [paused, setPaused] = useState(false)
+  const [category, setCategory] = useState('')
   const country = state.shopCountry
   const destination = state.shopDestination
   useEffect(() => {
@@ -82,7 +93,11 @@ export function ShopScreen({ go, back }: ScreenProps) {
     const regions = products.filter(product => product.country === name).map(product => product.destination)
     return [name, ...aliases, ...regions].some(value => value.toLocaleLowerCase().includes(normalized))
   })
-  const visible = products.filter(product => product.country === country && (!destination || product.destination === destination) &&
+  const inPlace = products.filter(product => product.country === country && (!destination || product.destination === destination))
+  const categories = [...new Set(inPlace.map(product => product.category))]
+    .sort((a, b) => categoryRank(a) - categoryRank(b))
+  const activeCategory = categories.includes(category) ? category : ''
+  const visible = inPlace.filter(product => (!activeCategory || product.category === activeCategory) &&
     (product.name + product.region + product.category + product.seller).toLocaleLowerCase().includes(normalized))
   const select = (city: string) => {
     setQuery('')
@@ -132,13 +147,18 @@ export function ShopScreen({ go, back }: ScreenProps) {
       })}</div>
       {!visibleCountries.length && <p className={s.notice}>검색한 국가나 도시의 상품이 아직 없어요.</p>}
     </> : <>
-      <button className={s.changeDestination} onClick={() => { setDemoState({ shopCountry: undefined, shopDestination: undefined }); setQuery('') }}>국가 변경 · {country} ⌄</button>
       <label className={s.search}>상품 검색<input value={query} onChange={e => setQuery(e.target.value)} placeholder={(destination ?? country) + ' 상품명·도시·업체명'} /></label>
       <div className={s.cityFilters} aria-label="도시 선택">
         <button aria-pressed={!destination} onClick={() => {setQuery(''); setDemoState({shopDestination: undefined})}}>전체</button>
         {cities.map(city => <button key={city} aria-pressed={destination === city} onClick={() => select(city)}>{city}</button>)}
       </div>
-      <div className={s.section}><h2>{destination ?? country} 추천 상품</h2><span>{visible.length}개</span></div>
+      {categories.length > 1 && <div className={s.categoryFilters} role="group" aria-label="카테고리 선택">
+        <button aria-pressed={!activeCategory} onClick={() => setCategory('')}>전체 <span>{inPlace.length}</span></button>
+        {categories.map(name => <button key={name} aria-pressed={activeCategory === name} onClick={() => setCategory(name)}>
+          {name} <span>{inPlace.filter(product => product.category === name).length}</span>
+        </button>)}
+      </div>}
+      <div className={s.section}><h2>{destination ?? country} {activeCategory || '추천 상품'}</h2><span>{visible.length}개</span></div>
       {visible.map(product => {
         const options = product.options.filter(bookable)
         const fav = (state.favorites ?? []).includes(product.id)
@@ -158,18 +178,17 @@ export function ShopScreen({ go, back }: ScreenProps) {
 }
 
 export function ShopProductScreen({ go, back }: ScreenProps) {
-  const currentTrip = useCurrentTrip()
   const state = useDemoState()
   const products = useShopProducts()
   const product = products.find(p => p.id === state.shopProductId)
-  const matchingTrips = allTrips(state).filter(trip => product && destinationOf(trip.name) === product.destination)
-  const initialTrip = matchingTrips.find(trip => trip.id === currentTrip.id) ?? matchingTrips[0] ?? currentTrip
-  const [tripId, setTripId] = useState(initialTrip.id)
-  const trip = matchingTrips.find(trip => trip.id === tripId) ?? matchingTrips[0] ?? initialTrip
+  const today = todayIso(state)
+  // 같은 여행지로 가는 다가오는 여행이 있으면 그 첫날을 기본 이용일로
+  const upcoming = allTrips(state).filter(trip => product && destinationOf(trip.name) === product.destination && trip.endIso >= today)
+    .sort((a, b) => a.startIso.localeCompare(b.startIso))[0]
   const [photoIndex, setPhotoIndex] = useState(0)
   const [optionIndex, setOptionIndex] = useState(() => Math.max(0, product?.options.findIndex(bookable) ?? 0))
   const [time, setTime] = useState(() => product?.options.find(bookable)?.name.match(/\d{2}:\d{2}/)?.[0] ?? '09:00')
-  const [date, setDate] = useState(dateAt(trip, Math.min(state.dayIndex, trip.days.length - 1)))
+  const [date, setDate] = useState(() => upcoming ? (upcoming.startIso < today ? today : upcoming.startIso) : today)
   const [count, setCount] = useState(1)
   if (!product) return <Page title="상품 상세" back={back}><p className={s.notice}>상점에서 상품을 선택해 주세요.</p><button className={s.cta} onClick={() => go('shop')}>상점으로</button></Page>
   const photos = product.images?.length ? product.images.map(image => 'indexeddb:' + image.id) : [product.image]
@@ -177,12 +196,14 @@ export function ShopProductScreen({ go, back }: ScreenProps) {
   const option = product.options[optionIndex]
   const stock = remaining(product, optionIndex, date)
   const weekday = '일월화수목금토'[new Date(date + 'T00:00:00Z').getUTCDay()]
-  const valid = matchingTrips.length > 0 && !!option && bookable(option) && count > 0 && Number.isInteger(count) && count <= stock &&
-    /^([01]\d|2[0-3]):[0-5]\d$/.test(time) && date >= trip.startIso && date <= trip.endIso && product.days.includes(weekday)
+  const dateOk = /^\d{4}-\d{2}-\d{2}$/.test(date)
+  const overlap = dateOk ? tripsOn(date, trip => destinationOf(trip.name) === product.destination, state) : []
+  const valid = !!option && bookable(option) && count > 0 && Number.isInteger(count) && count <= stock &&
+    /^([01]\d|2[0-3]):[0-5]\d$/.test(time) && dateOk && date >= today && product.days.includes(weekday)
   const submit = () => {
     if (!valid) return
     setDemoState({ shopBooking: {
-      id: crypto.randomUUID(), productId: product.id, optionIndex, tripId: trip.id,
+      id: crypto.randomUUID(), productId: product.id, optionIndex, tripId: '',
       date, time, count, price: Number(option.adult), seller: product.seller, title: product.name,
     } })
     go('shop-checkout')
@@ -198,14 +219,8 @@ export function ShopProductScreen({ go, back }: ScreenProps) {
     <p className={s.seller}>{product.seller} · {product.region}</p><h2 className={s.title}>{product.name}</h2>
     <p className={s.notice}>{product.duration} · 운영 {product.days.join('·')}</p>
     <div className={s.panel}><h3>이용 안내</h3><p>집결 장소 · {product.meetPlace || '예약 후 안내'}</p>
-      <p>예약 완료 후 선택한 여행에 바우처가 저장됩니다.</p></div>
+      <p>예약하면 바우처가 내 일정에 저장돼요. 이용일이 내 여행 기간에 들어가면 그 여행에 넣을지 물어볼게요.</p></div>
     <div className={s.panel}>
-      {matchingTrips.length ? <label>바우처를 저장할 여행<select value={trip.id} onChange={e => {
-        const selected = matchingTrips.find(trip => trip.id === e.target.value)!
-        setTripId(selected.id)
-        setDate(selected.startIso)
-      }}>{matchingTrips.map(trip => <option key={trip.id} value={trip.id}>{trip.name} · {trip.startIso}</option>)}</select></label>
-        : <><p>{product.destination} 여행을 먼저 만들어 주세요.</p><button className={s.secondary} onClick={() => go('add-trip')}>새 여행 만들기</button></>}
       <label>옵션<select value={optionIndex} onChange={e => {
         const index = Number(e.target.value)
         setOptionIndex(index)
@@ -213,11 +228,11 @@ export function ShopProductScreen({ go, back }: ScreenProps) {
       }}>
         {product.options.map((o, i) => <option key={i} value={i} disabled={!bookable(o)}>{o.name} · {won(Number(o.adult))}</option>)}
       </select></label>
-      <label>이용일<input type="date" min={trip.startIso} max={trip.endIso} value={date} onChange={e => setDate(e.target.value)} /></label>
+      <label>이용일<input type="date" min={today} value={date} onChange={e => setDate(e.target.value)} /></label>
       <label>이용 시간<input type="time" value={time} onChange={e => setTime(e.target.value)} /></label>
       <label>성인 인원<input type="number" min="1" max={stock} value={count} onChange={e => setCount(Number(e.target.value))} /></label>
-      <p>{trip.name} · {trip.startIso} ~ {trip.endIso}<br />선택일 잔여 {stock}명</p>
-      {!valid && <p role="status">여행 기간과 운영 요일에 맞는 날짜, 옵션, 잔여 인원을 확인해 주세요.</p>}
+      <p>{overlap.length ? `「${overlap[0].name}」 여행 기간이에요 · ` : ''}선택일 잔여 {stock}명</p>
+      {!valid && <p role="status">오늘 이후 운영 요일({product.days.join('·')})의 날짜, 옵션, 잔여 인원을 확인해 주세요.</p>}
     </div>
     <div className={s.total}><span>총 상품 금액</span><strong>{won(Number(option?.adult ?? 0) * count)}</strong></div>
     <button className={s.cta} disabled={!valid} onClick={submit}>예약·결제하기</button>
@@ -228,40 +243,56 @@ export function ShopCheckoutScreen({ go, back }: ScreenProps) {
   const state = useDemoState()
   const booking = state.shopBooking
   const [error, setError] = useState('')
-  const done = !!booking && (state.shopOrders ?? []).some(order => order.id === booking.id)
+  const [decided, setDecided] = useState('')
+  const order = booking && (state.shopOrders ?? []).find(order => order.id === booking.id)
+  const done = !!order
+  const orderTrip = order ? findTrip(order.tripId, state) : undefined
+  const product = booking && loadShopProducts().find(p => p.id === booking.productId)
+  // 결제 후 아직 여행 밖에 있으면, 기간이 겹치는 여행에 넣을지 묻기
+  const suggestions = orderTrip?.solo && booking ? tripsOn(booking.date, trip => !!product && destinationOf(trip.name) === product.destination, state) : []
+  const put = (trip: Trip) => {
+    if (!order) return
+    moveSoloToTrip(order.planId ?? 'shop-' + order.id, trip.id)
+    setDecided(`「${trip.name}」 여행에 넣었어요`)
+  }
   const confirm = () => {
     if (!booking) return
     const latest = getDemoState()
     if ((latest.shopOrders ?? []).some(order => order.id === booking.id)) return
     const product = loadShopProducts().find(p => p.id === booking.productId)
-    const trip = allTrips(latest).find(t => t.id === booking.tripId)
     const option = product?.options[booking.optionIndex]
-    if (!product || !trip || destinationOf(trip.name) !== product.destination || !option || Number(option.adult) !== booking.price || remaining(product, booking.optionIndex, booking.date) < booking.count) {
+    if (!product || !option || Number(option.adult) !== booking.price || remaining(product, booking.optionIndex, booking.date) < booking.count) {
       setError('상품 가격이나 잔여 인원이 변경됐어요. 상품 상세에서 다시 선택해 주세요.')
       return
     }
-    const day = Math.round((Date.parse(booking.date) - Date.parse(trip.startIso)) / 86400000)
     const plan: Plan = {
-      id: 'shop-' + booking.id, day, time: booking.time,
+      id: 'shop-' + booking.id, day: 0, time: booking.time,
       title: booking.title, icon: 'ticket', source: { kind: 'agency', name: booking.seller },
       location: product.meetPlace, note: option.name, people: '성인 ' + booking.count + '명',
       code: 'TO-' + booking.id.slice(0, 8).toUpperCase(), qrValue: 'tripoff-demo:' + booking.id,
     }
-    setDemoState({
-      shopOrders: [...(latest.shopOrders ?? []), { ...booking, paidAt: new Date().toISOString().slice(0, 16) }],
-      addedPlans: { ...latest.addedPlans, [trip.id]: [...(latest.addedPlans[trip.id] ?? []), plan] },
-      tripId: trip.id, dayIndex: day, planId: plan.id,
+    // 먼저 여행 밖 일정으로 저장하고, 겹치는 여행이 있으면 완료 화면에서 옮길지 묻는다
+    const soloId = 'solo-' + plan.id
+    addSoloPlan(booking.date, plan, {
+      shopOrders: [...(latest.shopOrders ?? []), { ...booking, tripId: soloId, planId: plan.id, paidAt: new Date().toISOString().slice(0, 16) }],
+      tripId: soloId, dayIndex: 0, planId: plan.id,
     })
   }
   if (!booking) return <Page title="예약·결제" back={back}><p className={s.notice}>먼저 상품과 이용일을 선택해 주세요.</p><button className={s.cta} onClick={() => go('shop')}>상품 둘러보기</button></Page>
   return <Page title={done ? '예약 완료' : '예약·결제'} back={back}>
-    {done && <div className={s.hero}><p>바우처가 여행에 저장됐어요</p><h2>예약이 완료됐어요.</h2><span>일정에서 티켓을 바로 확인해 보세요.</span></div>}
+    {done && <div className={s.hero}><p>바우처가 {orderTrip && !orderTrip.solo ? `「${orderTrip.name}」 여행에` : '내 일정에'} 저장됐어요</p><h2>예약이 완료됐어요.</h2><span>{decided || '일정에서 티켓을 바로 확인해 보세요.'}</span></div>}
+    {done && suggestions.length > 0 && !decided && <div className={s.panel} role="group" aria-label="여행에 넣기">
+      <h3>{booking.date.slice(5).replace('-', '.')}은 「{suggestions[0].name}」 여행 기간이에요</h3>
+      <p>이 바우처를 여행에 넣으면 여행 타임라인과 티켓에서 함께 볼 수 있어요. 넣지 않아도 일정 탭에서 볼 수 있어요.</p>
+      {suggestions.map(trip => <button key={trip.id} className={s.cta} onClick={() => put(trip)}>「{trip.name}」 여행에 넣기</button>)}
+      <button className={s.secondary} onClick={() => setDecided('여행에 넣지 않고 내 일정에 따로 보관했어요')}>따로 보관할게요</button>
+    </div>}
     <div className={s.panel}><small>{booking.seller}</small><h2>{booking.title}</h2><p>{booking.date} {booking.time} · 성인 {booking.count}명</p>
       <p>{loadShopProducts().find(p => p.id === booking.productId)?.options[booking.optionIndex]?.name}</p></div>
     <div className={s.panel}><h3>결제 금액</h3><div className={s.total}><span>{won(booking.price)} × {booking.count}명</span><strong>{won(booking.price * booking.count)}</strong></div>
       <p>결제 수단 · 시연용 카드<br />실제 금액이 청구되지 않는 체험 결제입니다.</p></div>
     {error && <p role="alert" className={s.error}>{error}</p>}
-    {done ? <><button className={s.cta} onClick={() => go('timeline')}>내 일정에서 확인</button>
+    {done ? <><button className={s.cta} onClick={() => go(orderTrip && !orderTrip.solo ? 'timeline' : 'vouchers')}>내 일정에서 확인</button>
       <button className={s.secondary} onClick={() => go('plan')}>바우처 열기</button></>
       : <button className={s.cta} onClick={confirm}>{won(booking.price * booking.count)} 시연 결제</button>}
   </Page>

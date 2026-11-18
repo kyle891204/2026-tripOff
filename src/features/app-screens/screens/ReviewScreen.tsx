@@ -5,10 +5,11 @@ import Screen from '../parts/Screen'
 import { IconArrowRight, IconBack } from '../parts/icons'
 import shared from '../parts/shared.module.css'
 import { useToast } from '../parts/useToast'
-import { dateAt, voucherOf } from '../mock'
-import { addPlan, editPlan, getDemoState, setDemoState, useCurrentPlan, useCurrentTrip, useDemoState } from '../store'
+import { dateAt, voucherOf, type Plan, type Trip } from '../mock'
+import { addPlan, addSoloPlan, editPlan, getDemoState, setDemoState, setSoloDate, todayIso, tripsOn, useCurrentPlan, useCurrentTrip, useDemoState } from '../store'
 import type { ScreenProps } from '../types'
 import styles from './ReviewScreen.module.css'
+import sheet from './VouchersScreen.module.css'
 
 /**
  * Figma 18:167 「추출 결과 확인」 — 추출한 값을 확인하고 고치는 화면.
@@ -18,15 +19,19 @@ import styles from './ReviewScreen.module.css'
 export default function ReviewScreen({ go, back }: ScreenProps) {
   const trip = useCurrentTrip()
   const plan = useCurrentPlan()
-  const { voucherTarget, draft, dayIndex, voucherOwner } = useDemoState()
+  const { voucherTarget, draft, dayIndex, voucherOwner, addSolo } = useDemoState()
   // 대상 일정이 있으면 그 일정의 바우처를 등록/수정, 없으면 새 바우처(샘플) 추가
   const mode = voucherTarget && plan ? voucherTarget.mode : 'new'
   /** 일행 바우처: 새 바우처를 동행 몫으로 저장 */
   const owner = mode === 'new' ? voucherOwner : undefined
+  /** 여행에 넣지 않는 새 일정 */
+  const solo = mode === 'new' && !owner && !!addSolo
+  /** 날짜를 여행 기간에 묶지 않음 (여행 밖 일정 새로 만들기 · 고치기) */
+  const freeDate = solo || (mode !== 'new' && !!trip.solo)
   const isSample = draft?.kind === 'sample' || (mode === 'new' && !draft)
   const base = mode !== 'new' ? { ...voucherOf(plan!, trip), wrongTime: '' } : isSample ? trip.sample : { provider: '직접 등록', title: '', file: draft?.original?.name ?? '예약정보 직접 입력', wrongTime: '', time: '09:00', code: '', people: '1명', qrValue: '' }
-  const samplePlan = trip.plans.find((p) => p.sample)
-  const baseDate = dateAt(trip, mode === 'new' ? (isSample ? samplePlan?.day ?? 0 : Math.min(dayIndex, trip.days.length-1)) : plan!.day)
+  const samplePlan = solo ? undefined : trip.plans.find((p) => p.sample)
+  const baseDate = solo ? todayIso() : dateAt(trip, mode === 'new' ? (isSample ? samplePlan?.day ?? 0 : Math.min(dayIndex, trip.days.length-1)) : plan!.day)
   const qrValue = draft?.kind === 'file' ? draft.qrValue ?? '' : base.qrValue
 
   const [title, setTitle] = useState(base.title)
@@ -37,13 +42,15 @@ export default function ReviewScreen({ go, back }: ScreenProps) {
   const [location, setLocation] = useState((mode === 'new' ? (isSample ? samplePlan?.location : undefined) : plan?.location) ?? '')
   const [qrText, setQrText] = useState(qrValue)
   const [toast, showToast] = useToast()
+  /** 여행 밖 새 일정의 날짜가 여행 기간과 겹칠 때 묻기 */
+  const [ask, setAsk] = useState<{ trips: Trip[]; plan: Plan }>()
 
   const changed = title !== base.title || date !== baseDate || time !== base.time || code !== base.code || people !== base.people || qrText !== qrValue || location !== ((mode === 'new' ? samplePlan?.location : plan?.location) ?? '')
 
   const save = () => {
-    const day = trip.days.findIndex((_, i) => dateAt(trip, i) === date)
+    const day = freeDate ? (/^\d{4}-\d{2}-\d{2}$/.test(date) ? 0 : -1) : trip.days.findIndex((_, i) => dateAt(trip, i) === date)
     if (day < 0 || !/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(time) || !title.trim() || !code.trim() || new TextEncoder().encode(qrText.trim()).length > 2000) {
-      showToast('여행 기간 내 날짜, 시간, 제목, 예약번호를 확인해 주세요.')
+      showToast(freeDate ? '날짜, 시간, 제목, 예약번호를 확인해 주세요.' : '여행 기간 내 날짜, 시간, 제목, 예약번호를 확인해 주세요.')
       return
     }
     const s = getDemoState()
@@ -55,8 +62,16 @@ export default function ReviewScreen({ go, back }: ScreenProps) {
       go('vouchers', { toast: `${owner}님 일정을 「${trip.name}」에 추가했어요` })
       return
     }
+    if (solo) {
+      const created: Plan = { ...values, id: crypto.randomUUID(), icon: 'ticket', source: { kind: 'self', via: draft?.kind === 'file' ? '첨부 파일' : isSample ? trip.sample.provider : '직접 입력' } }
+      const overlap = tripsOn(date)
+      if (overlap.length) setAsk({ trips: overlap, plan: created })
+      else keepSolo(created)
+      return
+    }
     const target = mode === 'new' ? (isSample ? samplePlan : undefined) : plan
     if (target) editPlan(target.id, values)
+    if (target && freeDate) setSoloDate(target.id, date)
     else addPlan(trip.id, { ...values, id: crypto.randomUUID(), icon: 'ticket', source: { kind: 'self', via: draft?.kind === 'file' ? '첨부 파일' : '직접 입력' } })
     if (mode === 'new') {
       setDemoState({ saved: { ...s.saved, ...(isSample ? { [trip.id]: true } : {}) }, dayIndex: day, voucherTarget: undefined, draft: undefined })
@@ -68,6 +83,18 @@ export default function ReviewScreen({ go, back }: ScreenProps) {
       setDemoState({ edited: { ...s.edited, [plan!.id]: true }, dayIndex: day, voucherTarget: undefined, draft: undefined })
       go('plan', { toast: '바우처를 수정했어요' })
     }
+  }
+
+  const keepSolo = (created: Plan) => {
+    const tripId = addSoloPlan(date, created, { planId: created.id, voucherTarget: undefined, draft: undefined, addSolo: undefined })
+    setDemoState({ tripId, dayIndex: 0 })
+    go('vouchers', { toast: `${created.title} · 여행 밖 내 일정에 저장했어요` })
+  }
+  const putInTrip = (into: Trip, created: Plan) => {
+    const day = into.days.findIndex((_, i) => dateAt(into, i) === date)
+    addPlan(into.id, { ...created, day })
+    setDemoState({ tripId: into.id, dayIndex: day, voucherTarget: undefined, draft: undefined, addSolo: undefined })
+    go('timeline', { toast: `${created.title} · 「${into.name}」에 저장했어요` })
   }
 
   return (
@@ -109,7 +136,7 @@ export default function ReviewScreen({ go, back }: ScreenProps) {
         <div className={styles.field}>
           <dt>날짜</dt>
           <dd>
-            <input className={styles.inline} type="date" min={trip.startIso} max={dateAt(trip, trip.days.length-1)} value={date} onChange={(e) => setDate(e.target.value)} aria-label="날짜" />
+            <input className={styles.inline} type="date" min={freeDate ? undefined : trip.startIso} max={freeDate ? undefined : dateAt(trip, trip.days.length-1)} value={date} onChange={(e) => setDate(e.target.value)} aria-label="날짜" />
           </dd>
         </div>
         <div className={styles.field}>
@@ -135,7 +162,7 @@ export default function ReviewScreen({ go, back }: ScreenProps) {
       </dl>
 
       <p className={styles.note}>
-        정보를 확인하고 여행에 저장해 주세요.
+        정보를 확인하고 {solo || freeDate ? '내 일정에' : '여행에'} 저장해 주세요.
         <br />
         {isSample ? `${people} 예약 · 샘플 정보가 준비됐어요. 필요하면 수정할 수 있어요.` : '원본과 비교해 값을 입력해 주세요.'}
       </p>
@@ -149,8 +176,25 @@ export default function ReviewScreen({ go, back }: ScreenProps) {
             ? '이 일정에 등록'
             : owner
               ? `${owner}님 일정으로 저장`
-              : '여행에 저장'}
+              : solo
+                ? '내 일정에 저장'
+                : '여행에 저장'}
       </button>
+
+      {ask && (
+        <>
+          <button type="button" className={sheet.dim} aria-label="닫기" onClick={() => setAsk(undefined)} />
+          <div className={sheet.sheet} role="dialog" aria-modal="true" aria-label="여행에 넣을까요?">
+            <span className={sheet.handle} aria-hidden />
+            <h2 className={sheet.sheetTitle}>「{ask.trips[0].name}」 여행 기간이에요</h2>
+            <p className={sheet.sheetSub}>{date.slice(5).replace('-', '.')} 일정이에요. 이 여행에 넣으면 여행 타임라인과 티켓에서 함께 볼 수 있어요.</p>
+            {ask.trips.map((t) => (
+              <button key={t.id} type="button" className={cn(sheet.next, shared.tappable)} onClick={() => putInTrip(t, ask.plan)}>「{t.name}」 여행에 넣기</button>
+            ))}
+            <button type="button" className={cn(styles.keepSolo, shared.tappable)} onClick={() => keepSolo(ask.plan)}>여행에 넣지 않고 따로 보관</button>
+          </div>
+        </>
+      )}
 
       {toast}
     </Screen>

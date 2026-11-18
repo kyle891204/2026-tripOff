@@ -1,5 +1,6 @@
 import type { PartnerProduct } from './partnerProducts'
 import { countryImage } from './shopCountries'
+import { SHOP_PHOTOS } from './shopPhotos'
 
 export interface ShopProduct extends PartnerProduct {
   country: string
@@ -72,11 +73,22 @@ const CATALOG: Record<string, Array<[string, string, number]>> = {
   ],
 }
 
+// 상품명 키워드로 시연 상품의 카테고리를 정한다. 위에서부터 먼저 맞는 것을 쓴다.
+const CATEGORY_RULES: Array<[string, string[]]> = [
+  ['체험·클래스', ['체험', '클래스', '만들기']],
+  ['미식', ['미식', '먹거리', '타파스', '젤라토', '푸드', '음식']],
+  ['자연·액티비티', ['트레킹', '하이킹', '자전거', '피크닉', '해변', '해안', '숲길', '폭포', '정원', '가든', '공원']],
+  ['야경·포토', ['야경', '포토', '노을', '선셋', '사진', '전망']],
+]
+function categoryOf(name: string) {
+  return CATEGORY_RULES.find(([, words]) => words.some(word => name.includes(word)))?.[0] ?? '투어·가이드'
+}
+
 export const SHOP_SAMPLE_PRODUCTS: ShopProduct[] = Object.entries(CATALOG).flatMap(([country, rows], countryIndex) =>
   rows.map(([destination, name, price], index) => ({
     id: `SHOP-DEMO-${countryIndex}-${index}`, country, destination, name,
     seller: `${destination} ${index % 2 ? '데이투어' : '로컬트립'} · 시연 업체`,
-    image: countryImage(country), category: name.includes('미식') || name.includes('체험') ? '액티비티' : '투어·가이드',
+    image: SHOP_PHOTOS[name] ?? countryImage(country), category: categoryOf(name),
     region: `${country} ${destination}`, duration: index % 2 ? '약 3시간' : '약 2시간',
     options: [
       { name: '오전 출발 10:00', adult: String(price), child: String(Math.round(price * .7 / 1000) * 1000), stock: '20' },

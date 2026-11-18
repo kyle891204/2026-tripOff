@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { cn } from '@/lib/cn'
 import Avatar from '../parts/Avatar'
 import LiveBadge from '../parts/LiveBadge'
@@ -8,21 +8,24 @@ import TabBar from '../parts/TabBar'
 import { IconChevronRight } from '../parts/icons'
 import shared from '../parts/shared.module.css'
 import { useToast } from '../parts/useToast'
-import type { Plan, Trip } from '../mock'
-import { allTrips, companionVouchers, getDemoState, hasVoucher, planPhase, setDemoState, tripPlans, useDemoState, type PlanPhase } from '../store'
+import { dateAt, type Plan, type Trip } from '../mock'
+import { allTrips, companionVouchers, getDemoState, hasVoucher, planPhase, setDemoState, soloTrips, tripPlans, useDemoState, type PlanPhase } from '../store'
 import type { ScreenProps } from '../types'
 import styles from './VouchersScreen.module.css'
 
 type Sheet = 'mine' | 'companion'
 type Seg = 'mine' | 'theirs'
-type Item = { trip: Trip; plan: Plan }
+type Item = { trip: Trip; plan: Plan; date: string }
+const SOLO_FILTER = 'solo'
+const byDate = (a: Item, b: Item) => a.date.localeCompare(b.date) || a.plan.time.localeCompare(b.plan.time)
 
 /**
  * 「일정」 탭 — 모든 여행의 일정을 날짜별로 한곳에서.
- * - 내 일정 추가: 여행을 고르고 기존 바우처 추가 흐름으로
+ * - 여행에 넣지 않은 일정(여행 외)도 함께 날짜순으로
+ * - 내 일정 추가: 여행을 고르거나 「여행에 넣지 않기」로 기존 바우처 추가 흐름으로
  * - 일행 일정 추가: 여행·동행을 고르고 대신 받아 둔 바우처를 그 사람 몫으로 저장 (내 티켓에는 안 섞임)
  */
-export default function VouchersScreen({ go, toast: initialToast }: ScreenProps) {
+export default function VouchersScreen({ go, toast: initialToast, overlay }: ScreenProps & { overlay?: ReactNode }) {
   const demo = useDemoState()
   const trips = allTrips(demo)
   const [filter, setFilter] = useState<string>('all')
@@ -31,18 +34,23 @@ export default function VouchersScreen({ go, toast: initialToast }: ScreenProps)
   const [toast] = useToast(initialToast)
 
   // 다른 흐름에서 중간에 빠져나와도 일행 대상이 남지 않게
-  useEffect(() => { if (getDemoState().voucherOwner) setDemoState({ voucherOwner: undefined }) }, [])
+  useEffect(() => { if (!overlay && (getDemoState().voucherOwner || getDemoState().addSolo)) setDemoState({ voucherOwner: undefined, addSolo: undefined }) }, [overlay])
 
+  const solos = soloTrips(demo)
+  const item = (trip: Trip) => (plan: Plan): Item => ({ trip, plan, date: dateAt(trip, plan.day) })
   const shown = trips.filter((t) => filter === 'all' || t.id === filter)
-  const mine: Item[] = shown.flatMap((trip) => tripPlans(trip, demo).map((plan) => ({ trip, plan })))
-  const theirs: Item[] = shown.flatMap((trip) => companionVouchers(trip, demo).map((plan) => ({ trip, plan })))
+  const mine: Item[] = [
+    ...shown.flatMap((trip) => tripPlans(trip, demo).map(item(trip))),
+    ...(filter === 'all' || filter === SOLO_FILTER ? solos.flatMap((trip) => tripPlans(trip, demo).map(item(trip))) : []),
+  ].sort(byDate)
+  const theirs: Item[] = filter === SOLO_FILTER ? [] : shown.flatMap((trip) => companionVouchers(trip, demo).map(item(trip))).sort(byDate)
   const items = seg === 'mine' ? mine : theirs
   const live = items.filter(({ trip, plan }) => planPhase(plan, trip, demo) === 'live')
 
-  // 날짜별로 묶기 (여행 순서 → 날짜 순서 유지)
+  // 날짜별로 묶기 (같은 날이라도 여행이 다르면 따로, 여행 밖 일정은 같은 날끼리)
   const groups: { key: string; trip: Trip; day: number; items: Item[] }[] = []
   for (const it of items) {
-    const key = `${it.trip.id}-${it.plan.day}`
+    const key = `${it.date}-${it.trip.solo ? SOLO_FILTER : it.trip.id}`
     const last = groups.at(-1)
     if (last?.key === key) last.items.push(it)
     else groups.push({ key, trip: it.trip, day: it.plan.day, items: [it] })
@@ -84,6 +92,7 @@ export default function VouchersScreen({ go, toast: initialToast }: ScreenProps)
           {trips.map((t) => (
             <button key={t.id} type="button" aria-pressed={filter === t.id} onClick={() => setFilter(t.id)}>{t.name}</button>
           ))}
+          {solos.length > 0 && <button type="button" aria-pressed={filter === SOLO_FILTER} onClick={() => setFilter(SOLO_FILTER)}>여행 외</button>}
         </div>
 
         <div className={styles.body}>
@@ -108,7 +117,7 @@ export default function VouchersScreen({ go, toast: initialToast }: ScreenProps)
               <section key={g.key} className={styles.group}>
                 <h2 className={styles.date}>
                   <strong>{g.trip.month}.{d?.date}</strong> {d?.dow}
-                  <span className={styles.tripTag}>{g.trip.name}</span>
+                  <span className={cn(styles.tripTag, g.trip.solo && styles.soloTag)}>{g.trip.solo ? '여행 외' : g.trip.name}</span>
                 </h2>
                 <ul className={styles.card}>
                   {g.items.map(({ trip, plan }) => (
@@ -128,12 +137,13 @@ export default function VouchersScreen({ go, toast: initialToast }: ScreenProps)
       </div>
 
       {sheet && <AddSheet kind={sheet} trips={trips} defaultTrip={demo.tripId} onClose={() => setSheet(undefined)} onNext={(trip, owner) => {
-        setDemoState({ tripId: trip.id, voucherTarget: undefined, draft: undefined, voucherOwner: owner })
+        setDemoState({ tripId: trip?.id ?? demo.tripId, voucherTarget: undefined, draft: undefined, voucherOwner: owner, addSolo: !trip || undefined })
         go(owner ? 'voucher-import' : 'add-voucher')
       }} />}
 
       <TabBar active="vouchers" go={go} />
       {toast}
+      {overlay}
     </Screen>
   )
 }
@@ -167,14 +177,17 @@ function AddSheet({ kind, trips, defaultTrip, onClose, onNext }: {
   trips: Trip[]
   defaultTrip: string
   onClose: () => void
-  onNext: (trip: Trip, owner?: string) => void
+  /** trip 이 없으면 여행에 넣지 않고 내 일정으로 */
+  onNext: (trip: Trip | undefined, owner?: string) => void
 }) {
-  const [tripId, setTripId] = useState(trips.some((t) => t.id === defaultTrip) ? defaultTrip : trips[0]?.id)
-  const trip = trips.find((t) => t.id === tripId) ?? trips[0]
+  // 내 일정: 처음엔 아무 여행도 고르지 않은 상태 → 그대로 가면 여행 밖 일정. 고른 칩을 다시 누르면 해제
+  const [tripId, setTripId] = useState<string | undefined>(kind === 'mine' ? undefined : trips.some((t) => t.id === defaultTrip) ? defaultTrip : trips[0]?.id)
+  const solo = kind === 'mine' && !tripId
+  const trip = solo ? undefined : trips.find((t) => t.id === tripId) ?? trips[0]
   const companions = trip ? trip.members.filter((m) => !m.me) : []
   const [owner, setOwner] = useState<string>()
   const chosen = companions.find((m) => m.name === owner)
-  const ready = !!trip && (kind === 'mine' || !!chosen)
+  const ready = kind === 'mine' ? solo || !!trip : !!trip && !!chosen
   const title = kind === 'mine' ? '내 일정 추가' : '일행 일정 추가'
 
   return (
@@ -184,17 +197,18 @@ function AddSheet({ kind, trips, defaultTrip, onClose, onNext }: {
         <span className={styles.handle} aria-hidden />
         <h2 className={styles.sheetTitle}>{title}</h2>
         <p className={styles.sheetSub}>
-          {kind === 'mine' ? '어느 여행에 넣을까요?' : '동행 대신 받은 바우처를 그 사람 몫으로 보관해요. 내 티켓에는 섞이지 않아요.'}
+          {kind === 'mine' ? '여행에 넣으려면 여행을 골라 주세요. 고르지 않아도 되고, 나중에 일정에서 넣을 수 있어요.' : '동행 대신 받은 바우처를 그 사람 몫으로 보관해요. 내 티켓에는 섞이지 않아요.'}
         </p>
 
-        <h3 className={styles.label}>여행</h3>
+        <h3 className={styles.label}>여행{kind === 'mine' && <small className={styles.optional}> · 선택</small>}</h3>
         <div className={styles.chips}>
           {trips.map((t) => (
-            <button key={t.id} type="button" aria-pressed={t.id === trip?.id} onClick={() => { setTripId(t.id); setOwner(undefined) }}>
+            <button key={t.id} type="button" aria-pressed={t.id === trip?.id} onClick={() => { setTripId(kind === 'mine' && t.id === tripId ? undefined : t.id); setOwner(undefined) }}>
               {t.name}
             </button>
           ))}
         </div>
+        {solo && <p className={styles.sheetSub}>여행 없이 일정 탭에 날짜별로 보관돼요. 날짜가 여행 기간과 겹치면 그 여행에 넣을지 물어볼게요.</p>}
 
         {kind === 'companion' && (
           <>
@@ -214,7 +228,7 @@ function AddSheet({ kind, trips, defaultTrip, onClose, onNext }: {
           </>
         )}
 
-        <button type="button" className={cn(styles.next, shared.tappable)} disabled={!ready} onClick={() => trip && onNext(trip, kind === 'companion' ? chosen?.name : undefined)}>
+        <button type="button" className={cn(styles.next, shared.tappable)} disabled={!ready} onClick={() => ready && onNext(trip, kind === 'companion' ? chosen?.name : undefined)}>
           {kind === 'mine' ? '바우처 가져오기' : chosen ? `${chosen.name}님 바우처 가져오기` : '동행을 선택해 주세요'}
         </button>
       </div>

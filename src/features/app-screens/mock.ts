@@ -103,6 +103,8 @@ export interface Trip {
   sample: SampleVoucher
   /** 함께 가는 사람 (새로 만든 여행은 나 혼자) */
   members: Member[]
+  /** 여행에 넣지 않은 일정 하나를 감싼 가상 여행 (여행 목록에는 안 나옴) */
+  solo?: boolean
 }
 
 export const TRIPS: Trip[] = [

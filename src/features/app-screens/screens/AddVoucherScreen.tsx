@@ -7,6 +7,7 @@ import { useToast } from '../parts/useToast'
 import { getDemoState, setDemoState, useCurrentPlan, useCurrentTrip, useDemoState } from '../store'
 import type { ScreenProps } from '../types'
 import TimelineScreen from './TimelineScreen'
+import VouchersScreen from './VouchersScreen'
 import styles from './AddVoucherScreen.module.css'
 
 interface Option {
@@ -31,8 +32,10 @@ const OPTIONS: Option[] = [
 export default function AddVoucherScreen({ go, back }: ScreenProps) {
   const trip = useCurrentTrip()
   const plan = useCurrentPlan()
-  const { voucherTarget } = useDemoState()
+  const { voucherTarget, addSolo } = useDemoState()
   const target = voucherTarget?.mode === 'register' ? plan : undefined
+  // 일정 탭에서 「여행에 넣지 않기」로 들어온 새 바우처
+  const solo = !target && !!addSolo
   const [view, setView] = useState<'menu' | 'help'>('menu')
   const [toast, showToast] = useToast()
   // 「바우처 추가」는 내 바우처 흐름 → 남아 있는 일행 대상 지우기
@@ -48,7 +51,7 @@ export default function AddVoucherScreen({ go, back }: ScreenProps) {
           <>
             <h2 className={styles.title}>{target ? '바우처 등록' : '바우처 추가'}</h2>
             <p className={styles.context}>
-              {target ? `「${target.title}」 일정에 붙여요` : `「${trip.name}」 · ${trip.period}에 추가돼요`}
+              {target ? `「${target.title}」 일정에 붙여요` : solo ? '여행에 넣지 않고 내 일정에 보관돼요' : `「${trip.name}」 · ${trip.period}에 추가돼요`}
             </p>
             <ul className={styles.list}>
               {OPTIONS.map((o) => (
@@ -98,5 +101,5 @@ export default function AddVoucherScreen({ go, back }: ScreenProps) {
     </>
   )
 
-  return <TimelineScreen go={go} back={back} overlay={sheet} />
+  return solo ? <VouchersScreen go={go} back={back} overlay={sheet} /> : <TimelineScreen go={go} back={back} overlay={sheet} />
 }

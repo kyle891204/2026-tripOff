@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react'
-import { DEMO_TODAY, PAST_TRIPS, TRIPS, dateAt, isVisible, type Plan, type PlanIcon, type Trip } from './mock'
+import { DEMO_TODAY, PAST_TRIPS, TRIPS, dateAt, isVisible, makeTrip, type Plan, type PlanIcon, type Trip } from './mock'
 import { agencyTripFor, getDemoDeliveries, subscribeDemoDeliveries } from '@/data/demoDelivery'
 
 /**
@@ -68,6 +68,10 @@ export interface DemoState {
   orderChanges?: Record<string, OrderChange>
   /** 결제 취소로 빠진 일정 */
   hiddenPlans?: Record<string, boolean>
+  /** 여행에 넣지 않은 내 일정 (이용일과 함께 따로 보관) */
+  soloPlans?: SoloPlan[]
+  /** 「내 일정 추가」를 여행 없이 진행 중 */
+  addSolo?: boolean
   /** 상점 즐겨찾기 상품 id */
   favorites?: string[]
   push?: PushSettings
@@ -98,6 +102,8 @@ export interface DemoState {
   draft?: { kind: 'sample' | 'manual' | 'file'; original?: Plan['original']; qrValue?: string }
 }
 
+export interface SoloPlan { date: string; plan: Plan }
+
 export interface PlanEdit {
   title?: string
   time?: string
@@ -126,12 +132,12 @@ const STORAGE_KEY = 'tripoff.traveler.v1'
 function loadState(): DemoState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? { ...INITIAL, ...JSON.parse(raw), planId: undefined, voucherTarget: undefined, draft: undefined, voucherOwner: undefined } : INITIAL
+    return raw ? { ...INITIAL, ...JSON.parse(raw), planId: undefined, voucherTarget: undefined, draft: undefined, voucherOwner: undefined, addSolo: undefined } : INITIAL
   } catch { return INITIAL }
 }
 let state: DemoState = loadState()
 function persist() {
-  const { draft: _draft, voucherTarget: _target, planId: _plan, voucherOwner: _owner, ...data } = state
+  const { draft: _draft, voucherTarget: _target, planId: _plan, voucherOwner: _owner, addSolo: _solo, ...data } = state
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)) } catch { /* 읽기 전용 환경에서는 메모리만 사용 */ }
 }
 const listeners = new Set<() => void>()
@@ -171,10 +177,93 @@ export function allTrips(s: DemoState = state): Trip[] {
   return [...TRIPS, ...(agency ? [agency] : []), ...s.customTrips]
 }
 
+/* --------------------------- 여행 밖 일정 --------------------------- */
+
+const SOLO_PREFIX = 'solo-'
+
+/**
+ * 여행에 넣지 않은 일정 하나를 하루짜리 가상 여행으로 감싼 것.
+ * 일정 상세·티켓·바우처 화면이 여행 일정과 같은 방식으로 다룰 수 있게 한다.
+ * 여행 목록(allTrips)에는 나오지 않는다.
+ */
+export function soloTrips(s: DemoState = state): Trip[] {
+  return (s.soloPlans ?? []).map(({ date, plan }) => ({
+    ...makeTrip('여행 외 일정', date, date, 0),
+    id: SOLO_PREFIX + plan.id, solo: true, plans: [{ ...plan, day: 0 }],
+  }))
+}
+
+/** 여행 id로 찾기 (지난 여행, 여행 밖 일정 포함) */
+export function findTrip(id: string, s: DemoState = state): Trip | undefined {
+  return [...allTrips(s), ...PAST_TRIPS, ...soloTrips(s)].find((t) => t.id === id)
+}
+
+/** 그 날짜가 여행 기간에 들어가는 내 여행 (여행지 일치를 원하면 prefer로 앞에 정렬) */
+export function tripsOn(date: string, prefer?: (trip: Trip) => boolean, s: DemoState = state): Trip[] {
+  const trips = allTrips(s).filter((t) => t.startIso <= date && date <= t.endIso)
+  return prefer ? [...trips.filter(prefer), ...trips.filter((t) => !prefer(t))] : trips
+}
+
+/** 여행에 넣지 않고 일정 저장. 돌려주는 값은 그 일정의 가상 여행 id */
+export function addSoloPlan(date: string, plan: Plan, patch: Partial<DemoState> = {}) {
+  setDemoState({ soloPlans: [...(state.soloPlans ?? []), { date, plan: { ...plan, day: 0 } }], ...patch })
+  return SOLO_PREFIX + plan.id
+}
+
+/** 여행 밖 일정의 이용일 바꾸기 */
+export function setSoloDate(planId: string, date: string) {
+  setDemoState({ soloPlans: (state.soloPlans ?? []).map((entry) => entry.plan.id === planId ? { ...entry, date } : entry) })
+}
+
+/** 주문에 묶인 여행 id 바꾸기 (그 일정을 만든 주문) */
+function ordersMoved(planId: string, tripId: string) {
+  return state.shopOrders?.map((o) => (o.planId ?? 'shop-' + o.id) === planId ? { ...o, tripId } : o)
+}
+
+/** 여행 밖 일정을 여행으로 옮기기 (date 를 주면 그 날로). 주문에 묶인 여행 id도 함께 바꾼다 */
+export function moveSoloToTrip(planId: string, tripId: string, date?: string) {
+  const entry = state.soloPlans?.find((e) => e.plan.id === planId)
+  const trip = allTrips().find((t) => t.id === tripId)
+  if (!entry || !trip) return
+  const day = trip.days.findIndex((_, i) => dateAt(trip, i) === (date ?? entry.date))
+  if (day < 0) return
+  const edit = state.planEdits[planId]
+  setDemoState({
+    soloPlans: state.soloPlans!.filter((e) => e.plan.id !== planId),
+    addedPlans: { ...state.addedPlans, [trip.id]: [...(state.addedPlans[trip.id] ?? []), { ...entry.plan, day }] },
+    planEdits: edit ? { ...state.planEdits, [planId]: { ...edit, day } } : state.planEdits,
+    shopOrders: ordersMoved(planId, trip.id),
+    tripId: state.tripId === SOLO_PREFIX + planId ? trip.id : state.tripId,
+    dayIndex: state.tripId === SOLO_PREFIX + planId ? day : state.dayIndex,
+  })
+}
+
+/** 여행에서 내가 추가한 일정 · 산 일정만 뺄 수 있다 (여행사가 보낸 기본 일정은 그 여행에 남음) */
+export function canLeaveTrip(planId: string, tripId: string, s: DemoState = state) {
+  return !!s.addedPlans[tripId]?.some((p) => p.id === planId && !p.owner)
+}
+
+/** 여행 일정을 여행 밖으로 빼기 (날짜는 그대로) */
+export function moveTripPlanToSolo(planId: string, tripId: string) {
+  const trip = allTrips().find((t) => t.id === tripId)
+  const plan = state.addedPlans[tripId]?.find((p) => p.id === planId)
+  if (!trip || !plan || plan.owner) return
+  const edit = state.planEdits[planId]
+  const date = dateAt(trip, edit?.day ?? plan.day)
+  setDemoState({
+    addedPlans: { ...state.addedPlans, [tripId]: state.addedPlans[tripId].filter((p) => p.id !== planId) },
+    soloPlans: [...(state.soloPlans ?? []), { date, plan: { ...plan, day: 0 } }],
+    planEdits: edit ? { ...state.planEdits, [planId]: { ...edit, day: 0 } } : state.planEdits,
+    shopOrders: ordersMoved(planId, SOLO_PREFIX + planId),
+    tripId: state.tripId === tripId ? SOLO_PREFIX + planId : state.tripId,
+    dayIndex: state.tripId === tripId ? 0 : state.dayIndex,
+  })
+}
+
 /** 지금 선택된 여행 (없으면 첫 여행) */
 export function useCurrentTrip(): Trip {
   const s = useDemoState()
-  return [...allTrips(s), ...PAST_TRIPS].find((t) => t.id === s.tripId) ?? TRIPS[0]
+  return findTrip(s.tripId, s) ?? TRIPS[0]
 }
 
 /** 여행의 전체 일정 (보이는 것만), 날짜·시간순 */
@@ -318,7 +407,7 @@ export function hasVoucher(plan: Plan, s: DemoState = state) {
 /** 지금 보고 있는 일정 (없으면 undefined) */
 export function useCurrentPlan(): Plan | undefined {
   const s = useDemoState()
-  const trip = [...allTrips(s), ...PAST_TRIPS].find((t) => t.id === s.tripId) ?? TRIPS[0]
+  const trip = findTrip(s.tripId, s) ?? TRIPS[0]
   const plan = [...trip.plans, ...(s.addedPlans[trip.id] ?? [])].find((p) => p.id === s.planId)
   return plan && withEdits(plan, s)
 }

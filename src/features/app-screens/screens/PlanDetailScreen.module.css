@@ -304,3 +304,10 @@
 .cardLow {
   top: 330px;
 }
+
+/* 일정이 속한 여행 (여행 외 일정이면 점선 표시) */
+.tripLine { display: inline-block; margin-top: 8px; padding: 3px 9px; border-radius: 8px; background: #e6eeec; font-size: 12px; font-weight: 600; color: #46605f; }
+.tripLineSolo { background: transparent; border: 1px dashed #b9cac6; color: #657571; font-weight: 500; }
+.formRow select { height: 40px; width: 100%; min-width: 0; padding: 0 8px; border: 1.5px solid var(--line); border-radius: 12px; background: #fff; font: inherit; font-size: 14px; font-weight: 700; color: var(--ink); }
+.formRow select:focus { outline: none; border-color: var(--teal); }
+.moveNote { font-size: 12px; color: var(--ink-muted); line-height: 1.5; }

@@ -9,7 +9,7 @@ import { IconBack } from '../parts/icons'
 import shared from '../parts/shared.module.css'
 import { useToast } from '../parts/useToast'
 import { dateAt, sourceLabel, voucherOf } from '../mock'
-import { editPlan, hasVoucher, setDemoState, tripPlans, useCurrentPlan, useCurrentTrip, useDemoState } from '../store'
+import { allTrips, canLeaveTrip, editPlan, hasVoucher, moveSoloToTrip, moveTripPlanToSolo, setDemoState, tripPlans, useCurrentPlan, useCurrentTrip, useDemoState } from '../store'
 import type { ScreenProps } from '../types'
 import styles from './PlanDetailScreen.module.css'
 
@@ -17,6 +17,7 @@ import styles from './PlanDetailScreen.module.css'
  * ⚠ 임시 화면 — 하이파이 없음 (로우파이 「07 바우처 상세」 역할).
  * 일정 정보 + 바우처. 모든 일정에서 바우처를 수정할 수 있고,
  * 여행사가 바우처 없이 일정만 보냈으면 여기서 직접 등록한다. 문제가 있으면 문의.
+ * 「일정 수정」에서 여행 밖 일정을 여행에 넣거나, 내가 추가한 일정을 여행에서 뺄 수 있다.
  */
 export default function PlanDetailScreen({ go, back, toast: initialToast }: ScreenProps) {
   const trip = useCurrentTrip()
@@ -27,16 +28,37 @@ export default function PlanDetailScreen({ go, back, toast: initialToast }: Scre
   const [help, setHelp] = useState(false)
   // 일정 수정 (제목·시간·장소)
   const [editing, setEditing] = useState(false)
-  const [draft, setDraft] = useState({ title: '', time: '', location: '' })
+  const [draft, setDraft] = useState({ title: '', time: '', location: '', tripId: '', date: '' })
+  const planDate = dateAt(trip, plan.day)
+  // 여행을 바꿀 수 있는 일정: 여행 밖 일정, 또는 여행에 내가 추가한 · 산 일정
+  const movable = !plan.owner && (!!trip.solo || canLeaveTrip(plan.id, trip.id, demo))
+  const trips = allTrips(demo)
+  const nextTrip = trips.find((t) => t.id === draft.tripId)
+  const nextDays = nextTrip ? nextTrip.days.map((_, i) => dateAt(nextTrip, i)) : []
 
   const startEdit = () => {
-    setDraft({ title: plan.title, time: plan.time, location: plan.location ?? '' })
+    setDraft({ title: plan.title, time: plan.time, location: plan.location ?? '', tripId: trip.solo ? '' : trip.id, date: planDate })
     setEditing(true)
+  }
+  const pickTrip = (tripId: string) => {
+    const t = trips.find((x) => x.id === tripId)
+    const days = t ? t.days.map((_, i) => dateAt(t, i)) : []
+    // 이용일이 그 여행 기간 밖이면 여행 첫날로 맞추고 날짜를 고르게 함
+    setDraft({ ...draft, tripId, date: !t || days.includes(planDate) ? planDate : days[0] })
   }
   const saveEdit = () => {
     editPlan(plan.id, { title: draft.title.trim() || plan.title, time: draft.time, location: draft.location.trim() || undefined })
+    const from = trip.solo ? '' : trip.id
+    let message = '일정을 수정했어요'
+    if (movable && draft.tripId !== from) {
+      if (from) moveTripPlanToSolo(plan.id, from)
+      if (nextTrip) {
+        moveSoloToTrip(plan.id, nextTrip.id, draft.date)
+        message = `「${nextTrip.name}」 여행에 넣었어요`
+      } else message = '여행에서 빼고 내 일정에 따로 보관했어요'
+    }
     setEditing(false)
-    showToast('일정을 수정했어요')
+    showToast(message)
   }
 
   const agency = plan.source.kind === 'agency' ? plan.source.name : undefined
@@ -94,6 +116,26 @@ export default function PlanDetailScreen({ go, back, toast: initialToast }: Scre
                 <input value={draft.location} onChange={(e) => setDraft({ ...draft, location: e.target.value })} placeholder="집결지·주소" aria-label="장소" />
               </label>
             </div>
+            {movable && (
+              <div className={styles.formRow}>
+                <label className={styles.grow}>
+                  <span>여행</span>
+                  <select value={draft.tripId} onChange={(e) => pickTrip(e.target.value)} aria-label="넣을 여행">
+                    <option value="">여행에 넣지 않음</option>
+                    {trips.map((t) => <option key={t.id} value={t.id}>{t.name} · {t.period}</option>)}
+                  </select>
+                </label>
+                {nextTrip && !nextDays.includes(planDate) && (
+                  <label>
+                    <span>날짜</span>
+                    <select value={draft.date} onChange={(e) => setDraft({ ...draft, date: e.target.value })} aria-label="여행 중 날짜">
+                      {nextDays.map((d) => <option key={d} value={d}>{d.slice(5).replace('-', '.')}</option>)}
+                    </select>
+                  </label>
+                )}
+              </div>
+            )}
+            {movable && nextTrip && !nextDays.includes(planDate) && <p className={styles.moveNote}>이용일({planDate.slice(5).replace('-', '.')})이 여행 기간 밖이라 여행 중 날짜를 골라 주세요.</p>}
           </div>
         ) : (
           <>
@@ -101,6 +143,10 @@ export default function PlanDetailScreen({ go, back, toast: initialToast }: Scre
             <p className={styles.when}>
               {voucher.date} · {plan.time}
               {plan.location && ` · ${plan.location}`}
+            </p>
+            <p className={cn(styles.tripLine, trip.solo && styles.tripLineSolo)}>
+              {trip.solo ? '여행 외 일정' : `「${trip.name}」 여행`}
+              {trip.solo && movable && ' · 일정 수정에서 여행에 넣을 수 있어요'}
             </p>
           </>
         )}

@@ -47,7 +47,7 @@ export default function TimelineScreen({ go, toast: initialToast, overlay }: Pro
   const [toast, showToast] = useToast(initialToast)
   const dayIdx = Math.min(dayIndex, trip.days.length - 1)
 
-  const add = () => { setDemoState({ voucherTarget: undefined, draft: undefined }); go('add-voucher') }
+  const add = () => { setDemoState({ voucherTarget: undefined, draft: undefined, addSolo: undefined }); go('add-voucher') }
   const plans = tripPlans(trip, demo).filter((p) => p.day === dayIdx)
   const { cards, addTop } = layout(plans)
 
