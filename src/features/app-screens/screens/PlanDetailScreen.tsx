@@ -92,6 +92,7 @@ export default function PlanDetailScreen({ go, back, toast: initialToast }: Scre
         </button>
       )}
 
+      <div className={styles.flow}>
       <div className={styles.head}>
         <PlanIcon kind={plan.icon} agency={agency} />
         <p className={styles.source}>{sourceLabel(plan)}</p>
@@ -152,7 +153,7 @@ export default function PlanDetailScreen({ go, back, toast: initialToast }: Scre
         )}
       </div>
 
-      <section className={cn(styles.card, editing && styles.cardLow)} aria-label="바우처">
+      <section className={styles.card} aria-label="바우처">
         <div className={styles.cardHead}>
           <h2>바우처</h2>
           {has && demo.edited[plan.id] && <span className={styles.tag}>수정됨</span>}
@@ -205,6 +206,7 @@ export default function PlanDetailScreen({ go, back, toast: initialToast }: Scre
           </>
         )}
       </section>
+      </div>
 
       <button type="button" className={cn(styles.help, shared.tappable)} onClick={() => setHelp(true)}>
         바우처에 문제가 있나요? <strong>문의하기</strong>
