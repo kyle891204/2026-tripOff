@@ -48,7 +48,7 @@ function nextHistory(n: Nav, id: ScreenId, options?: GoOptions): ScreenId[] {
 
 /**
  * 시연 플레이어: 처음엔 폰이 닫혀 있고, 「시작하기」를 누르면 스플래시부터 시작.
- * 오른쪽 컨트롤러의 「다음」으로 고객 앱 5단계를 넘기고, 이어서 파트너센터로 넘어간다.
+ * 오른쪽 컨트롤러의 「다음」으로 고객 앱 단계를 넘기고, 이어서 파트너센터로 넘어간다.
  * 폰 안에서 직접 눌러 이동해도 된다.
  */
 export default function DemoPlayer() {
@@ -107,8 +107,9 @@ export default function DemoPlayer() {
     if (step.demoNow !== undefined) setDemoState({ demoNow: step.demoNow || undefined, ...(step.day !== undefined ? { tripId: 'osaka', dayIndex: step.day } : {}) })
     setStarted(true)
     setIndex(i)
-    // 폰 화면에 그 기능으로 가는 버튼(탭·추가 버튼 등)이 보이면 누르는 모션 뒤에 이동
-    tapThen(tapKey('go:' + step.entry), () => go(step.entry))
+    // 앞으로 갈 때만: 폰 화면에 그 기능으로 가는 버튼(탭 등)이 보이면 누르는 모션 뒤에 이동. 이전으로는 바로 이동
+    if (i > index) tapThen(tapKey('go:' + step.entry), () => go(step.entry))
+    else go(step.entry)
   }
 
   const restart = () => {

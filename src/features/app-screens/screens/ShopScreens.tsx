@@ -163,17 +163,12 @@ export function ShopScreen({ go, back }: ScreenProps) {
         </button>)}
       </div>}
       <div className={s.section}><h2>{destination ?? country} {activeCategory || '추천 상품'}</h2><span>{visible.length}개</span></div>
-      {/* 시연 컨트롤러의 다음 버튼: 목록 첫 상품 열기 */}
-      {country && visible[0] && <StepAction scope="shop" tap='[data-tap="open-product"]' label="상품 보기 →" hint="구매 · 상품 고르기" run={() => {
-        setDemoState({ shopProductId: visible[0].id, shopBooking: undefined })
-        go('shop-product')
-      }} />}
-      {visible.map((product, index) => {
+      {visible.map(product => {
         const options = product.options.filter(bookable)
         const fav = (state.favorites ?? []).includes(product.id)
         // 오늘 파트너센터에서 막 등록한 상품은 빛나게
         const fresh = 'createdAt' in product && product.createdAt === new Date().toISOString().slice(0, 10)
-        return <div className={s.productWrap} key={product.id}><button className={fresh ? `${s.product} ${h.fresh}` : s.product} disabled={!options.length} data-tap={index === 0 ? 'open-product' : undefined} onClick={() => {
+        return <div className={s.productWrap} key={product.id}><button className={fresh ? `${s.product} ${h.fresh}` : s.product} disabled={!options.length} onClick={() => {
           setDemoState({ shopProductId: product.id, shopBooking: undefined })
           go('shop-product')
         }}>

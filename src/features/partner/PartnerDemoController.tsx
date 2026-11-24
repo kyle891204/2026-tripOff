@@ -30,7 +30,7 @@ function routeStep(path: string) {
 interface PhoneNav { current: ScreenId; history: ScreenId[]; toast?: string; nonce: number }
 
 /**
- * 파트너센터 오른쪽 시연 컨트롤러. /demo 의 고객 앱 5단계에 이어 6~11단계를 진행한다.
+ * 파트너센터 오른쪽 시연 컨트롤러. /demo 의 고객 앱 단계에 이어 파트너센터 단계를 진행한다.
  * 고객 앱이 필요한 단계는 컨트롤러 왼쪽에 폰을 띄운다.
  */
 export default function PartnerDemoController({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
@@ -71,7 +71,7 @@ export default function PartnerDemoController({ open, onOpenChange }: { open: bo
   }, [])
 
   const select = (i: number) => {
-    // 고객 앱 단계(처음 5단계와 마무리)는 /demo 로 돌아가서 이어 간다
+    // 고객 앱 단계(처음 단계들과 마무리)는 /demo 로 돌아가서 이어 간다
     if (isAppStep(FLOW[i])) {
       navigate(demoStepUrl(i))
       return
@@ -84,7 +84,10 @@ export default function PartnerDemoController({ open, onOpenChange }: { open: bo
       const latest = vouchers.find(v => v.planId && v.status === 'pending') ?? vouchers.find(v => v.status === 'pending')
       const selectId = step.route === ROUTES.partnerVouchers ? latest?.id : undefined
       // 사이드바 메뉴를 누르는 모션 뒤에 이동 (상품 등록은 「새 상품 등록」 화면이라 메뉴 대신 바로)
-      tapThen(tapKey('nav:' + step.route), () => navigate(step.route, { state: { flowStep: i, selectId } }))
+      const move = () => navigate(step.route, { state: { flowStep: i, selectId } })
+      // 이전으로 돌아갈 때는 모션 없이 바로
+      if (i > index) tapThen(tapKey('nav:' + step.route), move)
+      else move()
       return
     }
     // 가장 최근에 등록한 파트너 상품을 고객 상점에서 보여 준다

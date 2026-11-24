@@ -31,6 +31,13 @@ export default function FlowPanel({ index, started = index >= 0, onSelect, onSta
   children?: ReactNode
 }) {
   const step = index >= 0 ? FLOW[index] : undefined
+  // 이전으로 돌아갈 때는 제목이 밀려 들어오는 모션을 끈다 (렌더 중 이전 값과 비교)
+  const [shown, setShown] = useState(index)
+  const [goingBack, setGoingBack] = useState(false)
+  if (shown !== index) {
+    setShown(index)
+    setGoingBack(index < shown)
+  }
   // 터치 모션이 도는 동안 다음 버튼을 잠깐 막아 두 번 눌리지 않게
   const [busy, setBusy] = useState(false)
   const runAction = () => {
@@ -50,9 +57,9 @@ export default function FlowPanel({ index, started = index >= 0, onSelect, onSta
         {step ? <>{PART_LABEL[step.part]} · <b>{index + 1}</b> / {FLOW.length}</> : started ? '시작 · 앱 열기' : '트립오프 시연'}
       </p>
 
-      <div className={s.hero} key={`${started}-${index}`} aria-live="polite">
+      <div className={cn(s.hero, goingBack && s.still)} key={`${started}-${index}`} aria-live="polite">
         <h2>{step?.title ?? (started ? '트립오프를 열었어요' : '예약부터 파트너센터까지')}</h2>
-        <p>{step?.desc ?? (started ? '스플래시를 지나 내 여행 홈이 열려요. 「다음」을 누르면 여행 만들기부터 시작해요.' : '고객 앱 5단계와 파트너센터 6단계를 「다음」 하나로 이어서 보여 드려요.')}</p>
+        <p>{step?.desc ?? (started ? '스플래시를 지나 내 여행 홈이 열려요. 「다음」을 누르면 여행 만들기부터 시작해요.' : `고객 앱 ${PARTNER_OFFSET}단계와 파트너센터 ${OUTRO_OFFSET - PARTNER_OFFSET}단계를 「다음」 하나로 이어서 보여 드려요.`)}</p>
         {action?.hint && <span className={s.hint}>{action.hint}</span>}
       </div>
 

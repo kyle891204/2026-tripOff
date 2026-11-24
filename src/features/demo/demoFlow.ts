@@ -2,7 +2,7 @@ import type { ScreenId } from '@/features/app-screens'
 import { ROUTES } from '@/lib/routes'
 
 /**
- * 시연 전체 흐름. 고객 앱 5단계 → 파트너센터 6단계 → 다시 고객 앱에서 보안·현장 사용·마무리.
+ * 시연 전체 흐름. 고객 앱 → 파트너센터 → 다시 고객 앱에서 보안·현장 사용·마무리.
  * /demo 와 파트너센터가 같은 목록과 같은 컨트롤러(FlowPanel)를 쓰고, 「다음」 하나로 이어서 넘긴다.
  *
  * act: 이 단계에서 「다음」이 대신 눌러 줄 화면 동작(stepAction scope).
@@ -28,9 +28,9 @@ export type FlowStep = AppStep | PartnerStep
 export const APP_STEPS: AppStep[] = [
   { part: 'app', title: '여행 만들기', desc: '어디로, 언제만 정하면 빈 여행이 생겨요.', entry: 'add-trip', screens: ['splash', 'app-lock', 'home', 'add-trip'] },
   { part: 'app', title: '동행 추가 · 정산', desc: '여행에 동행을 초대하고 1인당 비용을 나눠요.', entry: 'companions', screens: ['companions', 'invite'] },
-  { part: 'app', title: '바우처 등록', desc: '샘플 바우처를 골라 예약 정보를 확인하고 여행에 저장해요.', entry: 'voucher-import', screens: ['vouchers', 'add-voucher', 'voucher-import', 'review', 'voucher-original'], act: ['voucher-import', 'review'] },
-  { part: 'app', title: '여행 일정 정리', desc: '흩어진 예약이 날짜별 타임라인으로 정리되고, 일정마다 바우처를 바로 열어요.', entry: 'timeline', screens: ['timeline', 'plan', 'notifications'] },
-  { part: 'app', title: '여행 상점', desc: '파트너 여행사의 특가 상품을 골라 결제하면, 바우처가 내 여행 일정에 바로 들어와요. 이 상품은 누가 관리할까요?', entry: 'shop', screens: ['shop', 'shop-product', 'shop-checkout', 'favorites', 'orders', 'order-detail'], act: ['shop', 'shop-product', 'shop-checkout'], shop: { country: '일본', destination: '오사카' } },
+  // 바우처를 저장하면 타임라인으로 가므로, 일정 정리는 같은 단계에서 이어서 보여 준다 (같은 화면이 두 번 나오지 않게)
+  { part: 'app', title: '바우처 등록 · 일정 정리', desc: '샘플 바우처를 골라 확인하고 저장하면, 흩어진 예약과 함께 여행 타임라인에 날짜별로 정리돼요.', entry: 'voucher-import', screens: ['vouchers', 'add-voucher', 'voucher-import', 'review', 'voucher-original', 'timeline', 'plan'], act: ['voucher-import', 'review'] },
+  { part: 'app', title: '여행 상점', desc: '파트너 여행사의 특가 상품을 둘러봐요. 결제하면 바우처가 내 여행 일정에 바로 들어와요. 이 상품은 누가, 어떻게 관리할까요?', entry: 'shop', screens: ['shop', 'shop-product', 'shop-checkout', 'favorites', 'orders', 'order-detail'], shop: { country: '일본', destination: '오사카' } },
 ]
 
 export const PARTNER_STEPS: PartnerStep[] = [
