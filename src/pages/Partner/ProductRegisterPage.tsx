@@ -47,7 +47,7 @@ const CODE_TYPES: Array<{ value: CodeType; title: string; sub: string }> = [
 let nextId = 3
 
 /** 시연용: 글자를 한 자씩 입력하는 것처럼 채운다 */
-function typeText(set: (value: string) => void, text: string, duration = Math.min(1400, 40 * text.length)) {
+function typeText(set: (value: string) => void, text: string, duration = Math.min(600, 16 * text.length)) {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { set(text); return }
   const steps = Math.min(text.length, 36)
   let i = 0
@@ -223,7 +223,7 @@ export default function ProductRegisterPage() {
     const target = DEMO_STEPS[demoStep]
     setDemoStep(demoStep + 1)
     setFlashId(target.id)
-    window.setTimeout(() => setFlashId((cur) => (cur === target.id ? null : cur)), 2400)
+    window.setTimeout(() => setFlashId((cur) => (cur === target.id ? null : cur)), 1300)
     requestAnimationFrame(() => document.getElementById(target.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
   }
 

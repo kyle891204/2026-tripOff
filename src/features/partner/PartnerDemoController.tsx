@@ -8,6 +8,7 @@ import FlowPanel from '@/features/demo/FlowPanel'
 import { FLOW, PARTNER_OFFSET, PARTNER_STEPS, demoStepUrl, isAppStep } from '@/features/demo/demoFlow'
 import { clearDemoNotifications } from '@/data/demoNotifications'
 import { tapKey, tapThen } from '@/features/demo/tap'
+import { confirmClearDemoCache } from '@/features/demo/clearCache'
 import { ROUTES } from '@/lib/routes'
 import { loadPartnerProducts, useProductStore } from './productStore'
 import { resetPartnerVouchers, usePartnerVouchers } from './voucherStore'
@@ -115,6 +116,7 @@ export default function PartnerDemoController({ open, onOpenChange }: { open: bo
           <div className={s.sticky}>
             <FlowPanel index={index} onSelect={select} action={action} now={meta ? '고객 앱 · ' + meta.title : undefined}>
               <button type="button" className={s.option} onClick={reset}>↻ 시연 처음 상태로</button>
+              <button type="button" className={s.option} onClick={confirmClearDemoCache}>캐시 지우기</button>
               <button type="button" className={s.option} onClick={() => onOpenChange(false)}>컨트롤러 숨기기</button>
             </FlowPanel>
           </div>

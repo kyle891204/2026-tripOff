@@ -1,4 +1,6 @@
-const dbName = 'tripoff-voucher-files'
+/** 첨부 파일·상품 사진을 담는 IndexedDB (캐시 지우기에서도 씀) */
+export const VOUCHER_FILES_DB = 'tripoff-voucher-files'
+const dbName = VOUCHER_FILES_DB
 const storeName = 'files'
 
 function openFiles(): Promise<IDBDatabase> {

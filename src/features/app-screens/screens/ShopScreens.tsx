@@ -163,12 +163,17 @@ export function ShopScreen({ go, back }: ScreenProps) {
         </button>)}
       </div>}
       <div className={s.section}><h2>{destination ?? country} {activeCategory || '추천 상품'}</h2><span>{visible.length}개</span></div>
-      {visible.map(product => {
+      {/* 시연 컨트롤러의 다음 버튼: 목록 첫 상품 열기 */}
+      {country && visible[0] && <StepAction scope="shop" tap='[data-tap="open-product"]' label="상품 보기 →" hint="구매 · 상품 고르기" run={() => {
+        setDemoState({ shopProductId: visible[0].id, shopBooking: undefined })
+        go('shop-product')
+      }} />}
+      {visible.map((product, index) => {
         const options = product.options.filter(bookable)
         const fav = (state.favorites ?? []).includes(product.id)
         // 오늘 파트너센터에서 막 등록한 상품은 빛나게
         const fresh = 'createdAt' in product && product.createdAt === new Date().toISOString().slice(0, 10)
-        return <div className={s.productWrap} key={product.id}><button className={fresh ? `${s.product} ${h.fresh}` : s.product} disabled={!options.length} onClick={() => {
+        return <div className={s.productWrap} key={product.id}><button className={fresh ? `${s.product} ${h.fresh}` : s.product} disabled={!options.length} data-tap={index === 0 ? 'open-product' : undefined} onClick={() => {
           setDemoState({ shopProductId: product.id, shopBooking: undefined })
           go('shop-product')
         }}>
@@ -241,7 +246,7 @@ export function ShopProductScreen({ go, back }: ScreenProps) {
       {!valid && <p role="status">오늘 이후 운영 요일({product.days.join('·')})의 날짜, 옵션, 잔여 인원을 확인해 주세요.</p>}
     </div>
     <div className={s.total}><span>총 상품 금액</span><strong>{won(Number(option?.adult ?? 0) * count)}</strong></div>
-    {valid && <StepAction scope="shop-product" tap='[data-tap="book"]' label="예약·결제하기 →" hint="구매 1/4 · 이용일·옵션 확인" run={submit} />}
+    {valid && <StepAction scope="shop-product" tap='[data-tap="book"]' label="예약·결제하기 →" hint="구매 · 이용일·옵션 확인" run={submit} />}
     <button className={s.cta} disabled={!valid} onClick={submit} data-tap="book">예약·결제하기</button>
   </Page>
 }
@@ -309,11 +314,11 @@ export function ShopCheckoutScreen({ go, back }: ScreenProps) {
     {error && <p role="alert" className={s.error}>{error}</p>}
     {/* 시연 컨트롤러의 다음 버튼: 결제 후 여행에 넣고 → 내 일정에서 확인까지 */}
     {done && (suggestions.length > 0 && !decided
-      ? <StepAction scope="shop-checkout" tap='[data-tap="put-trip"]' label={`「${suggestions[0].name}」 여행에 넣기 →`} hint="구매 3/4 · 여행에 넣기" run={() => put(suggestions[0])} />
-      : <StepAction scope="shop-checkout" tap='[data-tap="see-schedule"]' label="내 일정에서 확인 →" hint="구매 4/4 · 내 일정에 등록됐어요" run={() => go(orderTrip && !orderTrip.solo ? 'timeline' : 'vouchers')} />)}
+      ? <StepAction scope="shop-checkout" tap='[data-tap="put-trip"]' label={`「${suggestions[0].name}」 여행에 넣기 →`} hint="구매 · 여행 기간이라 여행에 넣기" run={() => put(suggestions[0])} />
+      : <StepAction scope="shop-checkout" tap='[data-tap="see-schedule"]' label="내 일정에서 확인 →" hint="구매 · 내 일정에 등록됐어요" run={() => go(orderTrip && !orderTrip.solo ? 'timeline' : 'vouchers')} />)}
     {done ? <><button className={s.cta} onClick={() => go(orderTrip && !orderTrip.solo ? 'timeline' : 'vouchers')} data-tap="see-schedule">내 일정에서 확인</button>
       <button className={s.secondary} onClick={() => go('plan')}>바우처 열기</button></>
-      : <><StepAction scope="shop-checkout" tap='[data-tap="pay"]' label={won(booking.price * booking.count) + ' 시연 결제 →'} hint="구매 2/4 · 결제" run={confirm} />
+      : <><StepAction scope="shop-checkout" tap='[data-tap="pay"]' label={won(booking.price * booking.count) + ' 시연 결제 →'} hint="구매 · 시연 결제" run={confirm} />
         <button className={s.cta} onClick={confirm} data-tap="pay">{won(booking.price * booking.count)} 시연 결제</button></>}
   </Page>
 }

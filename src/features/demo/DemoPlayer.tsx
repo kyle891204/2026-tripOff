@@ -7,6 +7,7 @@ import PhoneFrame from './PhoneFrame'
 import FlowPanel from './FlowPanel'
 import { useStepAction } from './stepAction'
 import { tapKey, tapThen } from './tap'
+import { confirmClearDemoCache } from './clearCache'
 import { FLOW, isAppStep, type PartnerStep } from './demoFlow'
 import { resetPartnerProducts } from '@/features/partner/productStore'
 import { resetPartnerVouchers } from '@/features/partner/voucherStore'
@@ -102,6 +103,7 @@ export default function DemoPlayer() {
       return
     }
     // 현장 사용처럼 시각이 중요한 단계는 시연 시각도 함께 맞춘다
+    if (step.shop) setDemoState({ shopCountry: step.shop.country, shopDestination: step.shop.destination, shopProductId: undefined, shopBooking: undefined })
     if (step.demoNow !== undefined) setDemoState({ demoNow: step.demoNow || undefined, ...(step.day !== undefined ? { tripId: 'osaka', dayIndex: step.day } : {}) })
     setStarted(true)
     setIndex(i)
@@ -158,6 +160,7 @@ export default function DemoPlayer() {
             {SCREENS.map(s => <button key={s.id} type="button" aria-current={s.id === nav.current ? 'page' : undefined} onClick={() => { setStarted(true); go(s.id) }}>{s.title}</button>)}
           </div>
           <button type="button" className={styles.restart} onClick={restart}>↻ 처음부터 다시</button>
+          <button type="button" className={styles.restart} onClick={confirmClearDemoCache}>캐시 지우기</button>
           <Link className={styles.hint} to={ROUTES.partner}>파트너센터만 따로 보기 →</Link>
         </FlowPanel>
       </div>

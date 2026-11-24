@@ -1,42 +1,26 @@
-/* 시연 「터치」 모션: 손끝 원 + 퍼지는 물결 */
+/* 시연 「터치」 모션: 손끝 자리에 반투명 점이 잠깐 눌렸다 사라진다 */
 .tap {
   position: fixed;
   z-index: 1000;
-  width: 46px;
-  height: 46px;
-  margin: -23px 0 0 -23px;
-  border: 2px solid rgb(255 255 255 / 0.9);
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
   border-radius: 50%;
-  background: rgb(19 40 44 / 0.28);
-  box-shadow: 0 4px 14px rgb(19 40 44 / 0.25);
+  background: rgb(19 40 44 / 0.3);
   pointer-events: none;
-  animation: touch 0.9s ease-out forwards;
+  animation: touch 0.42s ease-out forwards;
 }
-.tap::after {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  border: 2px solid rgb(46 155 145 / 0.7);
-  border-radius: 50%;
-  animation: ripple 0.7s 0.15s ease-out forwards;
-}
-
 @keyframes touch {
-  0% { opacity: 0; transform: scale(1.5); }
-  25% { opacity: 1; transform: scale(0.85); }
-  55% { opacity: 1; transform: scale(1); }
-  100% { opacity: 0; transform: scale(1); }
-}
-@keyframes ripple {
-  from { opacity: 1; transform: scale(1); }
-  to { opacity: 0; transform: scale(2.4); }
+  0% { opacity: 0; transform: scale(0.6); }
+  30% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.1); }
 }
 
 /* 눌리는 버튼 */
 .pressed {
   filter: brightness(0.92);
   scale: 0.97;
-  transition: scale 0.12s ease, filter 0.12s ease;
+  transition: scale 0.08s ease, filter 0.08s ease;
 }
 
 /* PC 화면: 마우스 커서가 오른쪽 아래에서 다가와 클릭 (화살표 끝이 버튼 가운데) */
@@ -46,7 +30,7 @@
   width: 0;
   height: 0;
   pointer-events: none;
-  animation: cursorMove 1.1s ease-out forwards;
+  animation: cursorMove 0.62s ease-out forwards;
 }
 .cursor svg {
   position: absolute;
@@ -65,11 +49,11 @@
   border: 2px solid rgb(36 83 201 / 0.75);
   border-radius: 50%;
   opacity: 0;
-  animation: click 0.5s 0.26s ease-out forwards;
+  animation: click 0.3s 0.16s ease-out forwards;
 }
 @keyframes cursorMove {
   0% { opacity: 0; transform: translate(46px, 38px); }
-  24% { opacity: 1; transform: translate(0, 0); }
+  26% { opacity: 1; transform: translate(0, 0); }
   80% { opacity: 1; transform: translate(0, 0); }
   100% { opacity: 0; transform: translate(0, 0); }
 }

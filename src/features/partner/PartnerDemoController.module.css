@@ -56,7 +56,7 @@
   background: rgb(22 24 29 / 0.88);
   box-shadow: 0 24px 70px rgb(22 24 29 / 0.35);
   transform: translateY(-50%);
-  animation: rise 0.25s ease-out;
+  animation: rise 0.16s ease-out;
 }
 .phoneHead {
   display: flex;

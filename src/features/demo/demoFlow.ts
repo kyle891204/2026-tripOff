@@ -19,6 +19,8 @@ export interface AppStep {
   demoNow?: string
   /** demoNow 와 함께 보여 줄 오사카 여행 날짜 (0부터) */
   day?: number
+  /** 상점을 이 나라·도시 상품 목록으로 열기 */
+  shop?: { country: string; destination: string }
 }
 export type PartnerStep = { part: 'partner'; title: string; desc: string; act?: string[] } & ({ route: string; also?: string } | { phone: ScreenId })
 export type FlowStep = AppStep | PartnerStep
@@ -28,7 +30,7 @@ export const APP_STEPS: AppStep[] = [
   { part: 'app', title: '동행 추가 · 정산', desc: '여행에 동행을 초대하고 1인당 비용을 나눠요.', entry: 'companions', screens: ['companions', 'invite'] },
   { part: 'app', title: '바우처 등록', desc: '샘플 바우처를 골라 예약 정보를 확인하고 여행에 저장해요.', entry: 'voucher-import', screens: ['vouchers', 'add-voucher', 'voucher-import', 'review', 'voucher-original'], act: ['voucher-import', 'review'] },
   { part: 'app', title: '여행 일정 정리', desc: '흩어진 예약이 날짜별 타임라인으로 정리되고, 일정마다 바우처를 바로 열어요.', entry: 'timeline', screens: ['timeline', 'plan', 'notifications'] },
-  { part: 'app', title: '여행 상점', desc: '파트너 여행사의 특가 상품을 둘러보고 바로 예약해요. 이 상품은 누가, 어떻게 관리할까요?', entry: 'shop', screens: ['shop', 'shop-product', 'shop-checkout', 'favorites', 'orders', 'order-detail'] },
+  { part: 'app', title: '여행 상점', desc: '파트너 여행사의 특가 상품을 골라 결제하면, 바우처가 내 여행 일정에 바로 들어와요. 이 상품은 누가 관리할까요?', entry: 'shop', screens: ['shop', 'shop-product', 'shop-checkout', 'favorites', 'orders', 'order-detail'], act: ['shop', 'shop-product', 'shop-checkout'], shop: { country: '일본', destination: '오사카' } },
 ]
 
 export const PARTNER_STEPS: PartnerStep[] = [

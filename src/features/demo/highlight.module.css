@@ -4,12 +4,12 @@
  */
 .fresh {
   --fresh: 46 155 145;
-  animation: glow 1.4s ease-out 3;
+  animation: glow 0.8s ease-out 2;
   box-shadow: 0 0 0 2px rgb(var(--fresh) / 0.55);
 }
 .freshPartner > td {
   background: rgb(36 83 201 / 0.07);
-  animation: rowGlow 1.4s ease-out 3;
+  animation: rowGlow 0.8s ease-out 2;
 }
 @keyframes rowGlow {
   0% { background: rgb(36 83 201 / 0.24); }
@@ -27,7 +27,7 @@
 
 /* 시연이 채우고 있는 입력칸 */
 .filling :is(input, select, textarea) {
-  animation: fieldFocus 2.4s ease-out;
+  animation: fieldFocus 1.3s ease-out;
 }
 @keyframes fieldFocus {
   0%, 55% { border-color: #2453c9; background: #f3f6fe; box-shadow: 0 0 0 3px rgb(36 83 201 / 0.18); }

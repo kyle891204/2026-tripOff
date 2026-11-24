@@ -28,7 +28,7 @@
 .hero {
   min-height: 128px;
   margin-top: 6px;
-  animation: slideIn 0.28s ease-out;
+  animation: slideIn 0.16s ease-out;
 }
 .hero h2 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.01em; word-break: keep-all; }
 .hero p { margin: 6px 0 0; color: var(--ink-sub); font-size: 13px; line-height: 1.6; word-break: keep-all; }
@@ -74,7 +74,7 @@
   background: var(--mist);
   overflow: hidden;
 }
-.bar span { display: block; height: 100%; border-radius: 2px; background: var(--teal); transition: width 0.3s ease; }
+.bar span { display: block; height: 100%; border-radius: 2px; background: var(--teal); transition: width 0.18s ease; }
 
 .group { margin-top: 6px; }
 .groupLabel {

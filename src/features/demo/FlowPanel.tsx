@@ -36,7 +36,7 @@ export default function FlowPanel({ index, started = index >= 0, onSelect, onSta
   const runAction = () => {
     if (!action || busy) return
     setBusy(true)
-    tapThen(action.tap, () => { action.run(); window.setTimeout(() => setBusy(false), 120) })
+    tapThen(action.tap, () => { action.run(); window.setTimeout(() => setBusy(false), 60) })
   }
   const last = index >= FLOW.length - 1
   const next = FLOW[index + 1]
