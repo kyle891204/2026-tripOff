@@ -4,8 +4,10 @@ import { PartnerButton as Button, partnerStyles as p, useProductStore, useToast 
 import { CODE_TYPE_LABEL, type PartnerProduct } from '@/data/partnerProducts'
 import { countryImage, countryOf } from '@/data/shopCountries'
 import { ROUTES } from '@/lib/routes'
+import { ShopPhoto } from '@/features/app-screens/screens/ShopScreens'
 import { cn } from '@/lib/cn'
 import s from './ProductListPage.module.css'
+import h from '@/features/demo/highlight.module.css'
 
 const DAYS = ['월', '화', '수', '목', '금', '토', '일']
 
@@ -19,6 +21,8 @@ function minPrice(product: PartnerProduct) {
 function Thumb({ product }: { product: PartnerProduct }) {
   const src = product.image || countryImage(product.country || countryOf(product.region))
   const [failed, setFailed] = useState(false)
+  // 등록할 때 올린 사진이 있으면 그 사진 (브라우저 저장소에 보관)
+  if (product.images?.[0]) return <ShopPhoto src={'indexeddb:' + product.images[0].id} alt="" className={s.thumb} />
   return src && !failed
     ? <img className={s.thumb} src={src} alt="" loading="lazy" onError={() => setFailed(true)} />
     : <span className={cn(s.thumb, s.thumbEmpty)} aria-hidden="true">{product.name.slice(0, 1)}</span>
@@ -79,7 +83,7 @@ export default function ProductListPage() {
           </thead>
           <tbody>
             {products.map((product) => (
-              <tr key={product.id} className={product.id === createdId ? s.new : undefined}>
+              <tr key={product.id} className={product.id === createdId ? cn(s.new, h.freshPartner) : undefined}>
                 <td>
                   <div className={s.product}>
                     <Thumb product={product} />

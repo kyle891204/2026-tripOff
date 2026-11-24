@@ -49,6 +49,11 @@ function subscribe(listener: () => void) {
   }
 }
 
+/** 시연 처음 상태로 (등록한 상품을 지우고 예시 상품만) */
+export function resetPartnerProducts() {
+  publish(PARTNER_SAMPLE_PRODUCTS)
+}
+
 export function loadPartnerProducts(): PartnerProduct[] {
   // 이 탭에 구독자가 없던 동안 다른 탭에서 갱신됐을 수도 있다.
   try {

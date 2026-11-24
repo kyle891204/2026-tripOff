@@ -34,6 +34,7 @@ export default function TabBar({ active, go, inside }: {
           className={cn(styles.tab, t.id === active && styles.on)}
           aria-current={t.id === active && !inside ? 'page' : undefined}
           onClick={() => open(t.id)}
+          data-tap={'go:' + t.id}
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d={t.icon} />

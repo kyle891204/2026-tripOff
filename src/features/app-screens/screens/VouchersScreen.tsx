@@ -11,6 +11,7 @@ import { useToast } from '../parts/useToast'
 import { dateAt, type Plan, type Trip } from '../mock'
 import { allTrips, companionVouchers, getDemoState, hasVoucher, planPhase, setDemoState, soloTrips, tripPlans, useDemoState, type PlanPhase } from '../store'
 import type { ScreenProps } from '../types'
+import h from '@/features/demo/highlight.module.css'
 import styles from './VouchersScreen.module.css'
 
 type Sheet = 'mine' | 'companion'
@@ -121,7 +122,7 @@ export default function VouchersScreen({ go, toast: initialToast, overlay }: Scr
                 </h2>
                 <ul className={styles.card}>
                   {g.items.map(({ trip, plan }) => (
-                    <PlanRow key={plan.id} trip={trip} plan={plan} phase={planPhase(plan, trip, demo)} missing={!plan.owner && !hasVoucher(plan, demo)} onOpen={() => openPlan(trip, plan)} />
+                    <PlanRow key={plan.id} trip={trip} plan={plan} phase={planPhase(plan, trip, demo)} missing={!plan.owner && !hasVoucher(plan, demo)} fresh={plan.id.startsWith('shop-') && plan.id === demo.planId} onOpen={() => openPlan(trip, plan)} />
                   ))}
                 </ul>
               </section>
@@ -148,11 +149,12 @@ export default function VouchersScreen({ go, toast: initialToast, overlay }: Scr
   )
 }
 
-function PlanRow({ trip, plan, phase, missing, onOpen }: { trip: Trip; plan: Plan; phase: PlanPhase; missing: boolean; onOpen: () => void }) {
+/** fresh: 방금 상점에서 사서 내 일정에 들어온 일정 (강조) */
+function PlanRow({ trip, plan, phase, missing, fresh, onOpen }: { trip: Trip; plan: Plan; phase: PlanPhase; missing: boolean; fresh?: boolean; onOpen: () => void }) {
   const member = plan.owner ? trip.members.find((m) => m.name === plan.owner) : undefined
   return (
     <li>
-      <button type="button" className={cn(styles.row, phase === 'past' && styles.rowPast)} onClick={onOpen}>
+      <button type="button" className={cn(styles.row, phase === 'past' && styles.rowPast, fresh && h.fresh)} onClick={onOpen}>
         <span className={cn(styles.time, phase === 'live' && styles.timeLive)}>{plan.time}</span>
         <PlanIcon kind={plan.icon} agency={plan.source.kind === 'agency' ? plan.source.name : undefined} />
         <span className={styles.rowText}>

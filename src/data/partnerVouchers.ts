@@ -29,6 +29,8 @@ export interface Voucher {
   channel: string
   meeting: string
   history: Partial<Record<HistoryKey, string>>
+  /** 고객 앱 상점에서 결제한 바우처면, 고객 앱에 생긴 일정 id */
+  planId?: string
 }
 
 export const PARTNER_SAMPLE_VOUCHERS: Voucher[] = [

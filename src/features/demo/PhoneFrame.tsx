@@ -44,7 +44,7 @@ export default function PhoneFrame({ children, immersive = false, screenKey, sho
   }, [immersive, screenKey, showBottom])
 
   return (
-    <div className={immersive ? `${styles.frame} ${styles.immersive}` : styles.frame} ref={frameRef}>
+    <div className={immersive ? `${styles.frame} ${styles.immersive}` : styles.frame} ref={frameRef} data-phone>
       <div className={styles.viewport} ref={viewportRef}>
         <div className={styles.sizer}>
           <div className={styles.canvas}>{children}</div>

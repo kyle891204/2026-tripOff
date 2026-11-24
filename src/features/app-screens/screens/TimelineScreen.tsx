@@ -11,6 +11,7 @@ import { sourceLine, type Plan } from '../mock'
 import { hasVoucher, planPhase, setDemoState, tripPlans, useCurrentTrip, useDemoState } from '../store'
 import type { ScreenProps } from '../types'
 import styles from './TimelineScreen.module.css'
+import h from '@/features/demo/highlight.module.css'
 
 /** 스크롤 영역 시작 y (날짜 탭 아래). 카드 위치는 Figma y − 이 값 */
 const BODY_TOP = 212
@@ -62,12 +63,12 @@ export default function TimelineScreen({ go, toast: initialToast, overlay }: Pro
       <header className={styles.header}>
         <h1 className={styles.title} title={trip.name}>{trip.name}</h1>
         <div className={styles.headerActions}>
-          <button type="button" className={cn(styles.members, shared.tappable)} aria-label="함께 가는 사람" onClick={() => go('companions')}>
+          <button type="button" className={cn(styles.members, shared.tappable)} aria-label="함께 가는 사람" onClick={() => go('companions')} data-tap="go:companions">
             {trip.members.map((m) => (
               <Avatar key={m.name} label={m.label} name={m.name} tone={m.pending ? 'off' : m.tone} size={26} fontSize={12} ring={{ width: 2, color: 'var(--mist)' }} />
             ))}
           </button>
-          <button type="button" className={cn(styles.addBtn, shared.tappable)} onClick={add}>
+          <button type="button" className={cn(styles.addBtn, shared.tappable)} onClick={add} data-tap="go:voucher-import">
             + 바우처
           </button>
         </div>
@@ -96,7 +97,8 @@ export default function TimelineScreen({ go, toast: initialToast, overlay }: Pro
 
           {cards.map(({ plan, top, warnTop }) => {
             const agencyName = plan.source.kind === 'agency' ? plan.source.name : undefined
-            const justAdded = plan.sample && saved[trip.id]
+            // 방금 저장한 샘플 바우처, 방금 상점에서 사서 넣은 일정
+            const justAdded = (plan.sample && saved[trip.id]) || (plan.id.startsWith('shop-') && plan.id === demo.planId)
             const phase = planPhase(plan, trip, demo)
             return (
               <div key={plan.id}>
@@ -105,7 +107,7 @@ export default function TimelineScreen({ go, toast: initialToast, overlay }: Pro
                   <span className={cn(styles.dot, plan.conflict && styles.dotCoral)} aria-hidden />
                   <button
                     type="button"
-                    className={cn(styles.card, plan.conflict && styles.cardConflict, phase === 'live' && styles.cardLive, phase === 'past' && styles.cardPast, shared.tappable)}
+                    className={cn(styles.card, justAdded && h.fresh, plan.conflict && styles.cardConflict, phase === 'live' && styles.cardLive, phase === 'past' && styles.cardPast, shared.tappable)}
                     onClick={() => open(plan)}
                   >
                     <PlanIcon kind={plan.icon} coral={plan.conflict} agency={agencyName} />

@@ -29,6 +29,14 @@
   flex: 1;
   min-width: 0;
   overflow: hidden;
+  container-type: inline-size;
+}
+/* 오른쪽 시연 컨트롤러가 떠서 좁아지면 예약자·이용일·인원은 오른쪽 상세에서만 보여 준다 */
+@container (max-width: 640px) {
+  .table th:nth-child(2), .table td:nth-child(2),
+  .table th:nth-child(4), .table td:nth-child(4),
+  .table th:nth-child(5), .table td:nth-child(5) { display: none; }
+  .table th:first-child { width: 130px !important; }
 }
 .filters {
   display: flex;

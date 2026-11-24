@@ -1,0 +1,133 @@
+/* 시연 컨트롤러: /demo 와 파트너센터에서 같은 모양. 사이트 전역 토큰(--ink, --teal …)만 쓴다. */
+.panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 16px 48px rgb(19 40 44 / 0.1);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.eyebrow {
+  margin: 0;
+  height: 20px;
+  line-height: 20px;
+  color: var(--teal);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.eyebrow b { font-size: 14px; }
+
+/* 단계가 바뀔 때 제목·설명만 살짝 밀려 들어온다 */
+.hero {
+  min-height: 128px;
+  margin-top: 6px;
+  animation: slideIn 0.28s ease-out;
+}
+.hero h2 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.01em; word-break: keep-all; }
+.hero p { margin: 6px 0 0; color: var(--ink-sub); font-size: 13px; line-height: 1.6; word-break: keep-all; }
+.hint { display: block; width: fit-content; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 8px; padding: 2px 9px; border-radius: 999px; background: var(--teal-soft); color: var(--teal); font-size: 12px; font-weight: 700; }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(14px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero { animation: none; }
+}
+
+.nav {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 8px;
+}
+.nav button, .start {
+  height: 46px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.nav button:hover:not(:disabled) { background: var(--mist); }
+.nav .primary, .start {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #fff;
+}
+.nav .primary:hover:not(:disabled), .start:hover { background: var(--deep, #13282c); }
+.nav button:disabled { opacity: 0.35; cursor: default; }
+.start { width: 100%; font-size: 15px; }
+
+.bar {
+  height: 4px;
+  margin: 14px 0 2px;
+  border-radius: 2px;
+  background: var(--mist);
+  overflow: hidden;
+}
+.bar span { display: block; height: 100%; border-radius: 2px; background: var(--teal); transition: width 0.3s ease; }
+
+.group { margin-top: 6px; }
+.groupLabel {
+  margin: 0 0 2px;
+  padding-left: 8px;
+  color: var(--ink-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+.list { display: grid; gap: 1px; margin: 0; padding: 0; list-style: none; }
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 30px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--ink-sub);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+.item:hover { background: var(--mist); }
+.num {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--mist);
+  color: var(--ink-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+.done { color: var(--ink); }
+.done .num { background: var(--teal-soft); color: var(--teal); }
+.active, .active:hover { background: var(--teal-soft); color: var(--ink); font-weight: 700; }
+.active .num { background: var(--teal); color: #fff; }
+
+.now {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--mist);
+  color: var(--ink-sub);
+  font-size: 12px;
+}
+
+.options { margin-top: 10px; color: var(--ink-sub); font-size: 13px; }
+.options summary { padding: 4px 2px; cursor: pointer; }
+.options > div { display: grid; gap: 10px; padding-top: 8px; }

@@ -1,5 +1,11 @@
 .list {
   overflow: hidden;
+  container-type: inline-size;
+}
+/* 오른쪽 시연 컨트롤러가 떠서 좁아지면 덜 중요한 열(확인 방식·등록일)을 숨겨 상품명 자리를 확보 */
+@container (max-width: 1000px) {
+  .table th:nth-child(5), .table td:nth-child(5),
+  .table th:nth-child(6), .table td:nth-child(6) { display: none; }
 }
 .toolbar {
   display: flex;

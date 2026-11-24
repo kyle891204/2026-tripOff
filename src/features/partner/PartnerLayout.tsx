@@ -1,3 +1,4 @@
+import { useState, type CSSProperties } from 'react'
 import { Link, NavLink, Outlet } from 'react-router'
 import { useScrollToTop } from '@/hooks/useScrollToTop'
 import { ROUTES } from '@/lib/routes'
@@ -5,6 +6,7 @@ import { cn } from '@/lib/cn'
 import { ProductStoreContext, useProductStoreValue } from './productStore'
 import { VoucherStoreContext, useVoucherStoreValue } from './voucherStore'
 import { CompanyStoreContext, useCompanyStoreValue } from './companyStore'
+import PartnerDemoController from './PartnerDemoController'
 import styles from './PartnerLayout.module.css'
 
 const MENU: Array<{ label: string; to?: string }> = [
@@ -22,11 +24,13 @@ export default function PartnerLayout() {
   const productStore = useProductStoreValue()
   const voucherStore = useVoucherStoreValue()
   const companyStore = useCompanyStoreValue()
+  // 오른쪽 시연 컨트롤러 폭. 상품 등록 예시 버튼 등 오른쪽에 붙은 요소가 이만큼 비켜 선다.
+  const [flowOpen, setFlowOpen] = useState(true)
   return (
     <ProductStoreContext value={productStore}>
       <VoucherStoreContext value={voucherStore}>
         <CompanyStoreContext value={companyStore}>
-          <div className={styles.root}>
+          <div className={styles.root} style={{ '--flow-w': flowOpen ? '320px' : '0px' } as CSSProperties}>
             <aside className={styles.sidebar}>
               <div className={styles.sidebarInner}>
                 <div className={styles.brand}>
@@ -40,7 +44,7 @@ export default function PartnerLayout() {
                     {MENU.map(({ label, to }) => (
                       <li key={label}>
                         {to ? (
-                          <NavLink to={to} className={({ isActive }) => cn(styles.navItem, isActive && styles.active)}>
+                          <NavLink to={to} data-tap={'nav:' + to} className={({ isActive }) => cn(styles.navItem, isActive && styles.active)}>
                             {label}
                           </NavLink>
                         ) : (
@@ -58,6 +62,7 @@ export default function PartnerLayout() {
               </div>
             </aside>
             <Outlet />
+            <PartnerDemoController open={flowOpen} onOpenChange={setFlowOpen} />
           </div>
         </CompanyStoreContext>
       </VoucherStoreContext>

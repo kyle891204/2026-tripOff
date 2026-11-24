@@ -10,6 +10,7 @@ import { ME, NEXT_ENTRY, voucherOf } from '../mock'
 import { setDemoState, useCurrentPlan, useCurrentTrip } from '../store'
 import { detectImageQr, fileRecord } from '../voucherFiles'
 import type { ScreenProps } from '../types'
+import { StepAction } from '@/features/demo/stepAction'
 import styles from './ExtraDemoScreens.module.css'
 
 export function Page({ back, title, subtitle, children, tabGo }: {
@@ -60,7 +61,8 @@ export function VoucherImportScreen({ go, back }: ScreenProps) {
     <div className={styles.card}>
       <span className={styles.eyebrow}>먼저 체험해 보세요</span><div className={styles.fileRow}><span className={shared.iconBoxCoral}><IconTicketCoral /></span><div><h2>샘플 바우처</h2><p>{trip.sample.file}</p></div></div>
       <p className={styles.sub}>샘플은 추출 결과와 QR이 미리 준비돼 있어요.</p>
-      <div className={styles.buttons}><button className={styles.primary} onClick={() => { setDemoState({ draft: { kind: 'sample' } }); go('review') }}>샘플 바우처 사용</button></div>
+      <div className={styles.buttons}><button className={styles.primary} onClick={() => { setDemoState({ draft: { kind: 'sample' } }); go('review') }} data-tap="use-sample">샘플 바우처 사용</button></div>
+      {!busy && <StepAction scope="voucher-import" tap='[data-tap="use-sample"]' label="샘플 바우처 사용 →" hint="바우처 등록 1/2 · 원본 고르기" run={() => { setDemoState({ draft: { kind: 'sample' } }); go('review') }} />}
     </div>
   </Page>
 }
@@ -111,7 +113,7 @@ export function ProfileScreen({ go, back }: ScreenProps) {
       <button type="button" onClick={() => go('notifications')}><span>알림함</span><IconChevronRight /></button>
     </div>
     <div className={styles.menu} aria-label="계정 및 지원">
-      <button type="button" onClick={() => go('settings')}><span>보안 설정</span><IconChevronRight /></button>
+      <button type="button" onClick={() => go('settings')} data-tap="go:settings"><span>보안 설정</span><IconChevronRight /></button>
       <button type="button" title="시연용 버튼"><span>도움말 · 문의</span><IconChevronRight /></button>
       <button type="button" className={styles.logout} title="시연용 버튼 · 실제로 로그아웃되지 않아요"><span>로그아웃</span><IconChevronRight /></button>
     </div>

@@ -1,0 +1,87 @@
+/* 파트너센터 오른쪽 시연 컨트롤러 열. 본문을 가리지 않도록 레이아웃 안에 자리를 잡고, 스크롤해도 떠 있다. */
+.column {
+  flex: none;
+  width: var(--flow-w, 320px);
+  padding: 24px 20px 24px 0;
+}
+.sticky {
+  position: sticky;
+  top: 24px;
+}
+
+.option {
+  height: 34px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--mist);
+  color: var(--ink-sub);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.option:hover { color: var(--ink); }
+
+.pill {
+  position: fixed;
+  right: 20px;
+  bottom: 104px;
+  z-index: 40;
+  max-width: 280px;
+  height: 40px;
+  padding: 0 16px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 20px;
+  background: var(--ink);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgb(22 24 29 / 0.2);
+  cursor: pointer;
+}
+
+/* 고객 앱 미리보기: 컨트롤러 바로 왼쪽에 폰을 띄운다 */
+.phoneLayer {
+  position: fixed;
+  top: 50%;
+  right: calc(var(--flow-w, 320px) + 12px);
+  z-index: 50;
+  display: grid;
+  gap: 10px;
+  padding: 14px 14px 18px;
+  border-radius: 28px;
+  background: rgb(22 24 29 / 0.88);
+  box-shadow: 0 24px 70px rgb(22 24 29 / 0.35);
+  transform: translateY(-50%);
+  animation: rise 0.25s ease-out;
+}
+.phoneHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+}
+.phoneHead button {
+  border: 0;
+  background: transparent;
+  color: rgb(255 255 255 / 0.75);
+  font: inherit;
+  cursor: pointer;
+}
+.phoneHead button:hover { color: #fff; }
+.screen {
+  position: relative;
+  width: 393px;
+  height: var(--app-screen-height, 852px);
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translate(16px, -50%); }
+  to { opacity: 1; transform: translate(0, -50%); }
+}

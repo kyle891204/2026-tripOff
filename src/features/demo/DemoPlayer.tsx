@@ -1,10 +1,16 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router'
+import { Link, useNavigate, useSearchParams } from 'react-router'
 import { allTrips, getDemoState, setDemoState, useDemoState } from '@/features/app-screens/store'
 import { FloatingBack, SCREENS, SCREEN_BY_ID, resetDemoState, type GoOptions, type ScreenId } from '@/features/app-screens'
-import { cn } from '@/lib/cn'
 import { ROUTES } from '@/lib/routes'
 import PhoneFrame from './PhoneFrame'
+import FlowPanel from './FlowPanel'
+import { useStepAction } from './stepAction'
+import { tapKey, tapThen } from './tap'
+import { FLOW, isAppStep, type PartnerStep } from './demoFlow'
+import { resetPartnerProducts } from '@/features/partner/productStore'
+import { resetPartnerVouchers } from '@/features/partner/voucherStore'
+import { clearDemoNotifications } from '@/data/demoNotifications'
 import styles from './DemoPlayer.module.css'
 
 interface Nav {
@@ -17,8 +23,6 @@ interface Nav {
   nonce: number
 }
 
-const START: ScreenId = 'splash'
-
 /** 「시연 시각」 — 이 시각에 진행 중인 일정이 앱 곳곳에 「진행 중」으로 표시됨 (오사카 여행 기준) */
 const DEMO_TIMES: { value: string; label: string; day?: number }[] = [
   { value: '', label: '여행 전 · 6.7 일 (D-5)' },
@@ -27,14 +31,6 @@ const DEMO_TIMES: { value: string; label: string; day?: number }[] = [
   { value: '2026-06-12T18:50', label: '6.12 금 18:50 · 리버 크루즈', day: 0 },
   { value: '2026-06-13T13:30', label: '6.13 토 13:30 · 호즈강 뱃놀이', day: 1 },
   { value: '2026-06-14T11:30', label: '6.14 일 11:30 · 가이유칸 수족관', day: 2 },
-]
-
-const DEMO_STEPS: { title: string; description: string; entry: ScreenId; screens: ScreenId[] }[] = [
-  { title: '여행 확인', description: '여러 곳에서 예약한 일정을 하나의 여행에서 확인해요.', entry: 'home', screens: ['splash', 'app-lock', 'home', 'add-trip', 'timeline', 'plan', 'profile', 'settings', 'notifications', 'push-settings', 'past-trips', 'orders', 'order-detail'] },
-  { title: '바우처 등록', description: '샘플을 선택하고 예약 정보를 확인한 뒤, 한 번에 여행에 저장해요.', entry: 'voucher-import', screens: ['vouchers', 'add-voucher', 'voucher-import', 'review', 'voucher-original'] },
-  { title: '현장에서 사용', description: '다가오는 일정을 확인하고, 저장한 내 QR을 크게 열어요.', entry: 'trip-home', screens: ['trip-home', 'ticket', 'lock'] },
-  { title: '상점 둘러보기', description: '상품 선택부터 시연 결제, 일정 저장까지 확인해요.', entry: 'shop', screens: ['shop', 'shop-product', 'shop-checkout', 'favorites'] },
-  { title: '동행 관리', description: '동행을 초대하고 함께하는 일정과 정산 내역을 확인해요.', entry: 'companions', screens: ['companions', 'invite'] },
 ]
 
 /**
@@ -50,14 +46,26 @@ function nextHistory(n: Nav, id: ScreenId, options?: GoOptions): ScreenId[] {
 }
 
 /**
- * 시연 플레이어: 폰 안에서 직접 눌러 흐름대로 이동하거나,
- * 오른쪽 목록에서 원하는 화면으로 바로 점프.
- * 자체 뒤로 버튼이 없는 화면에는 앱 화면 안에 플로팅 뒤로가기를 띄운다.
+ * 시연 플레이어: 처음엔 폰이 닫혀 있고, 「시작하기」를 누르면 스플래시부터 시작.
+ * 오른쪽 컨트롤러의 「다음」으로 고객 앱 5단계를 넘기고, 이어서 파트너센터로 넘어간다.
+ * 폰 안에서 직접 눌러 이동해도 된다.
  */
 export default function DemoPlayer() {
   const [query] = useSearchParams()
+  const navigate = useNavigate()
   const inviteTrip = query.get('trip')
-  const [nav, setNav] = useState<Nav>(() => ({ current: inviteTrip && allTrips().some(t => t.id === inviteTrip) ? 'timeline' : START, history: [], nonce: 0 }))
+  // 파트너센터에서 「이전」으로 돌아오면 ?step=5 처럼 그 단계로 바로 연다
+  const stepParam = Number(query.get('step')) - 1
+  const resumeStep = isAppStep(FLOW[stepParam]) ? stepParam : -1
+  const invited = !!inviteTrip && allTrips().some(t => t.id === inviteTrip)
+
+  const [started, setStarted] = useState(invited || resumeStep >= 0)
+  const [index, setIndex] = useState(resumeStep)
+  const [nav, setNav] = useState<Nav>(() => ({
+    current: invited ? 'timeline' : isAppStep(FLOW[resumeStep]) ? FLOW[resumeStep].entry : 'splash',
+    history: resumeStep > 0 ? ['home'] : [],
+    nonce: 0,
+  }))
   useEffect(() => {
     if (inviteTrip && getDemoState().tripId !== inviteTrip && allTrips().some(t => t.id === inviteTrip)) setDemoState({ tripId: inviteTrip, dayIndex: 0, planId: undefined })
   }, [inviteTrip])
@@ -79,82 +87,79 @@ export default function DemoPlayer() {
     }))
   }, [])
 
-  const restart = () => {
-    resetDemoState()
-    setNav((n) => ({ current: START, history: [], nonce: n.nonce + 1 }))
+  const start = () => {
+    setStarted(true)
+    setIndex(-1)
+    setNav((n) => ({ current: 'splash', history: [], nonce: n.nonce + 1 }))
   }
 
+  const select = (i: number) => {
+    const step = FLOW[i]
+    // 파트너센터 단계: 같은 컨트롤러가 파트너센터 오른쪽에서 이어진다
+    if (!isAppStep(step)) {
+      const partner: PartnerStep = step
+      navigate('route' in partner ? partner.route : ROUTES.partnerProducts, { state: { flowStep: i } })
+      return
+    }
+    // 현장 사용처럼 시각이 중요한 단계는 시연 시각도 함께 맞춘다
+    if (step.demoNow !== undefined) setDemoState({ demoNow: step.demoNow || undefined, ...(step.day !== undefined ? { tripId: 'osaka', dayIndex: step.day } : {}) })
+    setStarted(true)
+    setIndex(i)
+    // 폰 화면에 그 기능으로 가는 버튼(탭·추가 버튼 등)이 보이면 누르는 모션 뒤에 이동
+    tapThen(tapKey('go:' + step.entry), () => go(step.entry))
+  }
+
+  const restart = () => {
+    resetDemoState()
+    resetPartnerProducts()
+    resetPartnerVouchers()
+    clearDemoNotifications()
+    setStarted(false)
+    setIndex(-1)
+    setNav((n) => ({ current: 'splash', history: [], nonce: n.nonce + 1 }))
+  }
+
+  // 바우처 등록처럼 화면 기능을 보여 줄 단계는 다음 버튼이 그 기능을 대신 실행
+  const action = useStepAction(index >= 0 ? FLOW[index].act : undefined)
   const demoNow = useDemoState().demoNow ?? ''
   const meta = SCREEN_BY_ID[nav.current]
   const { Component } = meta
-  const index = DEMO_STEPS.findIndex(step => step.screens.includes(nav.current))
 
   return (
     <div className={styles.root}>
       <PhoneFrame immersive screenKey={nav.nonce} showBottom={nav.current === 'add-voucher'}>
         <div className={styles.screen}>
-          <Component key={nav.nonce} go={go} back={back} toast={nav.toast} />
-          {meta.floatingBack && <FloatingBack key={`b-${nav.nonce}`} onClick={back} {...meta.floatingBack} />}
-
+          {started ? <>
+            <Component key={nav.nonce} go={go} back={back} toast={nav.toast} />
+            {meta.floatingBack && <FloatingBack key={`b-${nav.nonce}`} onClick={back} {...meta.floatingBack} />}
+          </> : (
+            <div className={styles.cover}>
+              <p className={styles.coverLogo}>TripOff</p>
+              <p className={styles.coverCopy}>예약은 따로, 관리는 한곳에서</p>
+              <button type="button" className={styles.coverStart} onClick={start}>시작하기</button>
+            </div>
+          )}
         </div>
       </PhoneFrame>
 
       <div className={styles.side}>
-        <p className={styles.step}>
-          핵심 시연 · {index + 1} / {DEMO_STEPS.length}
-        </p>
-        <h2 className={styles.title}>
-          예약부터 입장까지
-        </h2>
-        <p className={styles.caption}>네 가지 흐름으로 트립오프를 만나보세요.</p>
-
-        <ol className={styles.list}>
-          {DEMO_STEPS.map((s, i) => (
-            <li key={s.entry}>
-              <button
-                type="button"
-                className={cn(styles.item, i === index && styles.active)}
-                aria-current={i === index ? 'step' : undefined}
-                onClick={() => go(s.entry)}
-              >
-                <span className={styles.num}>{String(i + 1).padStart(2, '0')}</span>
-                <span className={styles.stepCopy}><strong>{s.title}</strong><span>{s.description}</span></span>
-              </button>
-            </li>
-          ))}
-        </ol>
-
-        <label className={styles.clock}>
-          <span>시연 시각</span>
-          <select value={demoNow} onChange={(e) => {
-            const t = DEMO_TIMES.find((x) => x.value === e.target.value)
-            // 고른 시각의 날짜로 타임라인도 맞춤
-            setDemoState({ demoNow: t?.value || undefined, ...(t?.day !== undefined ? { tripId: 'osaka', dayIndex: t.day } : {}) })
-          }}>
-            {DEMO_TIMES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-          </select>
-        </label>
-
-        <div className={styles.current} aria-live="polite"><span>지금 화면 · {meta.title}</span><p>{meta.caption}</p></div>
-
-        <div className={styles.nav}>
-          <button type="button" disabled={index <= 0} onClick={() => go(DEMO_STEPS[index - 1].entry)}>
-            이전 단계
-          </button>
-          <button
-            type="button"
-            className={styles.primary}
-            disabled={index >= DEMO_STEPS.length - 1}
-            onClick={() => go(DEMO_STEPS[index + 1].entry)}
-          >
-            다음 단계
-          </button>
-        </div>
-        <details className={styles.details}><summary>세부 화면 바로가기</summary><div className={styles.shortcuts}>{SCREENS.map(s => <button key={s.id} type="button" aria-current={s.id === nav.current ? 'page' : undefined} onClick={() => go(s.id)}>{s.title}</button>)}</div></details>
-        <button type="button" className={styles.restart} onClick={restart}>
-          ↻ 처음부터 다시
-        </button>
-        <p className={styles.hint}>폰 화면 안의 버튼·카드·탭도 모두 눌러 보세요.</p><Link className={styles.hint} to={ROUTES.partner}>관리자 화면(파트너센터) 보기 →</Link>
+        <FlowPanel index={index} started={started} onSelect={select} onStart={start} onRestart={restart} action={action} now={started ? meta.title : undefined}>
+          <label className={styles.clock}>
+            <span>시연 시각</span>
+            <select value={demoNow} onChange={(e) => {
+              const t = DEMO_TIMES.find((x) => x.value === e.target.value)
+              // 고른 시각의 날짜로 타임라인도 맞춤
+              setDemoState({ demoNow: t?.value || undefined, ...(t?.day !== undefined ? { tripId: 'osaka', dayIndex: t.day } : {}) })
+            }}>
+              {DEMO_TIMES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+            </select>
+          </label>
+          <div className={styles.shortcuts} aria-label="세부 화면 바로가기">
+            {SCREENS.map(s => <button key={s.id} type="button" aria-current={s.id === nav.current ? 'page' : undefined} onClick={() => { setStarted(true); go(s.id) }}>{s.title}</button>)}
+          </div>
+          <button type="button" className={styles.restart} onClick={restart}>↻ 처음부터 다시</button>
+          <Link className={styles.hint} to={ROUTES.partner}>파트너센터만 따로 보기 →</Link>
+        </FlowPanel>
       </div>
     </div>
   )

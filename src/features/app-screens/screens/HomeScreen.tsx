@@ -142,7 +142,7 @@ export default function HomeScreen({ go }: ScreenProps) {
         ))}
 
         {/* 맨 끝: 새 여행 만들기 */}
-        <button type="button" className={cn(styles.newTrip, shared.tappable)} onClick={() => go('add-trip')}>
+        <button type="button" className={cn(styles.newTrip, shared.tappable)} onClick={() => go('add-trip')} data-tap="go:add-trip">
           <span className={styles.newPlus} aria-hidden>
             +
           </span>

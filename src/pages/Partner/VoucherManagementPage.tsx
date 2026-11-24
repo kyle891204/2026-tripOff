@@ -12,6 +12,9 @@ import { cn } from '@/lib/cn'
 import { DEMO_AGENCY_TRIP_ID, DEMO_DELIVERY_ID, syncDemoDelivery } from '@/data/demoDelivery'
 import { pushDemoNotification } from '@/data/demoNotifications'
 import s from './VoucherManagementPage.module.css'
+import h from '@/features/demo/highlight.module.css'
+import { useProvideStepAction } from '@/features/demo/stepAction'
+import { tapKey } from '@/features/demo/tap'
 const WEEKDAY = ['일', '월', '화', '수', '목', '금', '토']
 
 const TABS: Array<{ key: 'all' | VoucherStatus; label: string }> = [
@@ -73,6 +76,18 @@ export default function VoucherManagementPage() {
   const markSent = (v: Voucher): Voucher => ({ ...v, status: 'sent', history: { ...v.history, sent: v.history.sent ?? stamp() } })
 
   const deliver = (v: Voucher, meeting = v.meeting) => {
+    // 고객 앱 상점에서 결제한 바우처: 고객 앱 일정은 이미 있으니 도착 알림만 보낸다
+    if (v.planId) {
+      try {
+        pushDemoNotification({
+          title: v.status === 'pending' ? '여행 바우처가 도착했어요' : '여행 일정이 변경됐어요',
+          body: `${v.product} · ${meeting}`,
+          tripId: 'solo-' + v.planId,
+          planId: v.planId,
+        })
+        return true
+      } catch { toast.show('저장소에 접근할 수 없어 고객 앱에 알리지 못했어요.'); return false }
+    }
     if (v.id !== DEMO_DELIVERY_ID) return true
     try {
       syncDemoDelivery({ id: v.id, title: v.product, date: v.date, time: v.option.match(/\d{2}:\d{2}/)?.[0] ?? '09:00', location: meeting, people: v.party })
@@ -109,6 +124,17 @@ export default function VoucherManagementPage() {
     toast.show(`${v.customer}님 ${v.party} 체크인 완료`)
     return true
   }
+
+  const send = (target: Voucher, meeting: string) => {
+    if (!deliver(target, meeting)) return
+    patch(target.id, (v) => ({ ...markSent({ ...v, meeting }), history: { ...v.history, sent: stamp(), viewed: undefined } }))
+    toast.show(target.id === DEMO_DELIVERY_ID || target.planId ? '고객 앱에 바우처 도착 알림을 보냈어요.' : '시연용 발송 상태를 갱신했어요.')
+  }
+  // 시연 컨트롤러의 다음 버튼: 선택한 발송 대기 바우처를 지금 발송
+  useProvideStepAction({
+    scope: 'vouchers', label: '지금 발송 →', hint: selected ? `${selected.customer}님 · ${selected.product}` : undefined,
+    tap: tapKey('send'), run: () => { if (selected) send(selected, selected.meeting) }, enabled: selected?.status === 'pending',
+  })
 
   return (
     <main className={p.main}>
@@ -185,7 +211,7 @@ export default function VoucherManagementPage() {
             </thead>
             <tbody>
               {visible.map((v) => (
-                <tr key={v.id} className={v.id === selectedId ? s.selected : undefined} onClick={() => setSelectedId(v.id)}>
+                <tr key={v.id} className={cn(v.id === selectedId && s.selected, v.planId && v.status === 'pending' && h.freshPartner)} onClick={() => setSelectedId(v.id)}>
                   <td>
                     <button className={s.link} onClick={() => setSelectedId(v.id)} aria-pressed={v.id === selectedId}>
                       {v.id}
@@ -218,11 +244,7 @@ export default function VoucherManagementPage() {
             key={selected.id}
             voucher={selected}
             onCheckIn={() => checkIn(selected.id)}
-            onResend={(meeting) => {
-              if (!deliver(selected, meeting)) return
-              patch(selected.id, (v) => ({ ...markSent({ ...v, meeting }), history: { ...v.history, sent: stamp(), viewed: undefined } }))
-              toast.show(selected.id === DEMO_DELIVERY_ID ? '시연 고객의 여행 지갑에 반영했어요.' : '시연용 발송 상태를 갱신했어요.')
-            }}
+            onResend={(meeting) => send(selected, meeting)}
             onCancel={() => {
               if (selected.id === DEMO_DELIVERY_ID) {
                 try { syncDemoDelivery(null) } catch { toast.show('고객 지갑에서 취소 내용을 반영하지 못했어요.'); return }
@@ -327,7 +349,7 @@ function VoucherDetail({ voucher: v, onCheckIn, onResend, onCancel }: DetailProp
           {v.status === 'used' ? '사용 완료된 바우처' : '사용 처리 (체크인)'}
         </Button>
         <div className={s.secondaryActions}>
-          <Button variant="secondary" disabled={closed || (!changed && v.status !== 'pending')} onClick={() => onResend(meeting.trim())}>
+          <Button variant="secondary" disabled={closed || (!changed && v.status !== 'pending')} onClick={() => onResend(meeting.trim())} data-tap="send">
             {v.status === 'pending' && !changed ? '지금 발송' : '수정 후 재발송'}
           </Button>
           <Button

@@ -15,10 +15,13 @@ import {
   useProductStore,
   useToast,
 } from '@/features/partner'
+import { useProvideStepAction } from '@/features/demo/stepAction'
+import { tapKey } from '@/features/demo/tap'
 import type { CodeType } from '@/data/partnerProducts'
 import { ROUTES } from '@/lib/routes'
 import { cn } from '@/lib/cn'
 import s from './ProductRegisterPage.module.css'
+import demoPhoto from '@/assets/photos/seongsan-canola.jpg'
 
 type Option = { id: number; name: string; adult: string; child: string; stock: string }
 type RefundRule = { id: number; days: string; percent: string }
@@ -42,6 +45,18 @@ const CODE_TYPES: Array<{ value: CodeType; title: string; sub: string }> = [
 ]
 
 let nextId = 3
+
+/** 시연용: 글자를 한 자씩 입력하는 것처럼 채운다 */
+function typeText(set: (value: string) => void, text: string, duration = Math.min(1400, 40 * text.length)) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { set(text); return }
+  const steps = Math.min(text.length, 36)
+  let i = 0
+  const timer = window.setInterval(() => {
+    i += 1
+    set(text.slice(0, Math.ceil((text.length * i) / steps)))
+    if (i >= steps) window.clearInterval(timer)
+  }, duration / steps)
+}
 
 function formatDate(value: string) {
   if (!value) return '2026.00.00 (요일)'
@@ -145,6 +160,18 @@ export default function ProductRegisterPage() {
   const refundSummary = firstRule ? `이용 ${firstRule.days}일 전까지 ${firstRule.percent}% 환불` : '[취소 규정]'
   const optionName = options.find((o) => o.name.trim())?.name.trim() || '[옵션명]'
 
+  /** 시연용: 대표 사진도 함께 넣는다 (직접 고른 사진이 있으면 건너뜀). */
+  const attachDemoPhoto = async () => {
+    if (images.length) return
+    try {
+      const blob = await (await fetch(demoPhoto)).blob()
+      const file = new File([blob], 'seongsan-canola.jpg', { type: 'image/jpeg' })
+      const url = URL.createObjectURL(file)
+      imageUrls.current.add(url)
+      setImages(prev => prev.length ? prev : [{ id: nextId++, url, name: file.name, file }])
+    } catch { /* 사진 없이도 등록은 된다 */ }
+  }
+
   /** 시연용: 다음 섹션에 예시 데이터를 한 번에 채우고 그 섹션으로 스크롤한다. */
   const fillNextDemoStep = () => {
     if (demoStep >= DEMO_STEPS.length) {
@@ -153,13 +180,14 @@ export default function ProductRegisterPage() {
     }
     switch (demoStep) {
       case 0:
-        setName('서귀포 쇠소깍 투명카약 & 정방폭포 반일 투어')
+        typeText(setName, '성산일출봉 유채꽃길 & 광치기해변 반일 투어')
         setCategory('투어·가이드')
         setRegion('제주 서귀포시')
         setDuration('약 3시간 30분')
-        setIntro(
-          '쇠소깍 계곡에서 투명카약을 30분 동안 타고, 전용 차량으로 정방폭포와 이중섭거리를 둘러보는 최대 12명 소규모 투어예요. 카약 이용료, 구명조끼, 전문 가이드, 차량이 모두 포함돼 있어요.',
+        typeText(setIntro,
+          '노란 유채꽃밭 너머로 성산일출봉을 바라보며 걷고, 광치기해변과 섭지코지까지 전용 차량으로 둘러보는 최대 12명 소규모 투어예요. 전문 가이드, 차량, 사진 촬영이 모두 포함돼 있어요.',
         )
+        void attachDemoPhoto()
         break
       case 1:
         setOptions([
@@ -179,10 +207,10 @@ export default function ProductRegisterPage() {
         setCodeType('qr')
         setSendTiming('예약 확정 즉시')
         setValidity('선택한 이용일 당일만')
-        setMeetPlace('쇠소깍 공영주차장 카약 매표소 앞')
+        typeText(setMeetPlace, '성산일출봉 주차장 A구역 매표소 앞')
         setMeetTime('출발 20분 전')
         setContact('010-2468-1357')
-        setNotice('젖어도 되는 옷과 여벌 옷을 챙겨 주세요. 파고 1.5m 이상이면 카약 대신 서귀포 매일올레시장 일정으로 바뀌고, 차액은 현장에서 환불해 드려요.')
+        typeText(setNotice, '바닷바람이 강하니 겉옷을 챙겨 주세요. 기상 악화로 해안 일정이 어려우면 성산 오름 산책으로 바뀌고, 차액은 현장에서 환불해 드려요.')
         break
       case 4:
         setRules([
@@ -195,7 +223,7 @@ export default function ProductRegisterPage() {
     const target = DEMO_STEPS[demoStep]
     setDemoStep(demoStep + 1)
     setFlashId(target.id)
-    window.setTimeout(() => setFlashId((cur) => (cur === target.id ? null : cur)), 1600)
+    window.setTimeout(() => setFlashId((cur) => (cur === target.id ? null : cur)), 2400)
     requestAnimationFrame(() => document.getElementById(target.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
   }
 
@@ -238,8 +266,19 @@ export default function ProductRegisterPage() {
     }
   }
 
+  // 시연 컨트롤러의 「다음」 버튼이 한 섹션씩 예시를 채우고, 다 채우면 등록한다
+  const filled = demoStep >= DEMO_STEPS.length
+  useProvideStepAction({
+    scope: 'product-new',
+    label: isSaving ? '등록하는 중…' : filled ? '등록하기 →' : `${DEMO_STEPS[demoStep].label} 채우기 →`,
+    hint: filled ? '모든 항목을 채웠어요' : `예시 데이터 ${demoStep}/${DEMO_STEPS.length}`,
+    // 채우는 동안은 입력 모션만, 다 채웠으면 위쪽 「등록」 버튼을 마우스로 클릭하는 모션
+    tap: filled ? tapKey('register') : undefined,
+    run: () => fillNextDemoStep(),
+  })
+
   return (
-    <main className={p.main}>
+    <main className={cn(p.main, s.page)}>
       <header className={p.header}>
         <div className={p.headerTitle}>
           <p className={p.crumb}>
@@ -254,19 +293,19 @@ export default function ProductRegisterPage() {
           <Button variant="secondary" disabled={isSaving} onClick={() => navigate(ROUTES.partnerProducts)}>
             취소
           </Button>
-          <Button variant="primary" disabled={isSaving} onClick={register}>
+          <Button variant="primary" disabled={isSaving} onClick={register} data-tap="register">
             {isSaving ? '사진 저장 중…' : '등록'}
           </Button>
         </div>
       </header>
 
-      <div className={p.body}>
+      <div className={cn(p.body, s.layout)}>
         <div className={p.stack}>
           <Card id="section-basic" highlighted={flashId === 'section-basic'} title="1. 기본 정보" description="고객 앱 상품 카드와 바우처 상단에 표시됩니다.">
             <Field label="상품명 *" htmlFor="p-name">
               <input id="p-name" ref={nameRef} className={p.input} placeholder="예: 제주 동부 오름 트레킹 반일 투어" value={name} onChange={(e) => setName(e.target.value)} />
             </Field>
-            <div className={p.row}>
+            <div className={cn(p.row, s.wrapRow)}>
               <Field label="카테고리 *" htmlFor="p-category">
                 <select id="p-category" className={p.input} value={category} onChange={(e) => setCategory(e.target.value)}>
                   {['투어·가이드', '액티비티', '입장권', '교통', '숙박'].map((c) => (
@@ -367,7 +406,7 @@ export default function ProductRegisterPage() {
           </Card>
 
           <Card id="section-schedule" highlighted={flashId === 'section-schedule'} title="3. 운영 일정">
-            <div className={p.row}>
+            <div className={cn(p.row, s.wrapRow)}>
               <Field label="판매 시작일" htmlFor="p-start">
                 <input id="p-start" type="date" className={p.input} value={saleStart} max={saleEnd || undefined} onChange={(e) => setSaleStart(e.target.value)} />
               </Field>
@@ -387,7 +426,7 @@ export default function ProductRegisterPage() {
                 ))}
               </div>
             </div>
-            <div className={p.row}>
+            <div className={cn(p.row, s.wrapRow)}>
               <Field label="예약 마감" htmlFor="p-deadline">
                 <select id="p-deadline" className={p.input} value={deadline} onChange={(e) => setDeadline(e.target.value)}>
                   {['이용 전날 18:00까지', '이용 당일 09:00까지', '이용 2일 전까지'].map((v) => (
@@ -421,7 +460,7 @@ export default function ProductRegisterPage() {
                 ))}
               </div>
             </fieldset>
-            <div className={p.row}>
+            <div className={cn(p.row, s.wrapRow)}>
               <Field label="발송 시점" htmlFor="p-send">
                 <select id="p-send" className={p.input} value={sendTiming} onChange={(e) => setSendTiming(e.target.value)}>
                   {['예약 확정 즉시', '이용 전날 09:00'].map((v) => (
@@ -440,7 +479,7 @@ export default function ProductRegisterPage() {
             <Field label="집결 장소 *" htmlFor="p-meet">
               <input id="p-meet" className={p.input} placeholder="예: 성산일출봉 주차장 A구역 매표소 앞" value={meetPlace} onChange={(e) => setMeetPlace(e.target.value)} />
             </Field>
-            <div className={p.row}>
+            <div className={cn(p.row, s.wrapRow)}>
               <Field label="집결 시간" htmlFor="p-meet-time">
                 <input id="p-meet-time" className={p.input} placeholder="예: 출발 15분 전" value={meetTime} onChange={(e) => setMeetTime(e.target.value)} />
               </Field>
@@ -528,25 +567,6 @@ export default function ProductRegisterPage() {
           <p className={p.hint}>예약자 이름, 인원, 이용일은 예약 시 자동으로 채워집니다.</p>
         </aside>
       </div>
-      <button
-        type="button"
-        className={cn(s.demoFab, demoStep >= DEMO_STEPS.length && s.demoFabDone)}
-        onClick={fillNextDemoStep}
-        aria-label={demoStep < DEMO_STEPS.length ? `시연용 예시 데이터 채우기: ${DEMO_STEPS[demoStep].label}` : '예시 상품 등록하기'}
-      >
-        <span className={s.demoFabText}>
-          <small>{demoStep < DEMO_STEPS.length ? `시연 ${demoStep + 1}/${DEMO_STEPS.length} · 예시 데이터` : '모든 항목을 채웠어요'}</small>
-          <strong>{demoStep < DEMO_STEPS.length ? `${DEMO_STEPS[demoStep].label} 채우기` : '등록하기'}</strong>
-          <span className={s.demoDots} aria-hidden="true">
-            {DEMO_STEPS.map((step, i) => (
-              <span key={step.id} className={i < demoStep ? s.on : undefined} />
-            ))}
-          </span>
-        </span>
-        <span className={s.demoFabArrow} aria-hidden="true">
-          →
-        </span>
-      </button>
       {toast.node}
     </main>
   )

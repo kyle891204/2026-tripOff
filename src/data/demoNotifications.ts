@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react'
-import { allTrips, setDemoState, tripPlans } from '@/features/app-screens/store'
+import { allTrips, setDemoState, soloTrips, tripPlans } from '@/features/app-screens/store'
 import type { ScreenProps } from '@/features/app-screens/types'
 
 const key = 'tripoff.notifications.v1'
@@ -42,6 +42,11 @@ export function pushDemoNotification(input: Omit<DemoNotification, 'id' | 'creat
   save([next, ...snapshot()].slice(0, 30))
 }
 
+/** 시연 처음 상태로 */
+export function clearDemoNotifications() {
+  save([])
+}
+
 function subscribe(onChange: () => void) {
   const storage = (e: StorageEvent) => { if (e.key === key || e.key === null) onChange() }
   window.addEventListener(event, onChange)
@@ -58,7 +63,10 @@ export function useDemoNotifications() {
 
 export function openDemoNotification(notification: DemoNotification, go: ScreenProps['go']) {
   save(snapshot().map(row => row.id === notification.id ? { ...row, read: true } : row))
-  const trip = allTrips().find(row => row.id === notification.tripId)
+  // 여행 밖 일정을 여행에 넣었으면 tripId가 바뀌므로, 일정 id로 다시 찾는다
+  const trips = [...allTrips(), ...soloTrips()]
+  const trip = trips.find(row => row.id === notification.tripId && tripPlans(row).some(p => p.id === notification.planId))
+    ?? trips.find(row => tripPlans(row).some(p => p.id === notification.planId))
   const plan = trip && tripPlans(trip).find(row => row.id === notification.planId)
   if (!trip || !plan) {
     go('notifications', { toast: '이 일정은 아직 저장되지 않았거나 취소됐어요.' })

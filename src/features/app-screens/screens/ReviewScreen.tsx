@@ -8,6 +8,7 @@ import { useToast } from '../parts/useToast'
 import { dateAt, voucherOf, type Plan, type Trip } from '../mock'
 import { addPlan, addSoloPlan, editPlan, getDemoState, setDemoState, setSoloDate, todayIso, tripsOn, useCurrentPlan, useCurrentTrip, useDemoState } from '../store'
 import type { ScreenProps } from '../types'
+import { StepAction } from '@/features/demo/stepAction'
 import styles from './ReviewScreen.module.css'
 import sheet from './VouchersScreen.module.css'
 
@@ -70,9 +71,11 @@ export default function ReviewScreen({ go, back }: ScreenProps) {
       return
     }
     const target = mode === 'new' ? (isSample ? samplePlan : undefined) : plan
-    if (target) editPlan(target.id, values)
-    if (target && freeDate) setSoloDate(target.id, date)
-    else addPlan(trip.id, { ...values, id: crypto.randomUUID(), icon: 'ticket', source: { kind: 'self', via: draft?.kind === 'file' ? '첨부 파일' : '직접 입력' } })
+    // 기존 일정이 있으면 고치고, 없을 때만 새로 추가 (둘 다 하면 같은 일정이 두 번 생김)
+    if (target) {
+      editPlan(target.id, values)
+      if (freeDate) setSoloDate(target.id, date)
+    } else addPlan(trip.id, { ...values, id: crypto.randomUUID(), icon: 'ticket', source: { kind: 'self', via: draft?.kind === 'file' ? '첨부 파일' : '직접 입력' } })
     if (mode === 'new') {
       setDemoState({ saved: { ...s.saved, ...(isSample ? { [trip.id]: true } : {}) }, dayIndex: day, voucherTarget: undefined, draft: undefined })
       go('timeline', { toast: `${title} · 「${trip.name}」에 저장했어요` })
@@ -167,7 +170,9 @@ export default function ReviewScreen({ go, back }: ScreenProps) {
         {isSample ? `${people} 예약 · 샘플 정보가 준비됐어요. 필요하면 수정할 수 있어요.` : '원본과 비교해 값을 입력해 주세요.'}
       </p>
 
-      <button type="button" className={cn(shared.cta, shared.ctaTeal, shared.tappable)} onClick={save}>
+      {/* 시연 컨트롤러의 다음 버튼: 저장 (여행에 넣을지 묻는 중이면 첫 여행에 넣기) */}
+      <StepAction scope="review" tap={ask ? '[data-tap="put-trip"]' : '[data-tap="save-voucher"]'} label={ask ? '여행에 넣기 →' : '여행에 저장 →'} hint="바우처 등록 2/2 · 확인하고 저장" run={() => (ask ? putInTrip(ask.trips[0], ask.plan) : save())} />
+      <button type="button" className={cn(shared.cta, shared.ctaTeal, shared.tappable)} onClick={save} data-tap="save-voucher">
         {mode === 'edit'
           ? changed
             ? '수정 저장'
@@ -189,7 +194,7 @@ export default function ReviewScreen({ go, back }: ScreenProps) {
             <h2 className={sheet.sheetTitle}>「{ask.trips[0].name}」 여행 기간이에요</h2>
             <p className={sheet.sheetSub}>{date.slice(5).replace('-', '.')} 일정이에요. 이 여행에 넣으면 여행 타임라인과 티켓에서 함께 볼 수 있어요.</p>
             {ask.trips.map((t) => (
-              <button key={t.id} type="button" className={cn(sheet.next, shared.tappable)} onClick={() => putInTrip(t, ask.plan)}>「{t.name}」 여행에 넣기</button>
+              <button key={t.id} type="button" className={cn(sheet.next, shared.tappable)} onClick={() => putInTrip(t, ask.plan)} data-tap="put-trip">「{t.name}」 여행에 넣기</button>
             ))}
             <button type="button" className={cn(styles.keepSolo, shared.tappable)} onClick={() => keepSolo(ask.plan)}>여행에 넣지 않고 따로 보관</button>
           </div>
